@@ -1,74 +1,40 @@
-local player_weapon_speed = 0
-local target_weapon_speed = 0
-local in_combat = false
-local class = "Undefined"
+player_weapon_speed = 0
+target_weapon_speed = 0
+in_combat = false
+class = "Undefined"
 
-local wst_frame = WSTConfigButtonFrame
-
--- Registering the events
-wst_frame:RegisterEvent("ADDON_LOADED")
-wst_frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-wst_frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-wst_frame:RegisterEvent("PLAYER_TARGET_CHANGED")
-wst_frame:RegisterEvent("UNIT_COMBAT")
-
-local function AddonLoaded()
-    class = UnitClass("player")
+local function OnPlayerRegenDisabled()
+    WSTSwingFrame:Show()
 end
 
-local function PlayerRegenEnabled()
-    wst_frame:Show()
-    player_weapon_speed, _ = UnitAttackSpeed("player")
-    target_weapon_speed, _ = UnitAttackSpeed("target")
+local function OnPlayerRegenEnabled()
+    WSTSwingFrame:Hide()
 end
 
-local function PlayerRegenDisabled()
-    wst_frame:Hide()
-end
-
-local function PlayerTargetChanged()
-    print("PlayerTargetChanged")
-end
-
-local function UnitCombat()
-    print("UnitCombat")
-end
-
-local function WST_EventHandler(self, event, ...)
-    print(event)
---[[
-    if (event == "ADDON_LOADED") then
-        AddonLoaded()
+function LeftHandedGlove_WST_OnEvent(event, ...)
+    if (event == "PLAYER_REGEN_DISABLED") then
+        OnPlayerRegenDisabled()
     elseif (event == "PLAYER_REGEN_ENABLED") then
-        PlayerRegenEnabled()
-    elseif (event == "PLAYER_REGEN_DISABLED") then
-        PlayerRegenDisabled()
-    elseif (event == "PLAYER_TARGET_CHANGED") then
-        PlayerTargetChanged()
-    elseif (event == "UNIT_COMBAT") then
-        UnitCombat()
+        OnPlayerRegenEnabled()
     end
-]]--
 end
 
-local function UpdateHandler(self, elapsed)
-    -- print(elapsed)
+function LeftHandedGlove_WST_OnLoad()
+    
+    WSTSwingFrame:RegisterEvent("ADDON_LOADED")
+    WSTSwingFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	WSTSwingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    WSTSwingFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+    WSTSwingFrame:RegisterEvent("UNIT_COMBAT")
+    DEFAULT_CHAT_FRAME:AddMessage("WeaponSwingTimer by LeftHandedGlove Loaded.")
 end
 
---wst_frame:SetScript("OnEvent", EventHandler)
---wst_frame:SetScript("OnUpdate", UpdateHandler)
-
-
-local function toggle_config_menu()
-    print("Toggling Weapon Swing Timer Config Menu.")
-    local mainHandSpeed, offhandSpeed = UnitAttackSpeed("player")
-    local targetMainHandSpeed, targetOffHandSpeed = UnitAttackSpeed("target")
-    print(mainHandSpeed)
-    print(offhandSpeed)
-    print(targetMainHandSpeed)
-    print(targetOffHandSpeed)
+function LeftHandedGlove_WST_OnUpdate(duration)
+    -- print("Update")
 end
 
 SLASH_WEAPONSWINGTIMER_CONFIG1 = "/wst"
-SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = toggle_config_menu
+SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = function()
+    print("Howdy!")
+end
     

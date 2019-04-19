@@ -1,0 +1,7 @@
+## Interface: 80100
+## Title: WeaponSwingTimer
+## Author: LHandedGlove
+## Version: 0.1
+
+WeaponSwingTimer.xml
+WeaponSwingTimer.lua

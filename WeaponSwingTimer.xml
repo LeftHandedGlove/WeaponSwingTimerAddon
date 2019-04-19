@@ -1,0 +1,32 @@
+
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Script file="WeaponSwingTimer.lua"/>
+    <Frame name="WSTConfigButtonFrame">
+        <Scripts>
+            <OnLoad>
+            </OnLoad>
+            <OnUpdate>
+            </OnUpdate>
+            <OnEvent>
+                WST_EventHandler(event, ...)
+            </OnEvent>
+            
+        </Scripts>
+        <Size>
+            <AbsDimension x="200" y="100"/>
+        </Size>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Backdrop bgFile="Interface\CHARACTERFRAME\BarFill" tile="true">
+            <BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32"/>
+			</TileSize>
+        </Backdrop>
+    </Frame>
+</Ui>

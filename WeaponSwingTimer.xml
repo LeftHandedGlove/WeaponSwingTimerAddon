@@ -3,13 +3,13 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
     <Script file="WeaponSwingTimer.lua"/>
-    <Frame name="WSTSwingFrame" hidden="true">
+    <Frame name="WSTSwingFrame" parent="UIParent" hidden="false">
         <Scripts>
             <OnLoad>
                 LeftHandedGlove_WST_OnLoad()
             </OnLoad>
             <OnUpdate>
-                LeftHandedGlove_WST_OnUpdate(duration)
+                LeftHandedGlove_WST_OnUpdate(elapsed)
             </OnUpdate>
             <OnEvent>
                 LeftHandedGlove_WST_OnEvent(event, ...)

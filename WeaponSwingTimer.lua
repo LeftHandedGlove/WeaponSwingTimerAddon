@@ -15,7 +15,7 @@ local function ResetPlayerSwingTimer()
 end
 
 local function ResetTargetSwingTimer()
-    target_swing_timer = target_weapon_speed_weapon_speed
+    target_swing_timer = target_weapon_speed
 end
 
 local function UpdatePlayerWeaponSpeed()
@@ -26,13 +26,25 @@ local function UpdateTargetWeaponSpeed()
     target_weapon_speed, _ = UnitAttackSpeed("target")
 end
 
-local function UpdateSwingFrame()
+local function UpdatePlayerSwingFrame()
     if (in_combat) then
-        WSTSwingFrame:Show()
+        WSTPlayerSwingFrame:Show()
+        WSTTargetSwingFrame:Show()
         width = 200 * (player_swing_timer / player_weapon_speed)
-        WSTSwingFrame:SetWidth(width)
+        WSTPlayerSwingTimerTexture:SetWidth(width)
     else
-        WSTSwingFrame:Hide()
+        WSTPlayerSwingFrame:Hide()
+        WSTTargetSwingFrame:Hide()
+    end
+end
+
+local function UpdateTargetSwingFrame()
+    if (in_combat) then
+        WSTTargetSwingFrame:Show()
+        width = 200 * (target_swing_timer / target_weapon_speed)
+        WSTTargetSwingTimerTexture:SetWidth(width)
+    else
+        WSTTargetSwingFrame:Hide()
     end
 end
 
@@ -48,10 +60,12 @@ function LeftHandedGlove_WST_OnEvent(event, ...)
         print("Addon Loaded: TODO")
     elseif (event == "PLAYER_REGEN_ENABLED") then
         in_combat = false
-        UpdateSwingFrame()
+        UpdatePlayerSwingFrame()
+        UpdateTargetSwingFrame()
     elseif (event == "PLAYER_REGEN_DISABLED") then
         in_combat = true
-        UpdateSwingFrame()
+        UpdatePlayerSwingFrame()
+        UpdateTargetSwingFrame()
     elseif (event == "PLAYER_TARGET_CHANGED") then
         print("Player Target Changed: TODO")
         UpdateTargetWeaponSpeed()
@@ -61,17 +75,24 @@ function LeftHandedGlove_WST_OnEvent(event, ...)
             CombatLogGetCurrentEventInfo()
         if (source_guid == player_guid) then
             if (event == "SWING_DAMAGE") then
-                print("Player Swing Hit")
                 ResetPlayerSwingTimer()
             elseif (event == "SWING_MISSED") then
-                print("Player Swing Missed")
+                ResetPlayerSwingTimer()
             elseif (event == "SPELL_DAMAGE") then
-                print("Player Spell Hit")
+                print("Player Spell Hit: TODO")
             elseif (event == "SPELL_MISSED") then
-                print("Player Spell Missed")
+                print("Player Spell Missed: TODO")
             end
         elseif (source_guid == target_guid) then
-            print (event .. "   target hit")
+            if (event == "SWING_DAMAGE") then
+                ResetTargetSwingTimer()
+            elseif (event == "SWING_MISSED") then
+                ResetTargetSwingTimer()
+            elseif (event == "SPELL_DAMAGE") then
+                print("Target Spell Hit: TODO")
+            elseif (event == "SPELL_MISSED") then
+                print("Target Spell Missed: TODO")
+            end
         end
         
     elseif (event == "UNIT_INVENTORY_CHANGED") then
@@ -83,23 +104,33 @@ function LeftHandedGlove_WST_OnEvent(event, ...)
 end
 
 function LeftHandedGlove_WST_OnLoad()
-    WSTSwingFrame:RegisterEvent("ADDON_LOADED")
-    WSTSwingFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	WSTSwingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-    WSTSwingFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-    WSTSwingFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    WSTSwingFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+    WSTPlayerSwingFrame:RegisterEvent("ADDON_LOADED")
+    WSTPlayerSwingFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	WSTPlayerSwingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    WSTPlayerSwingFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+    WSTPlayerSwingFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    WSTPlayerSwingFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
     DEFAULT_CHAT_FRAME:AddMessage("WeaponSwingTimer by LeftHandedGlove Loaded.")
 end
 
-function LeftHandedGlove_WST_OnUpdate(elapsed)
+function LeftHandedGlove_WST_TargetOnUpdate(elapsed)
+    if (target_swing_timer > 0) then
+        target_swing_timer = target_swing_timer - elapsed
+        if (target_swing_timer < 0) then
+            target_swing_timer = 0
+        end
+    end
+    UpdateTargetSwingFrame()
+end
+
+function LeftHandedGlove_WST_PlayerOnUpdate(elapsed)
     if (player_swing_timer > 0) then
         player_swing_timer = player_swing_timer - elapsed
         if (player_swing_timer < 0) then
             player_swing_timer = 0
         end
     end
-    UpdateSwingFrame()
+    UpdatePlayerSwingFrame()
 end
 
 --[[ ===================================== Slash Commands ===================================== ]]--

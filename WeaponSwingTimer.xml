@@ -1,114 +1,84 @@
-
 <Ui xmlns="http://www.blizzard.com/wow/ui/"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
     <Script file="WeaponSwingTimer.lua"/>
-    <Frame name="WSTPlayerSwingFrame" parent="UIParent" hidden="true" enableMouse="true" movable="true">
+    <Frame name="LeftHandedGlove_WST_main_frame" parent="UIParent" 
+    hidden="false" enableMouse="true" movable="true">
         <Scripts>
             <OnLoad>
                 LeftHandedGlove_WST_OnLoad()
                 self:RegisterForDrag("LeftButton")
             </OnLoad>
             <OnUpdate>
-                LeftHandedGlove_WST_PlayerOnUpdate(elapsed)
+                LeftHandedGlove_WST_OnUpdate(elapsed)
             </OnUpdate>
             <OnEvent>
                 LeftHandedGlove_WST_OnEvent(event, ...)
             </OnEvent>
             <OnDragStart>
-                self:StartMoving()
+                if not self.is_locked then
+                    self:StartMoving()
+                end
             </OnDragStart>
             <OnDragStop>
                 self:StopMovingOrSizing()
             </OnDragStop>
-            
         </Scripts>
         <Size>
-            <AbsDimension x="200" y="8"/>
+            <AbsDimension x="200" y="20"/>
         </Size>
         <Anchors>
             <Anchor point="CENTER">
                 <Offset>
-                    <RelDimension x="0" y="-0.1"/>
+                    <AbsDimension x="0" y="-150"/>
                 </Offset>
             </Anchor>
         </Anchors>
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture name="WSTPlayerSwingTimerTexture">
-                    <Size>
-                        <AbsDimension x="194" y="2"/>
-                    </Size>
-                    <Color a="1" r="0.5" g="1" b="0.5"/>
-                    <Anchors>
-                        <Anchor point="LEFT">
-                            <Offset>
-                                <AbsDimension x="3" y="0"/>
-                            </Offset>
-                        </Anchor>
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
         <Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground"
         edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
             <EdgeSize val="8"/>
             <TileSize val="32"/>
-            <BackgroundInsets left="4" right="4" top="4" bottom="4"/>
+            <BackgroundInsets left="2" right="2" top="2" bottom="2"/>
         </Backdrop>
-    </Frame>
-    <Frame name="WSTTargetSwingFrame" parent="UIParent" hidden="true" enableMouse="true" movable="true">
-        <Scripts>
-            <OnLoad>
-                LeftHandedGlove_WST_OnLoad()
-                self:RegisterForDrag("LeftButton")
-            </OnLoad>
-            <OnUpdate>
-                LeftHandedGlove_WST_TargetOnUpdate(elapsed)
-            </OnUpdate>
-            <OnEvent>
-                LeftHandedGlove_WST_OnEvent(event, ...)
-            </OnEvent>
-            <OnDragStart>
-                self:StartMoving()
-            </OnDragStart>
-            <OnDragStop>
-                self:StopMovingOrSizing()
-            </OnDragStop>
-            
-        </Scripts>
-        <Size>
-            <AbsDimension x="200" y="8"/>
-        </Size>
-        <Anchors>
-            <Anchor point="CENTER">
-                <Offset>
-                    <RelDimension x="0" y="-0.1075"/>
-                </Offset>
-            </Anchor>
-        </Anchors>
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture name="WSTTargetSwingTimerTexture">
-                    <Size>
-                        <AbsDimension x="194" y="2"/>
-                    </Size>
-                    <Color a="1" r="1" g="0.5" b="0.5"/>
-                    <Anchors>
-                        <Anchor point="LEFT">
-                            <Offset>
-                                <AbsDimension x="3" y="0"/>
-                            </Offset>
-                        </Anchor>
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground"
-        edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-            <EdgeSize val="8"/>
-            <TileSize val="32"/>
-            <BackgroundInsets left="4" right="4" top="4" bottom="4"/>
-        </Backdrop>
+        <Frames>
+            <Frame name="LeftHandedGlove_WST_player_frame" hidden="false">
+                <Size>
+                    <AbsDimension x="192" y="5"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="4" y="-4"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture name="LeftHandedGlove_WST_player_frame_texture" setAllPoints="true">
+                            <Color a="1" r="0.5" g="1" b="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame name="LeftHandedGlove_WST_target_frame" hidden="false">
+                <Size>
+                    <AbsDimension x="192" y="5"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset>
+                            <AbsDimension x="4" y="4"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture name="LeftHandedGlove_WST_target_frame_texture" setAllPoints="true">
+                            <Color a="1" r="1" g="0.5" b="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
     </Frame>
 </Ui>

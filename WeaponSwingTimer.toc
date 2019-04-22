@@ -2,6 +2,7 @@
 ## Title: WeaponSwingTimer
 ## Author: LHandedGlove
 ## Version: 0.1
+## SavedVariablesPerCharacter: LeftHandedGlove_WST_Settings
 
 WeaponSwingTimer.xml
 WeaponSwingTimer.lua

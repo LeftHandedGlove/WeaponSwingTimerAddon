@@ -3,7 +3,8 @@ local config_frame
 
 LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     -- Setup the config frame
-    config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
+    LHGWSTConfig.config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
+    local config_frame = LHGWSTConfig.config_frame
     config_frame:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -31,5 +32,6 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame:SetWidth(100)
     config_frame.title_frame:SetHeight(30)
     config_frame.title_frame:SetPoint("TOP", 0, 0)
+    return config_frame
 end
 

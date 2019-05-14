@@ -1,8 +1,9 @@
 ## Interface: 80100
 ## Title: WeaponSwingTimer
-## Author: LHandedGlove
+## Author: LeftHandedGlove
 ## Version: 0.1
-## SavedVariablesPerCharacter: LeftHandedGlove_WST_Settings
+## SavedVariablesPerCharacter: LHG_WeapSwingTimer_Settings
 
-WeaponSwingTimer.xml
-WeaponSwingTimer.lua
+WeaponSwingTimer_MainFrame.lua
+WeaponSwingTimer_ConfigFrame.lua
+WeaponSwingTimer_Core.lua

@@ -32,6 +32,13 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame:SetWidth(100)
     config_frame.title_frame:SetHeight(30)
     config_frame.title_frame:SetPoint("TOP", 0, 0)
+    -- Add the title's name
+    -- Add the close button
+    -- Add the width control
+    -- Add the height control
+    -- Add the x offset control
+    -- Add the y offset control
+    -- return the config frame
     return config_frame
 end
 

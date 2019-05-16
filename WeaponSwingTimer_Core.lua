@@ -7,9 +7,9 @@ core.core_frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 core.core_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 core.core_frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 
-local addon_name_message = "|cFF00FFB0QualityTime: |r"
-local first_load_message = [[Thank you for installing WeaponSwingTimer by LeftHandedGlove!]]
-local load_message = [[Addon Loaded. Use /weaponswingtimer for more options.]]
+local addon_name_message = "|cFF00FFB0WeaponSwingTimer: |r"
+local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlove! " .. 
+                     "Use |cFFFFC300/weaponswingtimer|r or |cFFFFC300/wst|r for more options."
 
 default_settings = {
     width = 200,
@@ -50,7 +50,6 @@ local function LoadSettings()
             LHG_WeapSwingTimer_Settings[setting] = value
         end
     end
-	PrintMsg(first_load_message)
 	PrintMsg(load_message)
 end
 
@@ -166,7 +165,7 @@ core.core_frame:SetScript("OnUpdate", CoreFrame_OnUpdate)
 SLASH_WEAPONSWINGTIMER_CONFIG1 = "/WeaponSwingTimer"
 SLASH_WEAPONSWINGTIMER_CONFIG2 = "/weaponswingtimer"
 SLASH_WEAPONSWINGTIMER_CONFIG3 = "/wst"
-SlashCmdList["QUALITYTIME_CONFIG"] = function(option)
+SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = function(option)
 	PrintMsg("Configuration window opened.")
     core.config_frame:Show()
 end

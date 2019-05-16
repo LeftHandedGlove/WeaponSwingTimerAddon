@@ -1,6 +1,18 @@
 LHGWSTConfig = {}
 local config_frame
 
+local function HideConfigFrame()
+    LHGWSTConfig.config_frame:Hide()
+end
+
+local function ConfigFrame_OnDragStart()
+    LHGWSTConfig.config_frame:StartMoving()
+end
+
+local function ConfigFrame_OnDragStop()
+    LHGWSTConfig.config_frame:StopMovingOrSizing()
+end
+
 LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     -- Setup the config frame
     LHGWSTConfig.config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
@@ -40,25 +52,56 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame.text:SetText("WeaponSwingTimer Configuration")
     config_frame.title_frame.text:SetPoint("LEFT",10, 0)
     -- Add the close button
-    --[[
-    main_frame.title_frame.reset_btn = CreateFrame("Button", "ResetButton", main_frame)
-    main_frame.title_frame.reset_btn:SetWidth(20)
-    main_frame.title_frame.reset_btn:SetHeight(20)
-    main_frame.title_frame.reset_btn:SetNormalTexture("Interface/Addons/QualityTime/Images/ResetTimerUp")
-    main_frame.title_frame.reset_btn:SetPushedTexture("Interface/Addons/QualityTime/Images/ResetTimerDown")
-    main_frame.title_frame.reset_btn:SetPoint("RIGHT", -4, 0)
-    main_frame.title_frame.reset_btn:SetScript("OnClick", ResetTimes)
-    ]]--
+    config_frame.title_frame.close_btn = CreateFrame("Button", "WSTCloseButton", config_frame.title_frame)
+    config_frame.title_frame.close_btn:SetWidth(20)
+    config_frame.title_frame.close_btn:SetHeight(20)
+    config_frame.title_frame.close_btn:SetNormalTexture("Interface/Addons/WeaponSwingTimer/Images/CloseUp")
+    config_frame.title_frame.close_btn:SetPushedTexture("Interface/Addons/WeaponSwingTimer/Images/CloseDown")
+    config_frame.title_frame.close_btn:SetPoint("RIGHT", -5, 0)
+    config_frame.title_frame.close_btn:SetScript("OnClick", HideConfigFrame)
+    -- Add the lock checkbox
+    config_frame.lock_checkbtn = CreateFrame("CheckButton", "WSTLockCheckbtn", config_frame, "ChatConfigCheckButtonTemplate")
+    config_frame.lock_checkbtn:SetPoint("TOPLEFT", 10, -35)
+    getglobal(config_frame.lock_checkbtn:GetName() .. 'Text'):SetText("Lock")
+    config_frame.lock_checkbtn.tooltip = "Locks the swing timer bars."
+    config_frame.lock_checkbtn:SetScript("OnClick", function(self)
+        LHG_WeapSwingTimer_Settings.is_locked = self:GetChecked()
+    end)
     -- Add the width control
     config_frame.width_editbox = CreateFrame("EditBox", nil, config_frame)
-    config_frame.width_editbox:SetPoint("TOPRIGHT", -10, -50)
-    config_frame.width_editbox:SetPoint("BOTTOMLEFT", 10, 10)
+    config_frame.width_editbox:SetWidth(60)
+    config_frame.width_editbox:SetHeight(25)
+    config_frame.width_editbox:SetPoint("TOPLEFT", 10, -60)
     config_frame.width_editbox:SetMultiLine(false)
-    config_frame.width_editbox:SetMaxLetters(99999)
+    config_frame.width_editbox:SetAutoFocus(false)
+    config_frame.width_editbox:SetMaxLetters(4)
+    config_frame.width_editbox:SetNumeric(true)
+    config_frame.width_editbox:SetJustifyH("CENTER")
+	config_frame.width_editbox:SetJustifyV("CENTER")
     config_frame.width_editbox:SetFontObject(GameFontNormal)
+    config_frame.width_editbox:SetBackdrop({
+        bgFile = nil,
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4}
+    })
+    config_frame.width_editbox:SetTextInsets(8, 4, 4, 4)
+    config_frame.width_editbox:SetScript("OnEnterPressed", function(self)
+        LHG_WeapSwingTimer_Settings.width = self:GetNumber()
+        self:ClearFocus()
+        print("Howdy!")
+    end)
     -- Add the height control
     -- Add the x offset control
     -- Add the y offset control
+    -- Set the scripts that control the config_frame
+    config_frame:SetMovable(true)
+    config_frame.title_frame:EnableMouse(true)
+    config_frame.title_frame:RegisterForDrag("LeftButton")
+    config_frame.title_frame:SetScript("OnDragStart", ConfigFrame_OnDragStart)
+    config_frame.title_frame:SetScript("OnDragStop", ConfigFrame_OnDragStop)
     -- return the config frame
     return config_frame
 end

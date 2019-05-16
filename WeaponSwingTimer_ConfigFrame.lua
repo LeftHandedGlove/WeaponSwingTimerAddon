@@ -17,7 +17,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame:SetWidth(350)
     config_frame:SetHeight(100)
     config_frame:SetPoint("CENTER", 0, 0)
-    config_frame:Show()
+    config_frame:Hide()
     -- Setup the config frame's title
     config_frame.title_frame = CreateFrame("Frame", "WSTConfigFrameTitle", config_frame)
     config_frame.title_frame:SetBackdrop({

@@ -8,7 +8,7 @@ core.core_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 core.core_frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 
 local addon_name_message = "|cFF00FFB0QualityTime: |r"
-local first_load_message = [[Thank you for installing QualityTime by LeftHandedGlove!]]
+local first_load_message = [[Thank you for installing WeaponSwingTimer by LeftHandedGlove!]]
 local load_message = [[Addon Loaded. Use /weaponswingtimer for more options.]]
 
 default_settings = {
@@ -19,7 +19,8 @@ default_settings = {
     scale = 1,
     in_combat_alpha = 1.0,
     ooc_alpha = 0.25,
-    backplane_alpha = 0.75
+    backplane_alpha = 0.75,
+	is_locked = false
 }
 
 core.in_combat = false
@@ -36,6 +37,10 @@ core.target_class = "MAGE"
 core.target_weapon_id = 0
 core.target_guid = 0
 
+local function PrintMsg(msg)
+	DEFAULT_CHAT_FRAME:AddMessage(addon_name_message .. msg)
+end
+
 local function LoadSettings()
     if not LHG_WeapSwingTimer_Settings then
         LHG_WeapSwingTimer_Settings = {}
@@ -45,6 +50,8 @@ local function LoadSettings()
             LHG_WeapSwingTimer_Settings[setting] = value
         end
     end
+	PrintMsg(first_load_message)
+	PrintMsg(load_message)
 end
 
 local function UpdatePlayerInfo()
@@ -154,3 +161,12 @@ end
 
 core.core_frame:SetScript("OnEvent", CoreFrame_OnEvent)
 core.core_frame:SetScript("OnUpdate", CoreFrame_OnUpdate)
+
+-- Add a slash command to bring up the config window and reset to the defaults.
+SLASH_WEAPONSWINGTIMER_CONFIG1 = "/WeaponSwingTimer"
+SLASH_WEAPONSWINGTIMER_CONFIG2 = "/weaponswingtimer"
+SLASH_WEAPONSWINGTIMER_CONFIG3 = "/wst"
+SlashCmdList["QUALITYTIME_CONFIG"] = function(option)
+	PrintMsg("Configuration window opened.")
+    core.config_frame:Show()
+end

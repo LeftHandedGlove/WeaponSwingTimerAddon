@@ -35,7 +35,7 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     main_frame:SetHeight(14)
     main_frame:SetPoint("CENTER", 200, 200)
     local main_texture = main_frame:CreateTexture(nil,"ARTWORK")
-    main_texture:SetColorTexture(0,0,0,0.9)
+    main_texture:SetColorTexture(0,0,0,LHG_WeapSwingTimer_Settings.backplane_alpha)
     main_texture:SetAllPoints(main_frame)
     main_frame.texture = main_texture
     main_frame:Show()

@@ -18,7 +18,8 @@ default_settings = {
     y_pos = 0,
     scale = 1,
     in_combat_alpha = 1.0,
-    ooc_alpha = 0.25
+    ooc_alpha = 0.25,
+    backplane_alpha = 0.75
 }
 
 core.in_combat = false

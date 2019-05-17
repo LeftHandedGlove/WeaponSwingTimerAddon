@@ -16,13 +16,18 @@ local default_settings = {
     height = 10,
     rel_point = "CENTER",
     x_pos = 0,
-    y_pos = -175,
+    y_pos = -100,
     scale = 1,
     in_combat_alpha = 1.0,
     ooc_alpha = 0.25,
-    backplane_alpha = 0.75,
+    backplane_alpha = 0.5,
 	is_locked = false,
     in_combat = false
+}
+
+local swing_spells = {
+    "Heroic Strike",
+    "Slam"
 }
 
 LHGWSTCore.player_swing_timer = 0.0
@@ -53,12 +58,13 @@ local function LoadSettings()
 	PrintMsg(load_message)
 end
 
-local function RestoreDefaults()
+LHGWSTCore.RestoreDefaults = function()
     for setting, value in pairs(default_settings) do
-        LHG_QualityTime_Settings[setting] = value
+        LHG_WeapSwingTimer_Settings[setting] = value
     end
+    LHGWSTConfig.UpdateConfigFrameValues()
+    LHGWSTMain.UpdateVisuals()
 end
-
 
 local function UpdatePlayerInfo()
     LHGWSTCore.player_class = UnitClass("player")[2]
@@ -118,6 +124,46 @@ local function CoreFrame_OnUpdate(self, elapsed)
     UpdateSwingFrames()
 end
 
+local function MissHandler(unit, miss_type)
+    if miss_type == "PARRY" then
+        if unit == "player" then
+            min_swing_time = LHGWSTCore.player_weapon_speed * 0.2
+            if LHGWSTCore.player_swing_timer > min_swing_time then
+                LHGWSTCore.player_swing_timer = min_swing_time
+            end
+        elseif unit == "target" then
+            min_swing_time = LHGWSTCore.target_weapon_speed * 0.2
+            if LHGWSTCore.target_swing_timer > min_swing_time then
+                LHGWSTCore.target_swing_timer = min_swing_time
+            end
+        else
+            PrintMsg("Unexpected Unit Type in MissHandler().")
+        end
+    else
+        if unit == "player" then
+            ResetPlayerSwingTimer()
+        elseif unit == "target" then
+            ResetTargetSwingTimer()
+        else
+            PrintMsg("Unexpected Unit Type in MissHandler().")
+        end
+    end
+end
+
+local function SpellHandler(unit, spell_name)
+    for _, swing_spell in ipairs(swing_spells) do
+        if spell_name == swing_spell then
+            if unit == "player" then
+                ResetPlayerSwingTimer()
+            elseif unit == "target" then
+                ResetTargetSwingTimer()
+            else
+                PrintMsg("Unexpected Unit Type in SpellHandler().")
+            end
+        end
+    end
+end
+
 local function CoreFrame_OnEvent(self, event, ...)
     local args = {...}
     if event == "ADDON_LOADED" then
@@ -142,21 +188,21 @@ local function CoreFrame_OnEvent(self, event, ...)
             if (event == "SWING_DAMAGE") then
                 ResetPlayerSwingTimer()
             elseif (event == "SWING_MISSED") then
-                ResetPlayerSwingTimer()
+                MissHandler("player", miss_type)
             elseif (event == "SPELL_DAMAGE") then
-                print("Player Spell Hit: TODO")
+                SpellHandler("player", spell_name)
             elseif (event == "SPELL_MISSED") then
-                print("Player Spell Missed: TODO")
+                SpellHandler("player", spell_name)
             end
         elseif (source_guid == LHGWSTCore.target_guid) then
             if (event == "SWING_DAMAGE") then
                 ResetTargetSwingTimer()
             elseif (event == "SWING_MISSED") then
-                ResetTargetSwingTimer()
+                MissHandler("target", miss_type)
             elseif (event == "SPELL_DAMAGE") then
-                print("Target Spell Hit: TODO")
+                SpellHandler("target", spell_name)
             elseif (event == "SPELL_MISSED") then
-                print("Target Spell Missed: TODO")
+                SpellHandler("target", spell_name)
             end
         end
     elseif event == "UNIT_INVENTORY_CHANGED" then

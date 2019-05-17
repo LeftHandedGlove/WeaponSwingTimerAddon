@@ -1,6 +1,57 @@
 LHGWSTConfig = {}
 local config_frame
 
+LHGWSTConfig.UpdateConfigFrameValues = function()
+    LHGWSTConfig.config_frame.lock_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.is_locked)
+    LHGWSTConfig.config_frame.width_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.width))
+    LHGWSTConfig.config_frame.height_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.height))
+    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
+    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
+    LHGWSTConfig.config_frame.yoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.y_pos))
+    LHGWSTConfig.config_frame.combat_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.in_combat_alpha)
+    LHGWSTConfig.config_frame.ooc_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.ooc_alpha)
+    LHGWSTConfig.config_frame.backplane_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.backplane_alpha)
+end
+
+local function Width_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WeapSwingTimer_Settings.width = tonumber(self:GetText())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function Height_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WeapSwingTimer_Settings.height = tonumber(self:GetText())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function XOffset_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WeapSwingTimer_Settings.x_pos = tonumber(self:GetText())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function YOffset_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WeapSwingTimer_Settings.y_pos = tonumber(self:GetText())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function CombatAlpha_OnValueChanged(self)
+    LHG_WeapSwingTimer_Settings.in_combat_alpha = tonumber(self:GetValue())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function OOCAlpha_OnValueChanged(self)
+    LHG_WeapSwingTimer_Settings.ooc_alpha = tonumber(self:GetValue())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function BackplaneAlpha_OnValueChanged(self)
+    LHG_WeapSwingTimer_Settings.backplane_alpha = tonumber(self:GetValue())
+    LHGWSTMain.UpdateVisuals()
+end
+
 local function HideConfigFrame()
     LHGWSTConfig.config_frame:Hide()
 end
@@ -11,6 +62,91 @@ end
 
 local function ConfigFrame_OnDragStop()
     LHGWSTConfig.config_frame:StopMovingOrSizing()
+end
+
+local function TextFactory(parent, text, size)
+    local text_obj = parent:CreateFontString(nil, "ARTWORK")
+    text_obj:SetFont("Fonts/FRIZQT__.ttf", size)
+    text_obj:SetJustifyV("CENTER")
+    text_obj:SetJustifyH("CENTER")
+    text_obj:SetText(text)
+    return text_obj
+end
+
+local function EditBoxFactory(parent, title, enter_func)
+    local edit_box_obj = CreateFrame("EditBox", nil, parent)
+    edit_box_obj.title_text = TextFactory(edit_box_obj, title, 11)
+    edit_box_obj.title_text:SetPoint("TOP", 0, 10)
+    edit_box_obj:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        tile = true,
+        tileSize = 100,
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4}
+    })
+    edit_box_obj:SetBackdropColor(0,0,0,1)
+    edit_box_obj:SetSize(100, 25)
+    edit_box_obj:SetMultiLine(false)
+    edit_box_obj:SetAutoFocus(false)
+    edit_box_obj:SetMaxLetters(4)
+    edit_box_obj:SetJustifyH("CENTER")
+	edit_box_obj:SetJustifyV("CENTER")
+    edit_box_obj:SetFontObject(GameFontNormal)
+    edit_box_obj:SetScript("OnEnterPressed", function(self)
+        enter_func(self)
+    end)
+    edit_box_obj:SetScript("OnEscapePressed", function(self)
+        self:ClearFocus()
+    end)
+    return edit_box_obj
+end
+
+--simple round number func
+  local SimpleRound = function(val,valStep)
+    return floor(val/valStep)*valStep
+  end
+ 
+--basic slider func
+local CreateBasicSlider = function(parent, name, title, minVal, maxVal, valStep, func)
+    local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
+    local editbox = CreateFrame("EditBox", "$parentEditBox", slider, "InputBoxTemplate")
+    slider:SetMinMaxValues(minVal, maxVal)
+    --slider:SetValue(0)
+    slider:SetValueStep(valStep)
+    slider.text = _G[name.."Text"]
+    slider.text:SetText(title)
+    slider.textLow = _G[name.."Low"]
+    slider.textHigh = _G[name.."High"]
+    slider.textLow:SetText(floor(minVal))
+    slider.textHigh:SetText(floor(maxVal))
+    slider.textLow:SetTextColor(0.8,0.8,0.8)
+    slider.textHigh:SetTextColor(0.8,0.8,0.8)
+    slider:SetObeyStepOnDrag(true)
+    editbox:SetSize(45,30)
+    editbox:ClearAllPoints()
+    editbox:SetPoint("LEFT", slider, "RIGHT", 15, 0)
+    editbox:SetText(slider:GetValue())
+    editbox:SetAutoFocus(false)
+    slider:SetScript("OnValueChanged", function(self)
+        editbox:SetText(tostring(SimpleRound(self:GetValue(), valStep)))
+        func(self)
+    end)
+    editbox:SetScript("OnTextChanged", function(self)
+        local val = self:GetText()
+        if tonumber(val) then
+            self:GetParent():SetValue(val)
+        end
+    end)
+    editbox:SetScript("OnEnterPressed", function(self)
+        local val = self:GetText()
+        if tonumber(val) then
+            self:GetParent():SetValue(val)
+            self:ClearFocus()
+        end
+    end)
+    slider.editbox = editbox
+    return slider
 end
 
 LHGWSTConfig.CreateLHGWSTConfigFrame = function()
@@ -26,8 +162,8 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
         insets = { left = 4, right = 4, top = 4, bottom = 4}
     })
     config_frame:SetBackdropColor(0,0,0,1)
-    config_frame:SetWidth(350)
-    config_frame:SetHeight(100)
+    config_frame:SetWidth(250)
+    config_frame:SetHeight(310)
     config_frame:SetPoint("CENTER", 0, 0)
     config_frame:Hide()
     -- Setup the config frame's title
@@ -45,12 +181,9 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame:SetHeight(30)
     config_frame.title_frame:SetPoint("TOP", 0, 0)
     -- Add the title's name
-    config_frame.title_frame.text = config_frame.title_frame:CreateFontString(nil, "ARTWORK")
-    config_frame.title_frame.text:SetFont("Fonts/FRIZQT__.ttf", 16)
-    config_frame.title_frame.text:SetJustifyH("LEFT")
-	config_frame.title_frame.text:SetJustifyV("CENTER")
-    config_frame.title_frame.text:SetText("WeaponSwingTimer Configuration")
-    config_frame.title_frame.text:SetPoint("LEFT",10, 0)
+    config_frame.title_frame.text = TextFactory(
+        config_frame.title_frame, "WeaponSwingTimer", 16)
+    config_frame.title_frame.text:SetPoint("CENTER", 0, 0)
     -- Add the close button
     config_frame.title_frame.close_btn = CreateFrame("Button", "WSTCloseButton", config_frame.title_frame)
     config_frame.title_frame.close_btn:SetWidth(20)
@@ -61,41 +194,40 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame.close_btn:SetScript("OnClick", HideConfigFrame)
     -- Add the lock checkbox
     config_frame.lock_checkbtn = CreateFrame("CheckButton", "WSTLockCheckbtn", config_frame, "ChatConfigCheckButtonTemplate")
-    config_frame.lock_checkbtn:SetPoint("TOPLEFT", 10, -35)
-    getglobal(config_frame.lock_checkbtn:GetName() .. 'Text'):SetText("Lock")
-    config_frame.lock_checkbtn.tooltip = "Locks the swing timer bars."
+    config_frame.lock_checkbtn:SetPoint("TOPLEFT", 15, -40)
+    getglobal(config_frame.lock_checkbtn:GetName() .. 'Text'):SetText(" Lock Frame")
+    config_frame.lock_checkbtn.tooltip = "Prevents the frame from being dragged."
     config_frame.lock_checkbtn:SetScript("OnClick", function(self)
         LHG_WeapSwingTimer_Settings.is_locked = self:GetChecked()
     end)
+    config_frame.lock_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.is_locked)
     -- Add the width control
-    config_frame.width_editbox = CreateFrame("EditBox", nil, config_frame)
-    config_frame.width_editbox:SetWidth(60)
-    config_frame.width_editbox:SetHeight(25)
-    config_frame.width_editbox:SetPoint("TOPLEFT", 10, -60)
-    config_frame.width_editbox:SetMultiLine(false)
-    config_frame.width_editbox:SetAutoFocus(false)
-    config_frame.width_editbox:SetMaxLetters(4)
-    config_frame.width_editbox:SetNumeric(true)
-    config_frame.width_editbox:SetJustifyH("CENTER")
-	config_frame.width_editbox:SetJustifyV("CENTER")
-    config_frame.width_editbox:SetFontObject(GameFontNormal)
-    config_frame.width_editbox:SetBackdrop({
-        bgFile = nil,
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        tile = true,
-        tileSize = 16,
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4}
-    })
-    config_frame.width_editbox:SetTextInsets(8, 4, 4, 4)
-    config_frame.width_editbox:SetScript("OnEnterPressed", function(self)
-        LHG_WeapSwingTimer_Settings.width = self:GetNumber()
-        self:ClearFocus()
-        print("Howdy!")
-    end)
+    config_frame.width_editbox = EditBoxFactory(config_frame, "Width", Width_OnEnterPressed)
+    config_frame.width_editbox:SetPoint("TOP", -55, -80, "BOTTOMRIGHT", 60, -140)
+    config_frame.width_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.width))
     -- Add the height control
+    config_frame.height_editbox = EditBoxFactory(config_frame, "Height", Height_OnEnterPressed)
+    config_frame.height_editbox:SetPoint("TOP", 55, -80)
+    config_frame.height_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.height))
     -- Add the x offset control
+    config_frame.xoffset_editbox = EditBoxFactory(config_frame, "X Offset", XOffset_OnEnterPressed)
+    config_frame.xoffset_editbox:SetPoint("TOP", -55, -120)
+    config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
     -- Add the y offset control
+    config_frame.yoffset_editbox = EditBoxFactory(config_frame, "Y Offset", YOffset_OnEnterPressed)
+    config_frame.yoffset_editbox:SetPoint("TOP", 55, -120)
+    config_frame.yoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.y_pos))
+    -- Add the alpha sliders
+    config_frame.combat_alpha_slider = CreateBasicSlider(config_frame, "WSTCombatAlphaSlider", "In Combat Alpha", 0, 1, 0.05, CombatAlpha_OnValueChanged)
+    config_frame.combat_alpha_slider:SetPoint("TOP", -30, -170)
+    config_frame.combat_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.in_combat_alpha)
+    config_frame.ooc_alpha_slider = CreateBasicSlider(config_frame, "WSTOOCAlphaSlider", "Out of Combat Alpha", 0, 1, 0.05, OOCAlpha_OnValueChanged)
+    config_frame.ooc_alpha_slider:SetPoint("TOP", -30, -220)
+    config_frame.ooc_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.ooc_alpha)
+    config_frame.backplane_alpha_slider = CreateBasicSlider(config_frame, "WSTBackPlaneAlphaSlider", "Backplane Alpha", 0, 1, 0.05, BackplaneAlpha_OnValueChanged)
+    config_frame.backplane_alpha_slider:SetPoint("TOP", -30, -270)
+    config_frame.backplane_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.backplane_alpha)
+    -- parent, name, title, minVal, maxVal, valStep
     -- Set the scripts that control the config_frame
     config_frame:SetMovable(true)
     config_frame.title_frame:EnableMouse(true)

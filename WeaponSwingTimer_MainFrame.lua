@@ -25,11 +25,21 @@ LHGWSTMain.UpdateSwingFrames = function(play_weap_speed, play_swing_time, tar_we
     end
     -- Update the player swing frame
     local player_swing_frame = LHGWSTMain.main_frame.player_swing_frame
-    player_percent = 1 - (play_swing_time / play_weap_speed)
+    -- Deal with divide by zero error
+    if play_weap_speed ~= 0 then
+        player_percent = 1 - (play_swing_time / play_weap_speed)
+    else
+        player_percent = 1
+    end
     player_swing_frame:SetWidth((main_frame:GetWidth() - 2) * player_percent)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
-    target_percent = 1 - (tar_swing_time / tar_weap_speed)
+    -- Deal with divide by zero error
+    if tar_weap_speed ~= 0 then
+        target_percent = 1 - (tar_swing_time / tar_weap_speed)
+    else
+        target_percent = 1
+    end
     target_swing_frame:SetWidth((main_frame:GetWidth() - 2) * target_percent)
 end
 

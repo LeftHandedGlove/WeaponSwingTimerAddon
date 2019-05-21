@@ -49,7 +49,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 	-- Update the players swing text
 	player_offset = (main_frame:GetWidth() - 2) - player_width
 	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_swing_time, 0.1)))
-	player_swing_frame.swing_text:SetPoint("BOTTOMRIGHT", player_offset + 25, 1)
+	player_swing_frame.swing_text:SetPoint("BOTTOMRIGHT", player_offset + 25, 0)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
 	local target_percent = 1 - (tar_swing_time / tar_weap_speed)
@@ -58,7 +58,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 	-- Update the targets swing text
 	target_offset = (main_frame:GetWidth() - 2) - target_width
 	target_swing_frame.swing_text:SetText(tostring(SimpleRound(tar_swing_time, 0.1)))
-	target_swing_frame.swing_text:SetPoint("TOPRIGHT", target_offset + 25, -1)
+	target_swing_frame.swing_text:SetPoint("TOPRIGHT", target_offset + 25, 0)
 	-- Update the CRP Ping delay
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight() / 2)
 	local down, up, lagHome, lagWorld = GetNetStats()

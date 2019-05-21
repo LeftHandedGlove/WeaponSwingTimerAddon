@@ -175,10 +175,10 @@ local function CoreFrame_OnEvent(self, event, ...)
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         LHG_WST_Settings.in_combat = false
-        UpdateSwingFrames()
+        LHGWSTMain.UpdateSwingFrames()
     elseif event == "PLAYER_REGEN_DISABLED" then
         LHG_WST_Settings.in_combat = true
-        UpdateSwingFrames()
+        LHGWSTMain.UpdateSwingFrames()
     elseif event == "PLAYER_TARGET_CHANGED" then
         UpdateTargetInfo()
         MaximizeTargetSwingTimer()

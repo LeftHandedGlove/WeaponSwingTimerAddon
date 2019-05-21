@@ -48,7 +48,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     player_swing_frame:SetWidth(player_width)
 	-- Update the players swing text
 	player_offset = (main_frame:GetWidth() - 2) - player_width
-	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_weap_speed - play_swing_time, 0.1)))
+	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_swing_time, 0.01)))
 	player_swing_frame.swing_text:SetPoint("Right", player_offset + 20, 0)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
@@ -57,25 +57,25 @@ LHGWSTMain.UpdateSwingFrames = function()
     target_swing_frame:SetWidth(target_width)
 	-- Update the targets swing text
 	target_offset = (main_frame:GetWidth() - 2) - target_width
-	target_swing_frame.swing_text:SetText(tostring(SimpleRound(tar_weap_speed - tar_swing_time, 0.1)))
+	target_swing_frame.swing_text:SetText(tostring(SimpleRound(tar_swing_time, 0.01)))
 	target_swing_frame.swing_text:SetPoint("Right", target_offset + 20, 0)
 	-- Update the CRP Ping delay
-	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight() / 2)
 	local down, up, lagHome, lagWorld = GetNetStats()
 	local ping_width = 0
 	if (LHG_WST_Settings.crp_ping_enabled) then
 		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
-	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", target_offset, 0)
+	main_frame.target_swing_frame.crp_ping_frame:SetPoint("BOTTOMRIGHT", target_offset, 0)
 	-- Update the CRP fixed delay
-	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight() / 2)
 	local fixed_width = 0
 	if (LHG_WST_Settings.crp_fixed_enabled) then
 		fixed_width = (LHG_WST_Settings.width * LHG_WST_Settings.crp_fixed_delay) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
-	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", main_frame.target_swing_frame.crp_ping_frame, -ping_width, 0)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("BOTTOMRIGHT", main_frame.target_swing_frame.crp_ping_frame, -ping_width, 0)
 	
 end
 

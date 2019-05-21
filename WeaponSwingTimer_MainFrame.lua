@@ -48,7 +48,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     player_swing_frame:SetWidth(player_width)
 	-- Update the players swing text
 	player_offset = (main_frame:GetWidth() - 2) - player_width
-	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_swing_time, 0.01)))
+	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_swing_time, 0.1)))
 	player_swing_frame.swing_text:SetPoint("Right", player_offset + 20, 0)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
@@ -57,7 +57,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     target_swing_frame:SetWidth(target_width)
 	-- Update the targets swing text
 	target_offset = (main_frame:GetWidth() - 2) - target_width
-	target_swing_frame.swing_text:SetText(tostring(SimpleRound(tar_swing_time, 0.01)))
+	target_swing_frame.swing_text:SetText(tostring(SimpleRound(tar_swing_time, 0.1)))
 	target_swing_frame.swing_text:SetPoint("Right", target_offset + 20, 0)
 	-- Update the CRP Ping delay
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight() / 2)

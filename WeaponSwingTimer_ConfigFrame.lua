@@ -261,7 +261,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
 	config_frame.crp_title_text:SetPoint("TOPLEFT", 300, -40)
 	-- Add the CRP Ping enabled
 	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 300, -60)
+    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 290, -60)
     getglobal(config_frame.crp_ping_checkbtn:GetName() .. 'Text'):SetText(" CRP Ping Delay")
     config_frame.crp_ping_checkbtn.tooltip = "Enabled the crit reactive procs ping delay."
     config_frame.crp_ping_checkbtn:SetScript("OnClick", function(self)
@@ -270,7 +270,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
 	-- Add the CRP fixed delay enabled
 	config_frame.crp_fixed_checkbtn = CreateFrame("CheckButton", "WSTCRPFixedCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 300, -90)
+    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 290, -90)
     getglobal(config_frame.crp_fixed_checkbtn:GetName() .. 'Text'):SetText(" CRP Fixed Delay")
     config_frame.crp_fixed_checkbtn.tooltip = "Enabled the crit reactive procs fixed delay."
     config_frame.crp_fixed_checkbtn:SetScript("OnClick", function(self)

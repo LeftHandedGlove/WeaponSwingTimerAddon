@@ -121,7 +121,7 @@ end
 
 local function CoreFrame_OnUpdate(self, elapsed)
     UpdateSwingTimers(elapsed)
-    LHGWSTMain.UpdateSwingFrames()
+    LHGWSTMain.UpdateVisuals()
 end
 
 local function MissHandler(unit, miss_type)
@@ -175,10 +175,10 @@ local function CoreFrame_OnEvent(self, event, ...)
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         LHG_WST_Settings.in_combat = false
-        LHGWSTMain.UpdateSwingFrames()
+        LHGWSTMain.UpdateVisuals()
     elseif event == "PLAYER_REGEN_DISABLED" then
         LHG_WST_Settings.in_combat = true
-        LHGWSTMain.UpdateSwingFrames()
+        LHGWSTMain.UpdateVisuals()
     elseif event == "PLAYER_TARGET_CHANGED" then
         UpdateTargetInfo()
         MaximizeTargetSwingTimer()

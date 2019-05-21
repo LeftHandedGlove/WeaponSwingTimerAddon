@@ -4,7 +4,7 @@
 ## Author: LeftHandedGlove
 ## Version: 0.1
 ## DefaultState: enabled
-## SavedVariablesPerCharacter: LHG_WST_Settings, LHG_WST_Core,  
+## SavedVariablesPerCharacter: LHG_WST_Settings
 
 WeaponSwingTimer_MainFrame.lua
 WeaponSwingTimer_ConfigFrame.lua

@@ -30,7 +30,10 @@ local default_settings = {
 
 local swing_spells = {
     "Heroic Strike",
-    "Slam"
+    "Slam",
+	"Cleave",
+	"Raptor Strike",
+	"Maul"
 }
 
 LHGWSTCore.player_swing_timer = 0.0
@@ -50,12 +53,12 @@ local function PrintMsg(msg)
 end
 
 local function LoadSettings()
-    if not LHG_WeapSwingTimer_Settings then
-        LHG_WeapSwingTimer_Settings = {}
+    if not LHG_WST_Settings then
+        LHG_WST_Settings = {}
     end
     for setting, value in pairs(default_settings) do
-        if LHG_WeapSwingTimer_Settings[setting] == nil then
-            LHG_WeapSwingTimer_Settings[setting] = value
+        if LHG_WST_Settings[setting] == nil then
+            LHG_WST_Settings[setting] = value
         end
     end
 	PrintMsg(load_message)
@@ -63,7 +66,7 @@ end
 
 LHGWSTCore.RestoreDefaults = function()
     for setting, value in pairs(default_settings) do
-        LHG_WeapSwingTimer_Settings[setting] = value
+        LHG_WST_Settings[setting] = value
     end
     LHGWSTConfig.UpdateConfigFrameValues()
     LHGWSTMain.UpdateVisuals()
@@ -171,10 +174,10 @@ local function CoreFrame_OnEvent(self, event, ...)
             LHGWSTCore.config_frame = LHGWSTConfig.CreateLHGWSTConfigFrame()
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
-        LHG_WeapSwingTimer_Settings.in_combat = false
+        LHG_WST_Settings.in_combat = false
         UpdateSwingFrames()
     elseif event == "PLAYER_REGEN_DISABLED" then
-        LHG_WeapSwingTimer_Settings.in_combat = true
+        LHG_WST_Settings.in_combat = true
         UpdateSwingFrames()
     elseif event == "PLAYER_TARGET_CHANGED" then
         UpdateTargetInfo()

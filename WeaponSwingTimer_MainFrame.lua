@@ -22,11 +22,11 @@ LHGWSTMain.UpdateSwingFrames = function()
 	local tar_weap_speed = LHGWSTCore.target_weapon_speed
 	local tar_swing_time = LHGWSTCore.target_swing_timer
 	-- Deal with divide by zero error
-    if play_weap_speed ~= 0 then
+    if play_weap_speed == 0 then
         play_weap_speed = 2
     end
 	-- Deal with divide by zero error
-    if tar_weap_speed ~= 0 then
+    if tar_weap_speed == 0 then
         tar_weap_speed = 2
     end
     -- Update the alpha
@@ -60,7 +60,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 		fixed_width = (LHG_WST_Settings.width * (LHG_WST_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
-	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", 0, 0)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("LEFT" main_frame.target_swing_frame.crp_ping_frame, 0, 0)
 	
 end
 
@@ -105,13 +105,13 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     target_texture:SetAllPoints(main_frame.target_swing_frame)
     main_frame.target_swing_frame.texture = target_texture
 	-- Setup the Crit Reactive Procs Ping Delay Frame
-	main_frame.target_swing_frame.crp_ping_frame = CreateFrame("Frame", "WSTCRPPingFrame", main_frame)
+	main_frame.target_swing_frame.crp_ping_frame = CreateFrame("Frame", "WSTCRPPingFrame", main_frame.target_swing_frame)
 	local crp_ping_texture = main_frame.target_swing_frame.crp_ping_frame:CreateTexture(nil,"ARTWORK")
 	crp_ping_texture:SetColorTexture(1,0,0,1)
     crp_ping_texture:SetAllPoints(main_frame.target_swing_frame.crp_ping_frame)
     main_frame.target_swing_frame.crp_ping_frame.texture = crp_ping_texture
 	-- Setup the Crit Reactive Procs Fixed Delay Frame
-	main_frame.target_swing_frame.crp_fixed_frame = CreateFrame("Frame", "WSTCRPFixedFrame", main_frame)
+	main_frame.target_swing_frame.crp_fixed_frame = CreateFrame("Frame", "WSTCRPFixedFrame", main_frame.target_swing_frame)
 	local crp_fixed_texture = main_frame.target_swing_frame.crp_fixed_frame:CreateTexture(nil,"ARTWORK")
 	crp_fixed_texture:SetColorTexture(1,0,0,1)
     crp_fixed_texture:SetAllPoints(main_frame.target_swing_frame.crp_fixed_frame)

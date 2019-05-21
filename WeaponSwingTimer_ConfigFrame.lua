@@ -11,6 +11,9 @@ LHGWSTConfig.UpdateConfigFrameValues = function()
     LHGWSTConfig.config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
     LHGWSTConfig.config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
     LHGWSTConfig.config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
+	LHGWSTConfig.config_framecrp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
+	LHGWSTConfig.config_framecrp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
+	LHGWSTConfig.config_framecrp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
 end
 
 local function Width_OnEnterPressed(self)

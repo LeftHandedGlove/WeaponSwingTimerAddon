@@ -15,7 +15,12 @@ local function MainFrame_OnDragStop()
     LHGWSTConfig.UpdateConfigFrameValues()
 end
 
-LHGWSTMain.UpdateSwingFrames = function(play_weap_speed, play_swing_time, tar_weap_speed, tar_swing_time)
+LHGWSTMain.UpdateSwingFrames = function()
+	-- Get the swing speeds and timers
+	local play_weap_speed = LHGWSTCore.player_weapon_speed
+	local play_swing_time = LHGWSTCore.player_swing_timer
+	local tar_weap_speed = LHGWSTCore.target_weapon_speed
+	local tar_swing_time = LHGWSTCore.target_swing_timer
     -- Update the alpha
     local main_frame = LHGWSTMain.main_frame
     if LHG_WeapSwingTimer_Settings.in_combat then
@@ -50,13 +55,32 @@ LHGWSTMain.UpdateVisuals = function()
     main_frame:SetPoint(LHG_WeapSwingTimer_Settings.rel_point, LHG_WeapSwingTimer_Settings.x_pos, LHG_WeapSwingTimer_Settings.y_pos)
     main_frame:SetScale(LHG_WeapSwingTimer_Settings.scale)
     main_frame.main_texture:SetColorTexture(0,0,0,LHG_WeapSwingTimer_Settings.backplane_alpha)
+	
     main_frame.player_swing_frame:SetWidth(main_frame:GetWidth() - 2)
     main_frame.player_swing_frame:SetHeight((main_frame:GetHeight() / 2) - 2)
     main_frame.player_swing_frame:SetPoint("TOPLEFT", 1, -1)
+	
     main_frame.target_swing_frame:SetWidth(main_frame:GetWidth() - 2)
     main_frame.target_swing_frame:SetHeight((main_frame:GetHeight() / 2) - 2)
     main_frame.target_swing_frame:SetPoint("BOTTOMLEFT", 1, 1)
-    LHGWSTMain.UpdateSwingFrames(1, 1, 1, 1)
+	
+	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	local down, up, lagHome, lagWorld = GetNetStats()
+	local ping_width = 0
+	if (LHG_WeapSwingTimer_Settings.crp_ping_enabled) then
+		ping_width = (LHG_WeapSwingTimer_Settings.width * (lagHome / 1000)) / tar_weap_speed
+	end
+	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
+	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", 0, 0)
+	
+	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	local fixed_width = 0
+	if (LHG_WeapSwingTimer_Settings.crp_fixed_enabled) then
+		fixed_width = (LHG_WeapSwingTimer_Settings.width * (LHG_WeapSwingTimer_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
+	end
+	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", 0, 0)
+    LHGWSTMain.UpdateSwingFrames()
 end
 
 LHGWSTMain.CreateLHGWSTMainFrame = function()
@@ -80,6 +104,18 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     target_texture:SetColorTexture(1,0.8,0.8,1)
     target_texture:SetAllPoints(main_frame.target_swing_frame)
     main_frame.target_swing_frame.texture = target_texture
+	-- Setup the Crit Reactive Procs Ping Delay Frame
+	main_frame.target_swing_frame.crp_ping_frame = CreateFrame("Frame", "WSTCRPPingFrame", main_frame)
+	local crp_ping_texture = main_frame.target_swing_frame.crp_ping_frame:CreateTexture(nil,"ARTWORK")
+	crp_ping_texture:SetColorTexture(1,0,0,1)
+    crp_ping_texture:SetAllPointsPoint(main_frame.target_swing_frame.crp_ping_frame)
+    main_frame.target_swing_frame.crp_ping_frame.texture = crp_ping_texture
+	-- Setup the Crit Reactive Procs Fixed Delay Frame
+	main_frame.target_swing_frame.crp_fixed_frame = CreateFrame("Frame", "WSTCRPFixedFrame", main_frame)
+	local crp_fixed_texture = main_frame.target_swing_frame.crp_fixed_frame:CreateTexture(nil,"ARTWORK")
+	crp_fixed_texture:SetColorTexture(1,0,0,1)
+    crp_fixed_texture:SetAllPointsPoint(main_frame.target_swing_frame.crp_fixed_frame)
+    main_frame.target_swing_frame.crp_fixed_frame.texture = crp_fixed_texture
     -- Set the scripts that control the main_frame
     main_frame:SetMovable(true)
     main_frame:EnableMouse(true)

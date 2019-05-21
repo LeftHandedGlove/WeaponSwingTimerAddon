@@ -22,7 +22,10 @@ local default_settings = {
     ooc_alpha = 0.25,
     backplane_alpha = 0.5,
 	is_locked = false,
-    in_combat = false
+    in_combat = false,
+	crp_ping_enabled = false,
+	crp_fixed_enabled = false,
+	crp_fixed_delay = 0.1
 }
 
 local swing_spells = {
@@ -113,15 +116,9 @@ local function UpdateSwingTimers(elapsed)
     end
 end
 
-local function UpdateSwingFrames()
-    LHGWSTMain.UpdateSwingFrames(
-        LHGWSTCore.player_weapon_speed, LHGWSTCore.player_swing_timer, 
-        LHGWSTCore.target_weapon_speed, LHGWSTCore.target_swing_timer)
-end
-
 local function CoreFrame_OnUpdate(self, elapsed)
     UpdateSwingTimers(elapsed)
-    UpdateSwingFrames()
+    LHGWSTMain.UpdateSwingFrames()
 end
 
 local function MissHandler(unit, miss_type)

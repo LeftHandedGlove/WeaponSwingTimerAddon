@@ -52,6 +52,12 @@ local function BackplaneAlpha_OnValueChanged(self)
     LHGWSTMain.UpdateVisuals()
 end
 
+local function CRPFixedDelay_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WeapSwingTimer_Settings.crp_fixed_delay = tonumber(self:GetText())
+    LHGWSTMain.UpdateVisuals()
+end
+
 local function HideConfigFrame()
     LHGWSTConfig.config_frame:Hide()
 end
@@ -250,7 +256,31 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.backplane_alpha_slider = CreateBasicSlider(config_frame, "WSTBackPlaneAlphaSlider", "Backplane Alpha", 0, 1, 0.05, BackplaneAlpha_OnValueChanged)
     config_frame.backplane_alpha_slider:SetPoint("TOP", -30, -270)
     config_frame.backplane_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.backplane_alpha)
-    -- parent, name, title, minVal, maxVal, valStep
+	-- Add the CRP Title Text
+	config_frame.crp_title_text = TextFactory(edit_box_obj, title, 11)
+	config_frame.crp_title_text:SetPoint("TOPLEFT", 200, -200)
+	-- Add the CRP Ping enabled
+	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")
+    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 200, -200)
+    getglobal(config_frame.crp_ping_checkbtn:GetName() .. 'Text'):SetText(" CRP Ping Delay")
+    config_frame.crp_ping_checkbtn.tooltip = "Enabled the crit reactive procs ping delay."
+    config_frame.crp_ping_checkbtn:SetScript("OnClick", function(self)
+        LHG_WeapSwingTimer_Settings.crp_ping_enabled = self:GetChecked()
+    end)
+    config_frame.crp_ping_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.crp_ping_enabled)
+	-- Add the CRP fixed delay enabled
+	config_frame.crp_fixed_checkbtn = CreateFrame("CheckButton", "WSTCRPFixedCheckbtn", config_frame, "OptionsCheckButtonTemplate")
+    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 200, -200)
+    getglobal(config_frame.crp_fixed_checkbtn:GetName() .. 'Text'):SetText(" CRP Fixed Delay")
+    config_frame.crp_fixed_checkbtn.tooltip = "Enabled the crit reactive procs fixed delay."
+    config_frame.crp_fixed_checkbtn:SetScript("OnClick", function(self)
+        LHG_WeapSwingTimer_Settings.crp_fixed_enabled = self:GetChecked()
+    end)
+    config_frame.crp_fixed_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.crp_fixed_enabled)
+	-- Add the CRP fixed delay editbox
+	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "CRP Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
+    config_frame.crp_fixed_delay_editbox:SetPoint("TOP", -200, -200, "BOTTOMRIGHT", 200, -250)
+    config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.crp_fixed_delay))
     -- Set the scripts that control the config_frame
     config_frame:SetMovable(true)
     config_frame.title_frame:EnableMouse(true)

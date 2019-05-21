@@ -109,9 +109,9 @@ local function EditBoxFactory(parent, title, enter_func)
 end
 
 --simple round number func
-  local SimpleRound = function(val,valStep)
-    return floor(val/valStep)*valStep
-  end
+local SimpleRound = function(num, step)
+    return floor(num / step) * step
+end
  
 --basic slider func
 local CreateBasicSlider = function(parent, name, title, minVal, maxVal, valStep, func)

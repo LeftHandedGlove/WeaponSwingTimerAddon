@@ -48,8 +48,8 @@ LHGWSTMain.UpdateSwingFrames = function()
     player_swing_frame:SetWidth(player_width)
 	-- Update the players swing text
 	player_offset = (main_frame:GetWidth() - 2) - player_width
-	player_swing_frame.text:SetText(tostring(SimpleRound(player_swing_timer, 0.1)))
-	player_swing_frame.text.SetPoint("Right", player_offset + 20, 0)
+	player_swing_frame.swing_text:SetText(tostring(SimpleRound(player_swing_timer, 0.1)))
+	player_swing_frame.swing_text.SetPoint("Right", player_offset + 20, 0)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
 	local target_percent = 1 - (tar_swing_time / tar_weap_speed)
@@ -57,8 +57,8 @@ LHGWSTMain.UpdateSwingFrames = function()
     target_swing_frame:SetWidth(target_width)
 	-- Update the targets swing text
 	target_offset = (main_frame:GetWidth() - 2) - target_width
-	target_swing_frame.text:SetText(tostring(SimpleRound(target_swing_timer, 0.1)))
-	target_swing_frame.text.SetPoint("Right", target_offset + 20, 0)
+	target_swing_frame.swing_text:SetText(tostring(SimpleRound(target_swing_timer, 0.1)))
+	target_swing_frame.swing_text.SetPoint("Right", target_offset + 20, 0)
 	-- Update the CRP Ping delay
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local down, up, lagHome, lagWorld = GetNetStats()
@@ -114,10 +114,10 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     player_texture:SetAllPoints(main_frame.player_swing_frame)
     main_frame.player_swing_frame.texture = player_texture
 	-- Setup the players swing timer text
-	main_frame.player_swing_frame.text = main_frame.player_swing_frame:CreateFontString(nil, "ARTWORK")
-    main_frame.player_swing_frame.text:SetFont("Fonts/FRIZQT__.ttf", size)
-    main_frame.player_swing_frame.text:SetJustifyV("CENTER")
-    main_frame.player_swing_frame.text:SetJustifyH("CENTER")
+	main_frame.player_swing_frame.swing_text = main_frame.player_swing_frame:CreateFontString(nil, "ARTWORK")
+    main_frame.player_swing_frame.swing_text:SetFont("Fonts/FRIZQT__.ttf", size)
+    main_frame.player_swing_frame.swing_text:SetJustifyV("CENTER")
+    main_frame.player_swing_frame.swing_text:SetJustifyH("CENTER")
     -- Setup the target's swing image appearance
     main_frame.target_swing_frame = CreateFrame("Frame", "WSTTargetSwingFrame", main_frame)
     local target_texture = main_frame.target_swing_frame:CreateTexture(nil,"ARTWORK")
@@ -125,10 +125,10 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     target_texture:SetAllPoints(main_frame.target_swing_frame)
     main_frame.target_swing_frame.texture = target_texture
 	-- Setup the targets swing timer text
-	main_frame.target_swing_frame.text = main_frame.target_swing_frame:CreateFontString(nil, "ARTWORK")
-    main_frame.target_swing_frame.text:SetFont("Fonts/FRIZQT__.ttf", size)
-    main_frame.target_swing_frame.text:SetJustifyV("CENTER")
-    main_frame.target_swing_frame.text:SetJustifyH("CENTER")
+	main_frame.target_swing_frame.swing_text = main_frame.target_swing_frame:CreateFontString(nil, "ARTWORK")
+    main_frame.target_swing_frame.swing_text:SetFont("Fonts/FRIZQT__.ttf", size)
+    main_frame.target_swing_frame.swing_text:SetJustifyV("CENTER")
+    main_frame.target_swing_frame.swing_text:SetJustifyH("CENTER")
 	-- Setup the Crit Reactive Procs Ping Delay Frame
 	main_frame.target_swing_frame.crp_ping_frame = CreateFrame("Frame", "WSTCRPPingFrame", main_frame.target_swing_frame)
 	local crp_ping_texture = main_frame.target_swing_frame.crp_ping_frame:CreateTexture(nil,"ARTWORK")

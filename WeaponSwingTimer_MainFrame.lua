@@ -38,12 +38,14 @@ LHGWSTMain.UpdateSwingFrames = function()
     end
     -- Update the player swing frame
     local player_swing_frame = LHGWSTMain.main_frame.player_swing_frame
-	player_percent = 1 - (play_swing_time / play_weap_speed)
-    player_swing_frame:SetWidth((main_frame:GetWidth() - 2) * player_percent)
+	local player_percent = 1 - (play_swing_time / play_weap_speed)
+	local player_width = (main_frame:GetWidth() - 2) * player_percent
+    player_swing_frame:SetWidth(player_width)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
-	target_percent = 1 - (tar_swing_time / tar_weap_speed)
-    target_swing_frame:SetWidth((main_frame:GetWidth() - 2) * target_percent)
+	local target_percent = 1 - (tar_swing_time / tar_weap_speed)
+	local target_width = (main_frame:GetWidth() - 2) * target_percent
+    target_swing_frame:SetWidth()
 	
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local down, up, lagHome, lagWorld = GetNetStats()
@@ -51,8 +53,9 @@ LHGWSTMain.UpdateSwingFrames = function()
 	if (LHG_WST_Settings.crp_ping_enabled) then
 		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
 	end
+	ping_offset = (main_frame:GetWidth() - 2) - target_width
 	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
-	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", 0, 0)
+	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", ping_offset, 0)
 	
 	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local fixed_width = 0

@@ -13,7 +13,7 @@ local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlo
 
 local default_settings = {
     width = 300,
-    height = 10,
+    height = 20,
     rel_point = "CENTER",
     x_pos = 0,
     y_pos = -100,

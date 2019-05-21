@@ -278,8 +278,8 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     end)
     config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
 	-- Add the CRP fixed delay editbox
-	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "CRP Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
-    config_frame.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 300, -140, "BOTTOMRIGHT", 400, -160)
+	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
+    config_frame.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 300, -140)
     config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
     -- Set the scripts that control the config_frame
     config_frame:SetMovable(true)

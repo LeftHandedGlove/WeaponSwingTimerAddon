@@ -63,7 +63,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 		fixed_width = (LHG_WST_Settings.width * LHG_WST_Settings.crp_fixed_delay) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
-	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("LEFT", main_frame.target_swing_frame.crp_ping_frame, 0, 0)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", main_frame.target_swing_frame.crp_ping_frame, 0, 0)
 	
 end
 
@@ -116,7 +116,7 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
 	-- Setup the Crit Reactive Procs Fixed Delay Frame
 	main_frame.target_swing_frame.crp_fixed_frame = CreateFrame("Frame", "WSTCRPFixedFrame", main_frame.target_swing_frame)
 	local crp_fixed_texture = main_frame.target_swing_frame.crp_fixed_frame:CreateTexture(nil,"ARTWORK")
-	crp_fixed_texture:SetColorTexture(1,0,0,1)
+	crp_fixed_texture:SetColorTexture(1,1,0,1)
     crp_fixed_texture:SetAllPoints(main_frame.target_swing_frame.crp_fixed_frame)
     main_frame.target_swing_frame.crp_fixed_frame.texture = crp_fixed_texture
     -- Set the scripts that control the main_frame

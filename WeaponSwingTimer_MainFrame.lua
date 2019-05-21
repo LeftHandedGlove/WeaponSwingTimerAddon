@@ -45,7 +45,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
 	local target_percent = 1 - (tar_swing_time / tar_weap_speed)
 	local target_width = (main_frame:GetWidth() - 2) * target_percent
-    target_swing_frame:SetWidth()
+    target_swing_frame:SetWidth(target_width)
 	
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local down, up, lagHome, lagWorld = GetNetStats()
@@ -53,7 +53,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 	if (LHG_WST_Settings.crp_ping_enabled) then
 		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
 	end
-	ping_offset = (main_frame:GetWidth() - 2) - target_width
+	ping_offset = (main_frame:GetWidth() - 2) - target_width - ping_width
 	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
 	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", ping_offset, 0)
 	

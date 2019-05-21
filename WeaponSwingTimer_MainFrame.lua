@@ -1,7 +1,7 @@
 LHGWSTMain = {}
 
 local function MainFrame_OnDragStart()
-    if not LHG_WeapSwingTimer_Settings.is_locked then
+    if not LHG_WST_Settings.is_locked then
         LHGWSTMain.main_frame:StartMoving()
     end
 end
@@ -9,9 +9,9 @@ end
 local function MainFrame_OnDragStop()
     LHGWSTMain.main_frame:StopMovingOrSizing()
     _, _, rel_point, x_pos, y_pos = LHGWSTMain.main_frame:GetPoint()
-    LHG_WeapSwingTimer_Settings.rel_point = rel_point
-    LHG_WeapSwingTimer_Settings.x_pos = x_pos
-    LHG_WeapSwingTimer_Settings.y_pos = y_pos
+    LHG_WST_Settings.rel_point = rel_point
+    LHG_WST_Settings.x_pos = x_pos
+    LHG_WST_Settings.y_pos = y_pos
     LHGWSTConfig.UpdateConfigFrameValues()
 end
 
@@ -23,10 +23,10 @@ LHGWSTMain.UpdateSwingFrames = function()
 	local tar_swing_time = LHGWSTCore.target_swing_timer
     -- Update the alpha
     local main_frame = LHGWSTMain.main_frame
-    if LHG_WeapSwingTimer_Settings.in_combat then
-        main_frame:SetAlpha(LHG_WeapSwingTimer_Settings.in_combat_alpha)
+    if LHG_WST_Settings.in_combat then
+        main_frame:SetAlpha(LHG_WST_Settings.in_combat_alpha)
     else
-        main_frame:SetAlpha(LHG_WeapSwingTimer_Settings.ooc_alpha)
+        main_frame:SetAlpha(LHG_WST_Settings.ooc_alpha)
     end
     -- Update the player swing frame
     local player_swing_frame = LHGWSTMain.main_frame.player_swing_frame
@@ -50,11 +50,11 @@ end
 
 LHGWSTMain.UpdateVisuals = function()
     local main_frame = LHGWSTMain.main_frame
-    main_frame:SetWidth(LHG_WeapSwingTimer_Settings.width)
-    main_frame:SetHeight(LHG_WeapSwingTimer_Settings.height)
-    main_frame:SetPoint(LHG_WeapSwingTimer_Settings.rel_point, LHG_WeapSwingTimer_Settings.x_pos, LHG_WeapSwingTimer_Settings.y_pos)
-    main_frame:SetScale(LHG_WeapSwingTimer_Settings.scale)
-    main_frame.main_texture:SetColorTexture(0,0,0,LHG_WeapSwingTimer_Settings.backplane_alpha)
+    main_frame:SetWidth(LHG_WST_Settings.width)
+    main_frame:SetHeight(LHG_WST_Settings.height)
+    main_frame:SetPoint(LHG_WST_Settings.rel_point, LHG_WST_Settings.x_pos, LHG_WST_Settings.y_pos)
+    main_frame:SetScale(LHG_WST_Settings.scale)
+    main_frame.main_texture:SetColorTexture(0,0,0,LHG_WST_Settings.backplane_alpha)
 	
     main_frame.player_swing_frame:SetWidth(main_frame:GetWidth() - 2)
     main_frame.player_swing_frame:SetHeight((main_frame:GetHeight() / 2) - 2)
@@ -67,16 +67,16 @@ LHGWSTMain.UpdateVisuals = function()
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local down, up, lagHome, lagWorld = GetNetStats()
 	local ping_width = 0
-	if (LHG_WeapSwingTimer_Settings.crp_ping_enabled) then
-		ping_width = (LHG_WeapSwingTimer_Settings.width * (lagHome / 1000)) / tar_weap_speed
+	if (LHG_WST_Settings.crp_ping_enabled) then
+		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
 	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", 0, 0)
 	
 	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
 	local fixed_width = 0
-	if (LHG_WeapSwingTimer_Settings.crp_fixed_enabled) then
-		fixed_width = (LHG_WeapSwingTimer_Settings.width * (LHG_WeapSwingTimer_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
+	if (LHG_WST_Settings.crp_fixed_enabled) then
+		fixed_width = (LHG_WST_Settings.width * (LHG_WST_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
 	end
 	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
 	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", 0, 0)
@@ -88,7 +88,7 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     LHGWSTMain.main_frame = CreateFrame("Frame", "WSTMainFrame", UIParent)
     local main_frame = LHGWSTMain.main_frame
     main_frame.main_texture = main_frame:CreateTexture(nil,"ARTWORK")
-    main_frame.main_texture:SetColorTexture(0,0,0,LHG_WeapSwingTimer_Settings.backplane_alpha)
+    main_frame.main_texture:SetColorTexture(0,0,0,LHG_WST_Settings.backplane_alpha)
     main_frame.main_texture:SetAllPoints(main_frame)
     main_frame.texture = main_frame.main_texture
     main_frame:Show()

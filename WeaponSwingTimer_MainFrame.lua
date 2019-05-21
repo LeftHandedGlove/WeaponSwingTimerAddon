@@ -83,7 +83,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 		fixed_width = 0
 	end
 	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
-	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("BOTTOMRIGHT", -ping_width, 0)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("BOTTOMRIGHT", main_frame.target_swing_frame.crp_ping_frame, -ping_width, 0)
 	
 end
 

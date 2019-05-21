@@ -74,7 +74,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 	-- Update the CRP fixed delay
 	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight() / 2)
 	local fixed_width = 0
-	if (LHG_WST_Settings.crp_fixed_enabled) then
+	if (LHG_WST_Settings.crp_fixed_enabled) and (LHG_WST_Settings.crp_fixed_delay > 0) then
 		main_frame.target_swing_frame.crp_fixed_frame:Show()
 		fixed_width = (LHG_WST_Settings.width * LHG_WST_Settings.crp_fixed_delay) / tar_weap_speed
 	else

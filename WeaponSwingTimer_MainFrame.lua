@@ -21,6 +21,14 @@ LHGWSTMain.UpdateSwingFrames = function()
 	local play_swing_time = LHGWSTCore.player_swing_timer
 	local tar_weap_speed = LHGWSTCore.target_weapon_speed
 	local tar_swing_time = LHGWSTCore.target_swing_timer
+	-- Deal with divide by zero error
+    if play_weap_speed ~= 0 then
+        play_weap_speed = 2
+    end
+	-- Deal with divide by zero error
+    if tar_weap_speed ~= 0 then
+        tar_weap_speed = 2
+    end
     -- Update the alpha
     local main_frame = LHGWSTMain.main_frame
     if LHG_WST_Settings.in_combat then
@@ -30,22 +38,30 @@ LHGWSTMain.UpdateSwingFrames = function()
     end
     -- Update the player swing frame
     local player_swing_frame = LHGWSTMain.main_frame.player_swing_frame
-    -- Deal with divide by zero error
-    if play_weap_speed ~= 0 then
-        player_percent = 1 - (play_swing_time / play_weap_speed)
-    else
-        player_percent = 1
-    end
+	player_percent = 1 - (play_swing_time / play_weap_speed)
     player_swing_frame:SetWidth((main_frame:GetWidth() - 2) * player_percent)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
-    -- Deal with divide by zero error
-    if tar_weap_speed ~= 0 then
-        target_percent = 1 - (tar_swing_time / tar_weap_speed)
-    else
-        target_percent = 1
-    end
+	target_percent = 1 - (tar_swing_time / tar_weap_speed)
     target_swing_frame:SetWidth((main_frame:GetWidth() - 2) * target_percent)
+	
+	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	local down, up, lagHome, lagWorld = GetNetStats()
+	local ping_width = 0
+	if (LHG_WST_Settings.crp_ping_enabled) then
+		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
+	end
+	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
+	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", 0, 0)
+	
+	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
+	local fixed_width = 0
+	if (LHG_WST_Settings.crp_fixed_enabled) then
+		fixed_width = (LHG_WST_Settings.width * (LHG_WST_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
+	end
+	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
+	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", 0, 0)
+	
 end
 
 LHGWSTMain.UpdateVisuals = function()
@@ -64,22 +80,6 @@ LHGWSTMain.UpdateVisuals = function()
     main_frame.target_swing_frame:SetHeight((main_frame:GetHeight() / 2) - 2)
     main_frame.target_swing_frame:SetPoint("BOTTOMLEFT", 1, 1)
 	
-	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
-	local down, up, lagHome, lagWorld = GetNetStats()
-	local ping_width = 0
-	if (LHG_WST_Settings.crp_ping_enabled) then
-		ping_width = (LHG_WST_Settings.width * (lagHome / 1000)) / tar_weap_speed
-	end
-	main_frame.target_swing_frame.crp_ping_frame:SetWidth(ping_width)
-	main_frame.target_swing_frame.crp_ping_frame:SetPoint("RIGHT", 0, 0)
-	
-	main_frame.target_swing_frame.crp_fixed_frame:SetHeight(main_frame.target_swing_frame:GetHeight())
-	local fixed_width = 0
-	if (LHG_WST_Settings.crp_fixed_enabled) then
-		fixed_width = (LHG_WST_Settings.width * (LHG_WST_Settings.crp_fixed_delay / 1000)) / tar_weap_speed
-	end
-	main_frame.target_swing_frame.crp_fixed_frame:SetWidth(fixed_width)
-	main_frame.target_swing_frame.crp_fixed_frame:SetPoint("RIGHT", 0, 0)
     LHGWSTMain.UpdateSwingFrames()
 end
 

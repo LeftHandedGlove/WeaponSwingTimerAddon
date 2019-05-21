@@ -115,7 +115,8 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     main_frame.player_swing_frame.texture = player_texture
 	-- Setup the players swing timer text
 	main_frame.player_swing_frame.swing_text = main_frame.player_swing_frame:CreateFontString(nil, "ARTWORK")
-    main_frame.player_swing_frame.swing_text:SetFont("Fonts/FRIZQT__.ttf", size)
+    print(main_frame.player_swing_frame.swing_text)
+	main_frame.player_swing_frame.swing_text:SetFont("Fonts/FRIZQT__.ttf", size)
     main_frame.player_swing_frame.swing_text:SetJustifyV("CENTER")
     main_frame.player_swing_frame.swing_text:SetJustifyH("CENTER")
     -- Setup the target's swing image appearance

@@ -1,5 +1,10 @@
 LHGWSTMain = {}
 
+--simple round number func
+local SimpleRound = function(num, step)
+    return floor(num / step) * step
+end
+
 local function MainFrame_OnDragStart()
     if not LHG_WST_Settings.is_locked then
         LHGWSTMain.main_frame:StartMoving()
@@ -43,7 +48,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     player_swing_frame:SetWidth(player_width)
 	-- Update the players swing text
 	player_offset = (main_frame:GetWidth() - 2) - player_width
-	player_swing_frame.text:SetText(tostring(player_swing_timer))
+	player_swing_frame.text:SetText(tostring(SimpleRound(player_swing_timer, 0.1)))
 	player_swing_frame.text.SetPoint("Right", player_offset + 20, 0)
     -- Update the target swing frame
     local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
@@ -52,7 +57,7 @@ LHGWSTMain.UpdateSwingFrames = function()
     target_swing_frame:SetWidth(target_width)
 	-- Update the targets swing text
 	target_offset = (main_frame:GetWidth() - 2) - target_width
-	target_swing_frame.text:SetText(tostring(target_swing_timer))
+	target_swing_frame.text:SetText(tostring(SimpleRound(target_swing_timer, 0.1)))
 	target_swing_frame.text.SetPoint("Right", target_offset + 20, 0)
 	-- Update the CRP Ping delay
 	main_frame.target_swing_frame.crp_ping_frame:SetHeight(main_frame.target_swing_frame:GetHeight())

@@ -168,7 +168,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
         insets = { left = 4, right = 4, top = 4, bottom = 4}
     })
     config_frame:SetBackdropColor(0,0,0,1)
-    config_frame:SetWidth(500)
+    config_frame:SetWidth(450)
     config_frame:SetHeight(310)
     config_frame:SetPoint("CENTER", 0, 0)
     config_frame:Hide()
@@ -236,7 +236,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
     -- Add the height control
     config_frame.height_editbox = EditBoxFactory(config_frame, "Height", Height_OnEnterPressed)
-    config_frame.height_editbox:SetPoint("TOPLEFT", 100, -80)
+    config_frame.height_editbox:SetPoint("TOPLEFT", 140, -80)
     config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
     -- Add the x offset control
     config_frame.xoffset_editbox = EditBoxFactory(config_frame, "X Offset", XOffset_OnEnterPressed)
@@ -244,7 +244,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
     -- Add the y offset control
     config_frame.yoffset_editbox = EditBoxFactory(config_frame, "Y Offset", YOffset_OnEnterPressed)
-    config_frame.yoffset_editbox:SetPoint("TOPLEFT", 1000, -120)
+    config_frame.yoffset_editbox:SetPoint("TOPLEFT", 140, -120)
     config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
     -- Add the alpha sliders
     config_frame.combat_alpha_slider = CreateBasicSlider(config_frame, "WSTCombatAlphaSlider", "In Combat Alpha", 0, 1, 0.05, CombatAlpha_OnValueChanged)

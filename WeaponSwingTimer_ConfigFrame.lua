@@ -188,7 +188,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame:SetPoint("TOP", 0, 0)
     -- Add the title's name
     config_frame.title_frame.text = TextFactory(
-        config_frame.title_frame, "WeaponSwingTimer", 16)
+        config_frame.title_frame, "WeaponSwingTimer Configuration", 16)
     config_frame.title_frame.text:SetPoint("CENTER", 0, 0)
     -- Add the close button
     config_frame.title_frame.close_btn = CreateFrame("Button", "WSTCloseButton", config_frame.title_frame)
@@ -209,7 +209,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
     -- Add restore defaults button
     config_frame.restore_defaults_btn = CreateFrame("Button", nil, config_frame)
-	config_frame.restore_defaults_btn:SetPoint("TOPRIGHT", -20, -37)
+	config_frame.restore_defaults_btn:SetPoint("BOTTOMRIGHT", 20, 20)
 	config_frame.restore_defaults_btn:SetWidth(75)
 	config_frame.restore_defaults_btn:SetHeight(25)
 	config_frame.restore_defaults_btn:SetText("Defaults")
@@ -232,36 +232,36 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.restore_defaults_btn:SetScript("OnClick", LHGWSTCore.RestoreDefaults)
     -- Add the width control
     config_frame.width_editbox = EditBoxFactory(config_frame, "Width", Width_OnEnterPressed)
-    config_frame.width_editbox:SetPoint("TOP", -55, -80, "BOTTOMRIGHT", 60, -140)
+    config_frame.width_editbox:SetPoint("TOPLEFT", 10, -80, "BOTTOMRIGHT", 60, -140)
     config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
     -- Add the height control
     config_frame.height_editbox = EditBoxFactory(config_frame, "Height", Height_OnEnterPressed)
-    config_frame.height_editbox:SetPoint("TOP", 55, -80)
+    config_frame.height_editbox:SetPoint("TOPLEFT", 60, -80)
     config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
     -- Add the x offset control
     config_frame.xoffset_editbox = EditBoxFactory(config_frame, "X Offset", XOffset_OnEnterPressed)
-    config_frame.xoffset_editbox:SetPoint("TOP", -55, -120)
+    config_frame.xoffset_editbox:SetPoint("TOPLEFT", 10, -120)
     config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
     -- Add the y offset control
     config_frame.yoffset_editbox = EditBoxFactory(config_frame, "Y Offset", YOffset_OnEnterPressed)
-    config_frame.yoffset_editbox:SetPoint("TOP", 55, -120)
+    config_frame.yoffset_editbox:SetPoint("TOPLEFT", 60, -120)
     config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
     -- Add the alpha sliders
     config_frame.combat_alpha_slider = CreateBasicSlider(config_frame, "WSTCombatAlphaSlider", "In Combat Alpha", 0, 1, 0.05, CombatAlpha_OnValueChanged)
-    config_frame.combat_alpha_slider:SetPoint("TOP", -30, -170)
+    config_frame.combat_alpha_slider:SetPoint("TOPLEFT", 10, -170)
     config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
     config_frame.ooc_alpha_slider = CreateBasicSlider(config_frame, "WSTOOCAlphaSlider", "Out of Combat Alpha", 0, 1, 0.05, OOCAlpha_OnValueChanged)
-    config_frame.ooc_alpha_slider:SetPoint("TOP", -30, -220)
+    config_frame.ooc_alpha_slider:SetPoint("TOPLEFT", 10, -220)
     config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
     config_frame.backplane_alpha_slider = CreateBasicSlider(config_frame, "WSTBackPlaneAlphaSlider", "Backplane Alpha", 0, 1, 0.05, BackplaneAlpha_OnValueChanged)
-    config_frame.backplane_alpha_slider:SetPoint("TOP", -30, -270)
+    config_frame.backplane_alpha_slider:SetPoint("TOPLEFT", 10, -270)
     config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
 	-- Add the CRP Title Text
 	config_frame.crp_title_text = TextFactory(config_frame, "CRP Settings", 16)
-	config_frame.crp_title_text:SetPoint("TOPLEFT", 300, -37)
+	config_frame.crp_title_text:SetPoint("TOPLEFT", 300, -40)
 	-- Add the CRP Ping enabled
 	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 300, -50)
+    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 300, -60)
     getglobal(config_frame.crp_ping_checkbtn:GetName() .. 'Text'):SetText(" CRP Ping Delay")
     config_frame.crp_ping_checkbtn.tooltip = "Enabled the crit reactive procs ping delay."
     config_frame.crp_ping_checkbtn:SetScript("OnClick", function(self)
@@ -270,7 +270,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
 	-- Add the CRP fixed delay enabled
 	config_frame.crp_fixed_checkbtn = CreateFrame("CheckButton", "WSTCRPFixedCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 400, -50)
+    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 300, -100)
     getglobal(config_frame.crp_fixed_checkbtn:GetName() .. 'Text'):SetText(" CRP Fixed Delay")
     config_frame.crp_fixed_checkbtn.tooltip = "Enabled the crit reactive procs fixed delay."
     config_frame.crp_fixed_checkbtn:SetScript("OnClick", function(self)
@@ -279,7 +279,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
 	-- Add the CRP fixed delay editbox
 	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "CRP Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
-    config_frame.crp_fixed_delay_editbox:SetPoint("TOP", 400, -100, "BOTTOMRIGHT", 450, -150)
+    config_frame.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 300, -140, "BOTTOMRIGHT", 350, -160)
     config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
     -- Set the scripts that control the config_frame
     config_frame:SetMovable(true)

@@ -108,13 +108,13 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
 	main_frame.target_swing_frame.crp_ping_frame = CreateFrame("Frame", "WSTCRPPingFrame", main_frame)
 	local crp_ping_texture = main_frame.target_swing_frame.crp_ping_frame:CreateTexture(nil,"ARTWORK")
 	crp_ping_texture:SetColorTexture(1,0,0,1)
-    crp_ping_texture:SetAllPointsPoint(main_frame.target_swing_frame.crp_ping_frame)
+    crp_ping_texture:SetAllPoints(main_frame.target_swing_frame.crp_ping_frame)
     main_frame.target_swing_frame.crp_ping_frame.texture = crp_ping_texture
 	-- Setup the Crit Reactive Procs Fixed Delay Frame
 	main_frame.target_swing_frame.crp_fixed_frame = CreateFrame("Frame", "WSTCRPFixedFrame", main_frame)
 	local crp_fixed_texture = main_frame.target_swing_frame.crp_fixed_frame:CreateTexture(nil,"ARTWORK")
 	crp_fixed_texture:SetColorTexture(1,0,0,1)
-    crp_fixed_texture:SetAllPointsPoint(main_frame.target_swing_frame.crp_fixed_frame)
+    crp_fixed_texture:SetAllPoints(main_frame.target_swing_frame.crp_fixed_frame)
     main_frame.target_swing_frame.crp_fixed_frame.texture = crp_fixed_texture
     -- Set the scripts that control the main_frame
     main_frame:SetMovable(true)

@@ -257,7 +257,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.backplane_alpha_slider:SetPoint("TOP", -30, -270)
     config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
 	-- Add the CRP Title Text
-	config_frame.crp_title_text = TextFactory(edit_box_obj, title, 11)
+	config_frame.crp_title_text = TextFactory(config_frame, title, 11)
 	config_frame.crp_title_text:SetPoint("TOPLEFT", 200, -200)
 	-- Add the CRP Ping enabled
 	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")

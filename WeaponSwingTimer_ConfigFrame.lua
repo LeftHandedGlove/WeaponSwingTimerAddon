@@ -2,53 +2,62 @@ LHGWSTConfig = {}
 local config_frame
 
 LHGWSTConfig.UpdateConfigFrameValues = function()
-    LHGWSTConfig.config_frame.lock_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.is_locked)
-    LHGWSTConfig.config_frame.width_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.width))
-    LHGWSTConfig.config_frame.height_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.height))
-    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
-    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
-    LHGWSTConfig.config_frame.yoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.y_pos))
-    LHGWSTConfig.config_frame.combat_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.in_combat_alpha)
-    LHGWSTConfig.config_frame.ooc_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.ooc_alpha)
-    LHGWSTConfig.config_frame.backplane_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.backplane_alpha)
+    LHGWSTConfig.config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
+    LHGWSTConfig.config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
+    LHGWSTConfig.config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
+    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
+    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
+    LHGWSTConfig.config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
+    LHGWSTConfig.config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
+    LHGWSTConfig.config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
+    LHGWSTConfig.config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
+	LHGWSTConfig.config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
+	LHGWSTConfig.config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
+	LHGWSTConfig.config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
 end
 
 local function Width_OnEnterPressed(self)
     self:ClearFocus()
-    LHG_WeapSwingTimer_Settings.width = tonumber(self:GetText())
+    LHG_WST_Settings.width = tonumber(self:GetText())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function Height_OnEnterPressed(self)
     self:ClearFocus()
-    LHG_WeapSwingTimer_Settings.height = tonumber(self:GetText())
+    LHG_WST_Settings.height = tonumber(self:GetText())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function XOffset_OnEnterPressed(self)
     self:ClearFocus()
-    LHG_WeapSwingTimer_Settings.x_pos = tonumber(self:GetText())
+    LHG_WST_Settings.x_pos = tonumber(self:GetText())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function YOffset_OnEnterPressed(self)
     self:ClearFocus()
-    LHG_WeapSwingTimer_Settings.y_pos = tonumber(self:GetText())
+    LHG_WST_Settings.y_pos = tonumber(self:GetText())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function CombatAlpha_OnValueChanged(self)
-    LHG_WeapSwingTimer_Settings.in_combat_alpha = tonumber(self:GetValue())
+    LHG_WST_Settings.in_combat_alpha = tonumber(self:GetValue())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function OOCAlpha_OnValueChanged(self)
-    LHG_WeapSwingTimer_Settings.ooc_alpha = tonumber(self:GetValue())
+    LHG_WST_Settings.ooc_alpha = tonumber(self:GetValue())
     LHGWSTMain.UpdateVisuals()
 end
 
 local function BackplaneAlpha_OnValueChanged(self)
-    LHG_WeapSwingTimer_Settings.backplane_alpha = tonumber(self:GetValue())
+    LHG_WST_Settings.backplane_alpha = tonumber(self:GetValue())
+    LHGWSTMain.UpdateVisuals()
+end
+
+local function CRPFixedDelay_OnEnterPressed(self)
+    self:ClearFocus()
+    LHG_WST_Settings.crp_fixed_delay = tonumber(self:GetText())
     LHGWSTMain.UpdateVisuals()
 end
 
@@ -103,9 +112,9 @@ local function EditBoxFactory(parent, title, enter_func)
 end
 
 --simple round number func
-  local SimpleRound = function(val,valStep)
-    return floor(val/valStep)*valStep
-  end
+local SimpleRound = function(num, step)
+    return floor(num / step) * step
+end
  
 --basic slider func
 local CreateBasicSlider = function(parent, name, title, minVal, maxVal, valStep, func)
@@ -162,7 +171,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
         insets = { left = 4, right = 4, top = 4, bottom = 4}
     })
     config_frame:SetBackdropColor(0,0,0,1)
-    config_frame:SetWidth(250)
+    config_frame:SetWidth(450)
     config_frame:SetHeight(310)
     config_frame:SetPoint("CENTER", 0, 0)
     config_frame:Hide()
@@ -182,7 +191,7 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.title_frame:SetPoint("TOP", 0, 0)
     -- Add the title's name
     config_frame.title_frame.text = TextFactory(
-        config_frame.title_frame, "WeaponSwingTimer", 16)
+        config_frame.title_frame, "WeaponSwingTimer Configuration", 16)
     config_frame.title_frame.text:SetPoint("CENTER", 0, 0)
     -- Add the close button
     config_frame.title_frame.close_btn = CreateFrame("Button", "WSTCloseButton", config_frame.title_frame)
@@ -198,12 +207,12 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     getglobal(config_frame.lock_checkbtn:GetName() .. 'Text'):SetText(" Lock Frame")
     config_frame.lock_checkbtn.tooltip = "Prevents the frame from being dragged."
     config_frame.lock_checkbtn:SetScript("OnClick", function(self)
-        LHG_WeapSwingTimer_Settings.is_locked = self:GetChecked()
+        LHG_WST_Settings.is_locked = self:GetChecked()
     end)
-    config_frame.lock_checkbtn:SetChecked(LHG_WeapSwingTimer_Settings.is_locked)
+    config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
     -- Add restore defaults button
     config_frame.restore_defaults_btn = CreateFrame("Button", nil, config_frame)
-	config_frame.restore_defaults_btn:SetPoint("TOPRIGHT", -20, -37)
+	config_frame.restore_defaults_btn:SetPoint("BOTTOMRIGHT", -20, 20)
 	config_frame.restore_defaults_btn:SetWidth(75)
 	config_frame.restore_defaults_btn:SetHeight(25)
 	config_frame.restore_defaults_btn:SetText("Defaults")
@@ -226,31 +235,55 @@ LHGWSTConfig.CreateLHGWSTConfigFrame = function()
     config_frame.restore_defaults_btn:SetScript("OnClick", LHGWSTCore.RestoreDefaults)
     -- Add the width control
     config_frame.width_editbox = EditBoxFactory(config_frame, "Width", Width_OnEnterPressed)
-    config_frame.width_editbox:SetPoint("TOP", -55, -80, "BOTTOMRIGHT", 60, -140)
-    config_frame.width_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.width))
+    config_frame.width_editbox:SetPoint("TOPLEFT", 20, -80, "BOTTOMRIGHT", 60, -140)
+    config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
     -- Add the height control
     config_frame.height_editbox = EditBoxFactory(config_frame, "Height", Height_OnEnterPressed)
-    config_frame.height_editbox:SetPoint("TOP", 55, -80)
-    config_frame.height_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.height))
+    config_frame.height_editbox:SetPoint("TOPLEFT", 140, -80)
+    config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
     -- Add the x offset control
     config_frame.xoffset_editbox = EditBoxFactory(config_frame, "X Offset", XOffset_OnEnterPressed)
-    config_frame.xoffset_editbox:SetPoint("TOP", -55, -120)
-    config_frame.xoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.x_pos))
+    config_frame.xoffset_editbox:SetPoint("TOPLEFT", 20, -120)
+    config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
     -- Add the y offset control
     config_frame.yoffset_editbox = EditBoxFactory(config_frame, "Y Offset", YOffset_OnEnterPressed)
-    config_frame.yoffset_editbox:SetPoint("TOP", 55, -120)
-    config_frame.yoffset_editbox:SetText(tostring(LHG_WeapSwingTimer_Settings.y_pos))
+    config_frame.yoffset_editbox:SetPoint("TOPLEFT", 140, -120)
+    config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
     -- Add the alpha sliders
     config_frame.combat_alpha_slider = CreateBasicSlider(config_frame, "WSTCombatAlphaSlider", "In Combat Alpha", 0, 1, 0.05, CombatAlpha_OnValueChanged)
-    config_frame.combat_alpha_slider:SetPoint("TOP", -30, -170)
-    config_frame.combat_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.in_combat_alpha)
+    config_frame.combat_alpha_slider:SetPoint("TOPLEFT", 20, -170)
+    config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
     config_frame.ooc_alpha_slider = CreateBasicSlider(config_frame, "WSTOOCAlphaSlider", "Out of Combat Alpha", 0, 1, 0.05, OOCAlpha_OnValueChanged)
-    config_frame.ooc_alpha_slider:SetPoint("TOP", -30, -220)
-    config_frame.ooc_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.ooc_alpha)
+    config_frame.ooc_alpha_slider:SetPoint("TOPLEFT", 20, -220)
+    config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
     config_frame.backplane_alpha_slider = CreateBasicSlider(config_frame, "WSTBackPlaneAlphaSlider", "Backplane Alpha", 0, 1, 0.05, BackplaneAlpha_OnValueChanged)
-    config_frame.backplane_alpha_slider:SetPoint("TOP", -30, -270)
-    config_frame.backplane_alpha_slider:SetValue(LHG_WeapSwingTimer_Settings.backplane_alpha)
-    -- parent, name, title, minVal, maxVal, valStep
+    config_frame.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -270)
+    config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
+	-- Add the CRP Title Text
+	config_frame.crp_title_text = TextFactory(config_frame, "CRP Settings", 16)
+	config_frame.crp_title_text:SetPoint("TOPLEFT", 300, -40)
+	-- Add the CRP Ping enabled
+	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")
+    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 295, -60)
+    getglobal(config_frame.crp_ping_checkbtn:GetName() .. 'Text'):SetText(" CRP Ping Delay")
+    config_frame.crp_ping_checkbtn.tooltip = "Enabled the crit reactive procs ping delay."
+    config_frame.crp_ping_checkbtn:SetScript("OnClick", function(self)
+        LHG_WST_Settings.crp_ping_enabled = self:GetChecked()
+    end)
+    config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
+	-- Add the CRP fixed delay enabled
+	config_frame.crp_fixed_checkbtn = CreateFrame("CheckButton", "WSTCRPFixedCheckbtn", config_frame, "OptionsCheckButtonTemplate")
+    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 295, -90)
+    getglobal(config_frame.crp_fixed_checkbtn:GetName() .. 'Text'):SetText(" CRP Fixed Delay")
+    config_frame.crp_fixed_checkbtn.tooltip = "Enabled the crit reactive procs fixed delay."
+    config_frame.crp_fixed_checkbtn:SetScript("OnClick", function(self)
+        LHG_WST_Settings.crp_fixed_enabled = self:GetChecked()
+    end)
+    config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
+	-- Add the CRP fixed delay editbox
+	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
+    config_frame.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 300, -140)
+    config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
     -- Set the scripts that control the config_frame
     config_frame:SetMovable(true)
     config_frame.title_frame:EnableMouse(true)

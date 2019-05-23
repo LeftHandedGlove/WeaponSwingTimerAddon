@@ -13,7 +13,7 @@ local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlo
 
 local default_settings = {
     width = 300,
-    height = 10,
+    height = 12,
     rel_point = "CENTER",
     x_pos = 0,
     y_pos = -100,
@@ -22,12 +22,18 @@ local default_settings = {
     ooc_alpha = 0.25,
     backplane_alpha = 0.5,
 	is_locked = false,
-    in_combat = false
+    in_combat = false,
+	crp_ping_enabled = false,
+	crp_fixed_enabled = false,
+	crp_fixed_delay = 0.25
 }
 
 local swing_spells = {
     "Heroic Strike",
-    "Slam"
+    "Slam",
+	"Cleave",
+	"Raptor Strike",
+	"Maul"
 }
 
 LHGWSTCore.player_swing_timer = 0.0
@@ -47,12 +53,12 @@ local function PrintMsg(msg)
 end
 
 local function LoadSettings()
-    if not LHG_WeapSwingTimer_Settings then
-        LHG_WeapSwingTimer_Settings = {}
+    if not LHG_WST_Settings then
+        LHG_WST_Settings = {}
     end
     for setting, value in pairs(default_settings) do
-        if LHG_WeapSwingTimer_Settings[setting] == nil then
-            LHG_WeapSwingTimer_Settings[setting] = value
+        if LHG_WST_Settings[setting] == nil then
+            LHG_WST_Settings[setting] = value
         end
     end
 	PrintMsg(load_message)
@@ -60,7 +66,7 @@ end
 
 LHGWSTCore.RestoreDefaults = function()
     for setting, value in pairs(default_settings) do
-        LHG_WeapSwingTimer_Settings[setting] = value
+        LHG_WST_Settings[setting] = value
     end
     LHGWSTConfig.UpdateConfigFrameValues()
     LHGWSTMain.UpdateVisuals()
@@ -113,15 +119,9 @@ local function UpdateSwingTimers(elapsed)
     end
 end
 
-local function UpdateSwingFrames()
-    LHGWSTMain.UpdateSwingFrames(
-        LHGWSTCore.player_weapon_speed, LHGWSTCore.player_swing_timer, 
-        LHGWSTCore.target_weapon_speed, LHGWSTCore.target_swing_timer)
-end
-
 local function CoreFrame_OnUpdate(self, elapsed)
     UpdateSwingTimers(elapsed)
-    UpdateSwingFrames()
+    LHGWSTMain.UpdateVisuals()
 end
 
 local function MissHandler(unit, miss_type)
@@ -174,11 +174,11 @@ local function CoreFrame_OnEvent(self, event, ...)
             LHGWSTCore.config_frame = LHGWSTConfig.CreateLHGWSTConfigFrame()
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
-        LHG_WeapSwingTimer_Settings.in_combat = false
-        UpdateSwingFrames()
+        LHG_WST_Settings.in_combat = false
+        LHGWSTMain.UpdateVisuals()
     elseif event == "PLAYER_REGEN_DISABLED" then
-        LHG_WeapSwingTimer_Settings.in_combat = true
-        UpdateSwingFrames()
+        LHG_WST_Settings.in_combat = true
+        LHGWSTMain.UpdateVisuals()
     elseif event == "PLAYER_TARGET_CHANGED" then
         UpdateTargetInfo()
         MaximizeTargetSwingTimer()

@@ -1,8 +1,10 @@
 ## Interface: 80100
 ## Title: WeaponSwingTimer
+## Notes: Weapon swing timer addon for Classic WoW
 ## Author: LeftHandedGlove
 ## Version: 0.1
-## SavedVariablesPerCharacter: LHG_WeapSwingTimer_Settings
+## DefaultState: enabled
+## SavedVariablesPerCharacter: LHG_WST_Settings
 
 WeaponSwingTimer_MainFrame.lua
 WeaponSwingTimer_ConfigFrame.lua

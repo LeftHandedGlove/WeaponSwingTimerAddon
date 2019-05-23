@@ -13,7 +13,7 @@ local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlo
 
 local default_settings = {
     width = 300,
-    height = 20,
+    height = 12,
     rel_point = "CENTER",
     x_pos = 0,
     y_pos = -100,
@@ -25,7 +25,7 @@ local default_settings = {
     in_combat = false,
 	crp_ping_enabled = false,
 	crp_fixed_enabled = false,
-	crp_fixed_delay = 0.1
+	crp_fixed_delay = 0.25
 }
 
 local swing_spells = {

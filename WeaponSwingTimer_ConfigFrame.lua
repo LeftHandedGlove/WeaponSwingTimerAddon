@@ -1,19 +1,18 @@
-LHGWSTConfig = {}
-local config_frame
+LHGWST_config_frame = {}
 
-LHGWSTConfig.UpdateConfigFrameValues = function()
-    LHGWSTConfig.config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
-    LHGWSTConfig.config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
-    LHGWSTConfig.config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
-    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
-    LHGWSTConfig.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
-    LHGWSTConfig.config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
-    LHGWSTConfig.config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
-    LHGWSTConfig.config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
-    LHGWSTConfig.config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
-	LHGWSTConfig.config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
-	LHGWSTConfig.config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
-	LHGWSTConfig.config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
+LHGWST_config_frame.UpdateConfigFrameValues = function()
+    LHGWST_config_frame.config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
+    LHGWST_config_frame.config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
+    LHGWST_config_frame.config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
+    LHGWST_config_frame.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
+    LHGWST_config_frame.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
+    LHGWST_config_frame.config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
+    LHGWST_config_frame.config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
+    LHGWST_config_frame.config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
+    LHGWST_config_frame.config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
+	LHGWST_config_frame.config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
+	LHGWST_config_frame.config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
+	LHGWST_config_frame.config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
 end
 
 local function Width_OnEnterPressed(self)
@@ -62,15 +61,15 @@ local function CRPFixedDelay_OnEnterPressed(self)
 end
 
 local function HideConfigFrame()
-    LHGWSTConfig.config_frame:Hide()
+    LHGWST_config_frame.config_frame:Hide()
 end
 
 local function ConfigFrame_OnDragStart()
-    LHGWSTConfig.config_frame:StartMoving()
+    LHGWST_config_frame.config_frame:StartMoving()
 end
 
 local function ConfigFrame_OnDragStop()
-    LHGWSTConfig.config_frame:StopMovingOrSizing()
+    LHGWST_config_frame.config_frame:StopMovingOrSizing()
 end
 
 local function TextFactory(parent, text, size)
@@ -158,10 +157,10 @@ local CreateBasicSlider = function(parent, name, title, minVal, maxVal, valStep,
     return slider
 end
 
-LHGWSTConfig.CreateLHGWSTConfigFrame = function()
+LHGWST_config_frame.CreateLHGWSTConfigFrame = function()
     -- Setup the config frame
-    LHGWSTConfig.config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
-    local config_frame = LHGWSTConfig.config_frame
+    LHGWST_config_frame.config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
+    local config_frame = LHGWST_config_frame.config_frame
     config_frame:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",

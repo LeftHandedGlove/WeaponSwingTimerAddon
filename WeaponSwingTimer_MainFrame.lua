@@ -1,26 +1,21 @@
-LHGWSTMain = {}
-
---simple round number func
-local SimpleRound = function(num, step)
-    return floor(num / step) * step
-end
+LHGWST_main = {}
 
 local function MainFrame_OnDragStart()
     if not LHG_WST_Settings.is_locked then
-        LHGWSTMain.main_frame:StartMoving()
+        LHGWST_main.main_frame:StartMoving()
     end
 end
 
 local function MainFrame_OnDragStop()
-    LHGWSTMain.main_frame:StopMovingOrSizing()
-    _, _, rel_point, x_pos, y_pos = LHGWSTMain.main_frame:GetPoint()
+    LHGWST_main.main_frame:StopMovingOrSizing()
+    _, _, rel_point, x_pos, y_pos = LHGWST_main.main_frame:GetPoint()
     LHG_WST_Settings.rel_point = rel_point
     LHG_WST_Settings.x_pos = x_pos
     LHG_WST_Settings.y_pos = y_pos
     LHGWSTConfig.UpdateConfigFrameValues()
 end
 
-LHGWSTMain.UpdateSwingFrames = function()
+LHGWST_main.UpdateSwingFrames = function()
 	-- Get the swing speeds and timers
 	local play_weap_speed = LHGWSTCore.player_weapon_speed
 	local play_swing_time = LHGWSTCore.player_swing_timer
@@ -35,14 +30,14 @@ LHGWSTMain.UpdateSwingFrames = function()
         tar_weap_speed = 2
     end
     -- Update the alpha
-    local main_frame = LHGWSTMain.main_frame
+    local main_frame = LHGWST_main.main_frame
     if LHG_WST_Settings.in_combat then
         main_frame:SetAlpha(LHG_WST_Settings.in_combat_alpha)
     else
         main_frame:SetAlpha(LHG_WST_Settings.ooc_alpha)
     end
     -- Update the player swing frame
-    local player_swing_frame = LHGWSTMain.main_frame.player_swing_frame
+    local player_swing_frame = LHGWST_main.main_frame.player_swing_frame
 	local player_percent = 1 - (play_swing_time / play_weap_speed)
 	local player_width = (main_frame:GetWidth() - 2) * player_percent
     player_swing_frame:SetWidth(player_width)
@@ -51,7 +46,7 @@ LHGWSTMain.UpdateSwingFrames = function()
 	player_swing_frame.swing_text:SetText(tostring(SimpleRound(play_swing_time, 0.1)))
 	player_swing_frame.swing_text:SetPoint("BOTTOMRIGHT", player_offset + 25, 0)
     -- Update the target swing frame
-    local target_swing_frame = LHGWSTMain.main_frame.target_swing_frame
+    local target_swing_frame = LHGWST_main.main_frame.target_swing_frame
 	local target_percent = 1 - (tar_swing_time / tar_weap_speed)
 	local target_width = (main_frame:GetWidth() - 2) * target_percent
     target_swing_frame:SetWidth(target_width)
@@ -87,8 +82,8 @@ LHGWSTMain.UpdateSwingFrames = function()
 	
 end
 
-LHGWSTMain.UpdateVisuals = function()
-    local main_frame = LHGWSTMain.main_frame
+LHGWST_main.UpdateVisuals = function()
+    local main_frame = LHGWST_main.main_frame
     main_frame:SetWidth(LHG_WST_Settings.width)
     main_frame:SetHeight(LHG_WST_Settings.height)
     main_frame:SetPoint(LHG_WST_Settings.rel_point, LHG_WST_Settings.x_pos, LHG_WST_Settings.y_pos)
@@ -103,13 +98,13 @@ LHGWSTMain.UpdateVisuals = function()
     main_frame.target_swing_frame:SetHeight((main_frame:GetHeight() / 2) - 2)
     main_frame.target_swing_frame:SetPoint("BOTTOMLEFT", 1, 1)
 	
-    LHGWSTMain.UpdateSwingFrames()
+    LHGWST_main.UpdateSwingFrames()
 end
 
-LHGWSTMain.CreateLHGWSTMainFrame = function()
+LHGWST_main.CreateLHGWSTMainFrame = function()
     -- Setup the main frame appearance
-    LHGWSTMain.main_frame = CreateFrame("Frame", "WSTMainFrame", UIParent)
-    local main_frame = LHGWSTMain.main_frame
+    LHGWST_main.main_frame = CreateFrame("Frame", "WSTMainFrame", UIParent)
+    local main_frame = LHGWST_main.main_frame
     main_frame.main_texture = main_frame:CreateTexture(nil,"ARTWORK")
     main_frame.main_texture:SetColorTexture(0,0,0,LHG_WST_Settings.backplane_alpha)
     main_frame.main_texture:SetAllPoints(main_frame)
@@ -156,7 +151,7 @@ LHGWSTMain.CreateLHGWSTMainFrame = function()
     main_frame:SetScript("OnDragStart", MainFrame_OnDragStart)
     main_frame:SetScript("OnDragStop", MainFrame_OnDragStop)
     -- Update the visuals
-    LHGWSTMain.UpdateVisuals()
+    LHGWST_main.UpdateVisuals()
     -- return the main_frame
     return main_frame
 end

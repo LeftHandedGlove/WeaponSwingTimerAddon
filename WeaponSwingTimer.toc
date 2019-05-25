@@ -2,12 +2,11 @@
 ## Title: WeaponSwingTimer
 ## Notes: Weapon swing timer addon for Classic WoW
 ## Author: LeftHandedGlove
-## Version: 0.1
+## Version: 2.1
 ## DefaultState: enabled
-## SavedVariablesPerCharacter: LHGWST_Settings
+## SavedVariablesPerCharacter: character_core_settings, character_player_settings, character_target_settings
 
 WeaponSwingTimer_Utils.lua
-WeaponSwingTimer_PlayerFrame.lua
-WeaponSwingTimer_TargetFrame.lua
-WeaponSwingTimer_ConfigFrame.lua
+WeaponSwingTimer_Player.lua
+WeaponSwingTimer_Target.lua
 WeaponSwingTimer_Core.lua

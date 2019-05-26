@@ -15,7 +15,6 @@ local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlo
 addon_data.core.default_settings = {
 	one_frame = false
 }
-addon_data.core.settings = character_core_settings
 
 addon_data.core.in_combat = false
 
@@ -28,71 +27,53 @@ local swing_spells = {
 }
 
 local function LoadAllSettings()
-    -- Load the core settings
     addon_data.core.LoadSettings()
-    -- Load all of the timer's settings
-    for timer_index = 1, #addon_data.core.all_timers do
-        addon_data.core.all_timers[timer_index].LoadSettings()
-    end
+    addon_data.player.LoadSettings()
+    addon_data.target.LoadSettings()
 end
 
 addon_data.core.RestoreAllDefaults = function()
-    -- Restore the core settings
     addon_data.core.RestoreDefaults()
-    -- Restore all of the timer's settings
-    for timer_index = 1, #addon_data.core.all_timers do
-        addon_data.core.all_timers[timer_index].RestoreDefaults()
-    end
+    addon_data.player.RestoreDefaults()
+    addon_data.target.RestoreDefaults()
+    addon_data.player.UpdateVisuals()
+    addon_data.target.UpdateVisuals()
 end
 
 local function InitializeAllVisuals()
-    -- Go through all of the timers
-    for timer_index = 1, #addon_data.core.all_timers do
-        addon_data.core.all_timers[timer_index].InitializeVisuals()
-    end
+    addon_data.player.InitializeVisuals()
+    addon_data.target.InitializeVisuals()
+    addon_data.config.InitializeVisuals()
 end
 
 local function UpdateAllVisuals()
-    -- Go through all of the timers
-    for timer_index = 1, #addon_data.core.all_timers do
-        -- Get the current timer
-        local current_timer = addon_data.core.all_timers[timer_index]
-        -- If the timer is enabled then update the visuals
-        if current_timer.enabled then
-            current_timer.UpdateVisuals()
-        end
-    end
+    addon_data.player.UpdateVisuals()
+    addon_data.target.UpdateVisuals()
 end
 
 local function UpdateAllSwingTimers(elapsed)
-    -- Go through all of the timers
-    for timer_index = 1, #addon_data.core.all_timers do
-        -- Get the current timer
-        local current_timer = addon_data.core.all_timers[timer_index]
-        -- If the timer is enabled then update the swing timers and visuals
-        if current_timer.enabled then
-            current_timer.UpdateSwingTimer(elapsed)
-            current_timer.UpdateVisuals()
-        end
-    end
+    addon_data.player.UpdateSwingTimer(elapsed)
+    addon_data.target.UpdateSwingTimer(elapsed)
+    addon_data.player.UpdateVisuals()
+    addon_data.target.UpdateVisuals()
 end
 
 addon_data.core.LoadSettings = function()
     -- If the carried over settings dont exist then make them
-    if not addon_data.core.settings then
-        addon_data.core.settings = {}
+    if not character_core_settings then
+        character_core_settings = {}
     end
     -- If the carried over settings aren't set then set them to the defaults
     for setting, value in pairs(addon_data.core.default_settings) do
-        if addon_data.core.settings[setting] == nil then
-            addon_data.core.settings[setting] = value
+        if character_core_settings[setting] == nil then
+            character_core_settings[setting] = value
         end
     end
 end
 
 addon_data.core.RestoreDefaults = function()
     for setting, value in pairs(addon_data.core.default_settings) do
-        addon_data.core.settings[setting] = value
+        character_core_settings[setting] = value
     end
 end
 
@@ -100,26 +81,48 @@ local function CoreFrame_OnUpdate(self, elapsed)
     UpdateAllSwingTimers(elapsed)
 end
 
-local function MissHandler(unit, miss_type)
+local function MissHandler(unit, miss_type, is_offhand)
     if miss_type == "PARRY" then
         if unit == "player" then
-            min_swing_time = addon_data.player.weapon_speed * 0.2
-            if addon_data.player.swing_timer > min_swing_time then
-                addon_data.player.swing_timer = min_swing_time
+            if not is_offhand then
+                min_swing_time = addon_data.player.main_weapon_speed * 0.2
+                if addon_data.player.main_swing_timer > min_swing_time then
+                    addon_data.player.main_swing_timer = min_swing_time
+                end
+            else
+                min_swing_time = addon_data.player.off_weapon_speed * 0.2
+                if addon_data.player.off_swing_timer > min_swing_time then
+                    addon_data.player.off_swing_timer = min_swing_time
+                end
             end
         elseif unit == "target" then
-            min_swing_time = addon_data.target.weapon_speed * 0.2
-            if addon_data.target.swing_timer > min_swing_time then
-                addon_data.target.swing_timer = min_swing_time
+            if not is_offhand then
+                min_swing_time = addon_data.target.main_weapon_speed * 0.2
+                if addon_data.target.main_swing_timer > min_swing_time then
+                    addon_data.target.main_swing_timer = min_swing_time
+                end
+            else
+                min_swing_time = addon_data.target.off_weapon_speed * 0.2
+                if addon_data.target.off_swing_timer > min_swing_time then
+                    addon_data.target.off_swing_timer = min_swing_time
+                end
             end
         else
             addon_data.utils.PrintMsg("Unexpected Unit Type in MissHandler().")
         end
     else
         if unit == "player" then
-            addon_data.player.ResetSwingTimer()
+            if not is_offhand then
+                addon_data.player.ResetMainSwingTimer()
+            else
+                addon_data.player.ResetOffSwingTimer()
+            end 
         elseif unit == "target" then
-            addon_data.target.ResetSwingTimer()
+            if not is_offhand then
+                addon_data.target.ResetMainSwingTimer()
+            else
+                addon_data.target.ResetOffSwingTimer()
+            end 
         else
             addon_data.utils.PrintMsg("Unexpected Unit Type in MissHandler().")
         end
@@ -130,9 +133,9 @@ local function SpellHandler(unit, spell_name)
     for _, swing_spell in ipairs(swing_spells) do
         if spell_name == swing_spell then
             if unit == "player" then
-                addon_data.player.ResetSwingTimer()
+                addon_data.player.ResetMainSwingTimer()
             elseif unit == "target" then
-                addon_data.target.ResetSwingTimer()
+                addon_data.target.ResetMainSwingTimer()
             else
                 addon_data.utils.PrintMsg("Unexpected Unit Type in SpellHandler().")
             end
@@ -150,6 +153,7 @@ local function OnAddonLoaded(self)
 	addon_data.core.core_frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	-- Load the settings for the core and all timers
     LoadAllSettings()
+    InitializeAllVisuals()
     -- Any other misc operations that happen at the start
 	addon_data.player.UpdateInfo()
     addon_data.target.UpdateInfo()
@@ -174,21 +178,32 @@ local function CoreFrame_OnEvent(self, event, ...)
         addon_data.target.UpdateInfo()
         addon_data.target.ZeroizeSwingTimer()
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _, miss_type = 
-			CombatLogGetCurrentEventInfo()
+        local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = CombatLogGetCurrentEventInfo()
         if (source_guid == addon_data.player.guid) then
             if (event == "SWING_DAMAGE") then
-                addon_data.player.ResetSwingTimer()
+                local _, _, _, _, _, _, _, _, _, is_offhand = select(12, CombatLogGetCurrentEventInfo())
+                if is_offhand then
+                    addon_data.player.ResetOffSwingTimer()
+                else
+                    addon_data.player.ResetMainSwingTimer()
+                end
             elseif (event == "SWING_MISSED") then
-                MissHandler("player", miss_type)
+                local miss_type, is_offhand = select(12, CombatLogGetCurrentEventInfo())
+                MissHandler("player", miss_type, is_offhand)
             elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
                 SpellHandler("player", spell_name)
             end
-        elseif (source_guid == addon_data.core.target_guid) then
+        elseif (source_guid == addon_data.target.guid) then
             if (event == "SWING_DAMAGE") then
-                addon_data.target.ResetSwingTimer()
+                local _, _, _, _, _, _, _, _, _, is_offhand = select(12, CombatLogGetCurrentEventInfo())
+                if is_offhand then
+                    addon_data.target.ResetOffSwingTimer()
+                else
+                    addon_data.target.ResetMainSwingTimer()
+                end
             elseif (event == "SWING_MISSED") then
-                MissHandler("target", miss_type)
+                local miss_type, is_offhand = select(12, CombatLogGetCurrentEventInfo())
+                MissHandler("target", miss_type, is_offhand)
             elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
                 SpellHandler("target", spell_name)
             end
@@ -203,8 +218,9 @@ SLASH_WEAPONSWINGTIMER_CONFIG1 = "/WeaponSwingTimer"
 SLASH_WEAPONSWINGTIMER_CONFIG2 = "/weaponswingtimer"
 SLASH_WEAPONSWINGTIMER_CONFIG3 = "/wst"
 SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = function(option)
-	LHGWST_utils.LHGWST_utils.PrintMsg("Configuration window opened.")
-    LHGWST_config.config_frame:Show()
+	addon_data.utils.PrintMsg("Configuration window opened.")
+    InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
+    InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
 end
 
 -- Setup the core of the addon (This is like calling main in C)

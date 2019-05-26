@@ -9,4 +9,5 @@
 WeaponSwingTimer_Utils.lua
 WeaponSwingTimer_Player.lua
 WeaponSwingTimer_Target.lua
+WeaponSwingTimer_Config.lua
 WeaponSwingTimer_Core.lua

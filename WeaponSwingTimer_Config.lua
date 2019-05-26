@@ -1,3 +1,52 @@
+local addon_name, addon_data = ...
+
+addon_data.config = {}
+
+local function TextFactory(parent, text, size)
+    local text_obj = parent:CreateFontString(nil, "ARTWORK")
+    text_obj:SetFont("Fonts/FRIZQT__.ttf", size)
+    text_obj:SetJustifyV("CENTER")
+    text_obj:SetJustifyH("CENTER")
+    text_obj:SetText(text)
+    return text_obj
+end
+
+addon_data.config.OnDefault = function()
+    addon_data.utils.PrintMsg("Default Pressed")
+    addon_data.core.RestoreAllDefaults()
+end
+
+addon_data.config.OnOkay = function()
+    addon_data.utils.PrintMsg("Okay Pressed")
+end
+
+addon_data.config.OnCancel = function()
+    addon_data.utils.PrintMsg("Cancel Pressed")
+end
+
+addon_data.config.InitializeVisuals = function()
+    -- Create the main config panel
+    addon_data.config.panel = CreateFrame("Frame", addon_name .. "ConfigPanel", UIParent)
+    local panel = addon_data.config.panel
+    panel.name = "WeaponSwingTimer"
+    panel.default = addon_data.config.OnDefault
+    panel.okay = addon_data.config.OnOkay
+    panel.cancel = addon_data.config.OnCancel
+    InterfaceOptions_AddCategory(panel)
+    -- Add the player child panel
+    panel.player_panel = addon_data.player.CreateConfigPanel(panel)
+    panel.player_panel.name = "Player Swing Bars"
+    panel.player_panel.parent = panel.name
+    panel.player_panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(panel.player_panel)
+    -- Add the target child panel
+    panel.target_panel = CreateFrame("Frame", addon_name .. "TargetConfigPanel", panel);
+    panel.target_panel.name = "Target Swing Bars"
+    panel.target_panel.parent = panel.name
+    panel.target_panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(panel.target_panel)
+end
+
 LHGWST_config_frame = {}
 
 LHGWST_config_frame.UpdateConfigFrameValues = function()
@@ -14,6 +63,91 @@ LHGWST_config_frame.UpdateConfigFrameValues = function()
 	LHGWST_config_frame.config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
 	LHGWST_config_frame.config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
 end
+
+
+addon_data.config.CheckBoxFactory = function(g_name, parent, checkbtn_text, tooltip_text, on_click_func)
+    local checkbox = CreateFrame("CheckButton", addon_name .. g_name, parent, "ChatConfigCheckButtonTemplate")
+    getglobal(checkbox:GetName() .. 'Text'):SetText(checkbtn_text)
+    checkbox.tooltip = tooltip_text
+    checkbox:SetScript("OnClick", function(self)
+        on_click_func(self)
+    end)
+    checkbox:SetScale(1.1)
+    return checkbox
+end
+
+addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_func)
+    local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent)
+    edit_box_obj.title_text = TextFactory(edit_box_obj, title, 12)
+    edit_box_obj.title_text:SetPoint("TOP", 0, 12)
+    edit_box_obj:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        tile = true,
+        tileSize = 100,
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4}
+    })
+    edit_box_obj:SetBackdropColor(0,0,0,1)
+    edit_box_obj:SetSize(w, h)
+    edit_box_obj:SetMultiLine(false)
+    edit_box_obj:SetAutoFocus(false)
+    edit_box_obj:SetMaxLetters(4)
+    edit_box_obj:SetJustifyH("CENTER")
+	edit_box_obj:SetJustifyV("CENTER")
+    edit_box_obj:SetFontObject(GameFontNormal)
+    edit_box_obj:SetScript("OnEnterPressed", function(self)
+        enter_func(self)
+        self:ClearFocus()
+    end)
+    edit_box_obj:SetScript("OnEscapePressed", function(self)
+        self:ClearFocus()
+    end)
+    return edit_box_obj
+end
+
+addon_data.config.SliderFactory = function(g_name, parent, title, min_val, max_val, val_step, func)
+    local slider = CreateFrame("Slider", addon_name .. g_name, parent, "OptionsSliderTemplate")
+    local editbox = CreateFrame("EditBox", "$parentEditBox", slider, "InputBoxTemplate")
+    slider:SetMinMaxValues(min_val, max_val)
+    slider:SetValueStep(val_step)
+    slider.text = _G[addon_name .. g_name .. "Text"]
+    slider.text:SetText(title)
+    slider.textLow = _G[addon_name .. g_name .. "Low"]
+    slider.textHigh = _G[addon_name .. g_name .. "High"]
+    slider.textLow:SetText(floor(min_val))
+    slider.textHigh:SetText(floor(max_val))
+    slider.textLow:SetTextColor(0.8,0.8,0.8)
+    slider.textHigh:SetTextColor(0.8,0.8,0.8)
+    slider:SetObeyStepOnDrag(true)
+    editbox:SetSize(45,30)
+    editbox:ClearAllPoints()
+    editbox:SetPoint("LEFT", slider, "RIGHT", 15, 0)
+    editbox:SetText(slider:GetValue())
+    editbox:SetAutoFocus(false)
+    slider:SetScript("OnValueChanged", function(self)
+        editbox:SetText(tostring(addon_data.utils.SimpleRound(self:GetValue(), val_step)))
+        func(self)
+    end)
+    editbox:SetScript("OnTextChanged", function(self)
+        local val = self:GetText()
+        if tonumber(val) then
+            self:GetParent():SetValue(val)
+        end
+    end)
+    editbox:SetScript("OnEnterPressed", function(self)
+        local val = self:GetText()
+        if tonumber(val) then
+            self:GetParent():SetValue(val)
+            self:ClearFocus()
+        end
+    end)
+    slider.editbox = editbox
+    return slider
+end
+
+
+
 
 local function Width_OnEnterPressed(self)
     self:ClearFocus()
@@ -72,90 +206,16 @@ local function ConfigFrame_OnDragStop()
     LHGWST_config_frame.config_frame:StopMovingOrSizing()
 end
 
-local function TextFactory(parent, text, size)
-    local text_obj = parent:CreateFontString(nil, "ARTWORK")
-    text_obj:SetFont("Fonts/FRIZQT__.ttf", size)
-    text_obj:SetJustifyV("CENTER")
-    text_obj:SetJustifyH("CENTER")
-    text_obj:SetText(text)
-    return text_obj
-end
 
-local function EditBoxFactory(parent, title, enter_func)
-    local edit_box_obj = CreateFrame("EditBox", nil, parent)
-    edit_box_obj.title_text = TextFactory(edit_box_obj, title, 11)
-    edit_box_obj.title_text:SetPoint("TOP", 0, 10)
-    edit_box_obj:SetBackdrop({
-        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        tile = true,
-        tileSize = 100,
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4}
-    })
-    edit_box_obj:SetBackdropColor(0,0,0,1)
-    edit_box_obj:SetSize(100, 25)
-    edit_box_obj:SetMultiLine(false)
-    edit_box_obj:SetAutoFocus(false)
-    edit_box_obj:SetMaxLetters(4)
-    edit_box_obj:SetJustifyH("CENTER")
-	edit_box_obj:SetJustifyV("CENTER")
-    edit_box_obj:SetFontObject(GameFontNormal)
-    edit_box_obj:SetScript("OnEnterPressed", function(self)
-        enter_func(self)
-    end)
-    edit_box_obj:SetScript("OnEscapePressed", function(self)
-        self:ClearFocus()
-    end)
-    return edit_box_obj
-end
+
+
 
 --simple round number func
 local SimpleRound = function(num, step)
     return floor(num / step) * step
 end
  
---basic slider func
-local CreateBasicSlider = function(parent, name, title, minVal, maxVal, valStep, func)
-    local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
-    local editbox = CreateFrame("EditBox", "$parentEditBox", slider, "InputBoxTemplate")
-    slider:SetMinMaxValues(minVal, maxVal)
-    --slider:SetValue(0)
-    slider:SetValueStep(valStep)
-    slider.text = _G[name.."Text"]
-    slider.text:SetText(title)
-    slider.textLow = _G[name.."Low"]
-    slider.textHigh = _G[name.."High"]
-    slider.textLow:SetText(floor(minVal))
-    slider.textHigh:SetText(floor(maxVal))
-    slider.textLow:SetTextColor(0.8,0.8,0.8)
-    slider.textHigh:SetTextColor(0.8,0.8,0.8)
-    slider:SetObeyStepOnDrag(true)
-    editbox:SetSize(45,30)
-    editbox:ClearAllPoints()
-    editbox:SetPoint("LEFT", slider, "RIGHT", 15, 0)
-    editbox:SetText(slider:GetValue())
-    editbox:SetAutoFocus(false)
-    slider:SetScript("OnValueChanged", function(self)
-        editbox:SetText(tostring(SimpleRound(self:GetValue(), valStep)))
-        func(self)
-    end)
-    editbox:SetScript("OnTextChanged", function(self)
-        local val = self:GetText()
-        if tonumber(val) then
-            self:GetParent():SetValue(val)
-        end
-    end)
-    editbox:SetScript("OnEnterPressed", function(self)
-        local val = self:GetText()
-        if tonumber(val) then
-            self:GetParent():SetValue(val)
-            self:ClearFocus()
-        end
-    end)
-    slider.editbox = editbox
-    return slider
-end
+
 
 LHGWST_config_frame.CreateLHGWSTConfigFrame = function()
     -- Setup the config frame

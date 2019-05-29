@@ -12,7 +12,7 @@ addon_data.player.default_settings = {
 	y_offset = -100,
 	in_combat_alpha = 1.0,
 	ooc_alpha = 0.25,
-	backplane_alpha = 0.25,
+	backplane_alpha = 0.5,
 	is_locked = false,
     show_text = true,
 	show_offhand = true
@@ -149,7 +149,7 @@ addon_data.player.UpdateVisuals = function()
             frame:SetHeight(settings.height + 2)
         end
         -- Update the alpha
-        addon_data.player.frame.texture:SetColorTexture(0, 0, 0, settings.backplane_alpha)
+        frame.texture:SetColorTexture(0, 0, 0, settings.backplane_alpha)
         if addon_data.core.in_combat then
             frame:SetAlpha(settings.in_combat_alpha)
         else
@@ -166,6 +166,7 @@ addon_data.player.UpdateFramePointAndSize = function()
     frame:ClearAllPoints()
     frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
     frame:SetSize(settings.width, settings.height)
+    addon_data.player.UpdateConfigValues()
 end
 
 addon_data.player.OnFrameDragStart = function()
@@ -181,9 +182,9 @@ addon_data.player.OnFrameDragStop = function()
     point, _, rel_point, x_offset, y_offset = frame:GetPoint()
     settings.point = point
     settings.rel_point = rel_point
-    settings.x_offset = x_offset
-    settings.y_offset = y_offset
-    -- addon_data.config.UpdateConfigFrameValues()
+    settings.x_offset = addon_data.utils.SimpleRound(x_offset, 1)
+    settings.y_offset = addon_data.utils.SimpleRound(y_offset, 1)
+    addon_data.player.UpdateConfigValues()
 end
 
 addon_data.player.InitializeVisuals = function()
@@ -206,7 +207,7 @@ addon_data.player.InitializeVisuals = function()
     frame.main_hand_bar = CreateFrame("Frame", addon_name .. "PlayerMainHandBar", frame)
     frame.main_hand_bar:SetPoint("TOPLEFT", 1, -1)
     local main_hand_texture = frame.main_hand_bar:CreateTexture(nil, "ARTWORK")
-    main_hand_texture:SetColorTexture(0.5, 0.5, 1, 1)
+    main_hand_texture:SetColorTexture(0.3, 0.3, 0.6, 1)
     main_hand_texture:SetAllPoints(frame.main_hand_bar)
     frame.main_hand_bar.texture = main_hand_texture
     -- Create the main-hand bar's text
@@ -215,17 +216,19 @@ addon_data.player.InitializeVisuals = function()
     main_text:SetAllPoints(frame.main_hand_bar)
     main_text.left = main_text:CreateFontString(nil, "ARTWORK")
     main_text.left:SetFont("Fonts/FRIZQT__.ttf", 10)
+    main_text.left:SetTextColor(1, 1, 1, 1)
     main_text.left:SetJustifyV("CENTER")
     main_text.left:SetJustifyH("LEFT")
     main_text.right = main_text:CreateFontString(nil, "ARTWORK")
     main_text.right:SetFont("Fonts/FRIZQT__.ttf", 10)
+    main_text.right:SetTextColor(1, 1, 1, 1)
     main_text.right:SetJustifyV("CENTER")
     main_text.right:SetJustifyH("RIGHT")
     -- Create the off-hand bar
     frame.off_hand_bar = CreateFrame("Frame", addon_name .. "PlayerOffHandBar", frame)
     frame.off_hand_bar:SetPoint("BOTTOMLEFT", 1, 1)
     local off_hand_texture = frame.off_hand_bar:CreateTexture(nil,"ARTWORK")
-    off_hand_texture:SetColorTexture(0.5, 0.5, 1, 1)
+    off_hand_texture:SetColorTexture(0.3, 0.3, 0.6, 1)
     off_hand_texture:SetAllPoints(frame.off_hand_bar)
     frame.off_hand_bar.texture = off_hand_texture
     -- Create the off-hand bar's text
@@ -234,15 +237,32 @@ addon_data.player.InitializeVisuals = function()
     off_text:SetAllPoints(frame.off_hand_bar)
     off_text.left = off_text:CreateFontString(nil, "ARTWORK")
     off_text.left:SetFont("Fonts/FRIZQT__.ttf", 10)
+    off_text.left:SetTextColor(1, 1, 1, 1)
     off_text.left:SetJustifyV("CENTER")
     off_text.left:SetJustifyH("LEFT")
     off_text.right = off_text:CreateFontString(nil, "ARTWORK")
     off_text.right:SetFont("Fonts/FRIZQT__.ttf", 10)
+    off_text.right:SetTextColor(1, 1, 1, 1)
     off_text.right:SetJustifyV("CENTER")
     off_text.right:SetJustifyH("RIGHT")
     -- Show it off
     addon_data.player.UpdateVisuals()
     frame:Show()
+end
+
+addon_data.player.UpdateConfigValues = function()
+    local panel = addon_data.player.config_frame
+    local settings = character_player_settings
+    panel.enabled_checkbox:SetChecked(settings.enabled)
+    panel.show_offhand_checkbox:SetChecked(settings.show_offhand)
+    panel.width_editbox:SetText(tostring(settings.width))
+    panel.width_editbox:SetCursorPosition(0)
+    panel.height_editbox:SetText(tostring(settings.height))
+    panel.height_editbox:SetCursorPosition(0)
+    panel.x_offset_editbox:SetText(tostring(settings.x_offset))
+    panel.x_offset_editbox:SetCursorPosition(0)
+    panel.y_offset_editbox:SetText(tostring(settings.y_offset))
+    panel.y_offset_editbox:SetCursorPosition(0)
 end
 
 addon_data.player.EnabledCheckBoxOnClick = function(self)
@@ -251,15 +271,6 @@ end
 
 addon_data.player.ShowOffHandCheckBoxOnClick = function(self)
     character_player_settings.show_offhand = self:GetChecked()
-end
-
-addon_data.player.ShowTextCheckBoxOnClick = function(self)
-    character_player_settings.show_text = self:GetChecked()
-end
-
-addon_data.player.IsLockedCheckBoxOnClick = function(self)
-    character_player_settings.is_locked = self:GetChecked()
-    addon_data.player.frame:EnableMouse(not character_player_settings.is_locked)
 end
 
 addon_data.player.WidthEditBoxOnEnter = function(self)
@@ -282,21 +293,14 @@ addon_data.player.YOffsetEditBoxOnEnter = function(self)
     addon_data.player.UpdateFramePointAndSize()
 end
 
-addon_data.player.CombatAlphaOnValChange = function(self)
-    character_player_settings.in_combat_alpha = tonumber(self:GetValue())
-end
-
-addon_data.player.OOCAlphaOnValChange = function(self)
-    character_player_settings.ooc_alpha = tonumber(self:GetValue())
-end
-
-addon_data.player.BackplaneAlphaOnValChange = function(self)
-    character_player_settings.backplane_alpha = tonumber(self:GetValue())
-end
-
 addon_data.player.CreateConfigPanel = function(parent_panel)
-    local panel = CreateFrame("Frame", addon_name .. "PlayerConfigPanel", parent_panel)
+    addon_data.player.config_frame = CreateFrame("Frame", addon_name .. "PlayerConfigPanel", parent_panel)
+    local panel = addon_data.player.config_frame
     local settings = character_player_settings
+    -- Title Text
+    panel.title_text = addon_data.config.TextFactory(panel, "Player Swing Bar Settings", 20)
+    panel.title_text:SetPoint("TOPLEFT", 15, 0)
+    panel.title_text:SetTextColor(1, 0.9, 0, 1)
     -- Enabled Checkbox
     panel.enabled_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerEnabledCheckBox",
@@ -304,8 +308,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Enable",
         "Enables the player's swing bars.",
         addon_data.player.EnabledCheckBoxOnClick)
-    panel.enabled_checkbox:SetPoint("TOPLEFT", 10, -10)
-    panel.enabled_checkbox:SetChecked(character_player_settings.enabled)
+    panel.enabled_checkbox:SetPoint("TOPLEFT", 10, -30)
     -- Show Off-Hand Checkbox
     panel.show_offhand_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerShowOffHandCheckBox",
@@ -313,26 +316,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Show Off-Hand",
         "Enables the player's off-hand swing bar.",
         addon_data.player.ShowOffHandCheckBoxOnClick)
-    panel.show_offhand_checkbox:SetPoint("TOPLEFT", 10, -30)
-    panel.show_offhand_checkbox:SetChecked(character_player_settings.show_offhand)
-    -- Show Text Checkbox
-    panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
-        "PlayerShowTextCheckBox",
-        panel,
-        " Show Text",
-        "Enables the player's swing bar's text.",
-        addon_data.player.ShowTextCheckBoxOnClick)
-    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -50)
-    panel.show_text_checkbox:SetChecked(character_player_settings.show_text)
-    -- Is Locked Checkbox
-    panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
-        "PlayerIsLockedCheckBox",
-        panel,
-        " Lock",
-        "Locks the player's swing bar frame, preventing it from being dragged.",
-        addon_data.player.IsLockedCheckBoxOnClick)
-    panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -70)
-    panel.is_locked_checkbox:SetChecked(character_player_settings.is_locked)
+    panel.show_offhand_checkbox:SetPoint("TOPLEFT", 10, -50)
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
         "PlayerWidthEditBox",
@@ -341,9 +325,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.player.WidthEditBoxOnEnter)
-    panel.width_editbox:SetPoint("TOPLEFT", 15, -120, "BOTTOMRIGHT", 115, -145)
-    panel.width_editbox:SetText(tostring(settings.width))
-    panel.width_editbox:SetCursorPosition(0)
+    panel.width_editbox:SetPoint("TOPLEFT", 15, -100, "BOTTOMRIGHT", 115, -125)
     -- Height EditBox
     panel.height_editbox = addon_data.config.EditBoxFactory(
         "PlayerHeightEditBox",
@@ -352,9 +334,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.player.HeightEditBoxOnEnter)
-    panel.height_editbox:SetPoint("TOPLEFT", 125, -120, "BOTTOMRIGHT", 225, -145)
-    panel.height_editbox:SetText(tostring(settings.height))
-    panel.height_editbox:SetCursorPosition(0)
+    panel.height_editbox:SetPoint("TOPLEFT", 125, -100, "BOTTOMRIGHT", 225, -125)
     -- X Offset EditBox
     panel.x_offset_editbox = addon_data.config.EditBoxFactory(
         "PlayerXOffsetEditBox",
@@ -363,9 +343,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.player.XOffsetEditBoxOnEnter)
-    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -170, "BOTTOMRIGHT", 115, -195)
-    panel.x_offset_editbox:SetText(tostring(settings.x_offset))
-    panel.x_offset_editbox:SetCursorPosition(0)
+    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -150, "BOTTOMRIGHT", 115, -175)
     -- Y Offset EditBox
     panel.y_offset_editbox = addon_data.config.EditBoxFactory(
         "PlayerYOffsetEditBox",
@@ -374,80 +352,9 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.player.YOffsetEditBoxOnEnter)
-    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -170, "BOTTOMRIGHT", 225, -195)
-    panel.y_offset_editbox:SetText(tostring(settings.y_offset))
-    panel.y_offset_editbox:SetCursorPosition(0)
-    -- In Combat Alpha Slider
-    panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
-        "PlayerInCombatAlphaSlider",
-        panel,
-        "In Combat Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.player.CombatAlphaOnValChange)
-    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 20, -220)
-    panel.in_combat_alpha_slider:SetValue(settings.in_combat_alpha)
-    panel.in_combat_alpha_slider.editbox:SetCursorPosition(0)
-    -- Out Of Combat Alpha Slider
-    panel.ooc_alpha_slider = addon_data.config.SliderFactory(
-        "PlayerOOCAlphaSlider",
-        panel,
-        "Out of Combat Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.player.OOCAlphaOnValChange)
-    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 20, -270)
-    panel.ooc_alpha_slider:SetValue(settings.ooc_alpha)
-    panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
-    -- Backplane Alpha Slider
-    panel.backplane_alpha_slider = addon_data.config.SliderFactory(
-        "PlayerBackplaneAlphaSlider",
-        panel,
-        "Backplane Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.player.BackplaneAlphaOnValChange)
-    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -320)
-    panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
-    panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
+    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -150, "BOTTOMRIGHT", 225, -175)
     -- Return the final panel
+    addon_data.player.UpdateConfigValues()
     return panel
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -79,6 +79,7 @@ end
 
 local function CoreFrame_OnUpdate(self, elapsed)
     UpdateAllSwingTimers(elapsed)
+    addon_data.target.UpdateInfo()
 end
 
 local function MissHandler(unit, miss_type, is_offhand)
@@ -218,7 +219,6 @@ SLASH_WEAPONSWINGTIMER_CONFIG1 = "/WeaponSwingTimer"
 SLASH_WEAPONSWINGTIMER_CONFIG2 = "/weaponswingtimer"
 SLASH_WEAPONSWINGTIMER_CONFIG3 = "/wst"
 SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = function(option)
-	addon_data.utils.PrintMsg("Configuration window opened.")
     InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
     InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
 end

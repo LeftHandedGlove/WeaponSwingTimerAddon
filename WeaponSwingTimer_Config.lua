@@ -2,7 +2,29 @@ local addon_name, addon_data = ...
 
 addon_data.config = {}
 
-local function TextFactory(parent, text, size)
+addon_data.config.OnDefault = function()
+    addon_data.core.RestoreAllDefaults()
+    addon_data.config.UpdateConfigValues()
+end
+
+addon_data.config.InitializeVisuals = function()
+    -- Create the main config panel
+    addon_data.config.panel = addon_data.config.CreateConfigPanel(UIParent)
+    local panel = addon_data.config.panel
+    addon_data.config.panel.name = "WeaponSwingTimer"
+    addon_data.config.panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(addon_data.config.panel)
+    -- Add the player child panel
+    panel.player_panel = addon_data.player.CreateConfigPanel(panel)
+    panel.player_panel:SetSize(250, 200)
+    panel.player_panel:SetPoint("TOPLEFT", 0, -375)
+    -- Add the target child panel
+    panel.target_panel = addon_data.target.CreateConfigPanel(panel)
+    panel.target_panel:SetSize(250, 200)
+    panel.target_panel:SetPoint("TOPLEFT", 340, -375)
+end
+
+addon_data.config.TextFactory = function(parent, text, size)
     local text_obj = parent:CreateFontString(nil, "ARTWORK")
     text_obj:SetFont("Fonts/FRIZQT__.ttf", size)
     text_obj:SetJustifyV("CENTER")
@@ -10,60 +32,6 @@ local function TextFactory(parent, text, size)
     text_obj:SetText(text)
     return text_obj
 end
-
-addon_data.config.OnDefault = function()
-    addon_data.utils.PrintMsg("Default Pressed")
-    addon_data.core.RestoreAllDefaults()
-end
-
-addon_data.config.OnOkay = function()
-    addon_data.utils.PrintMsg("Okay Pressed")
-end
-
-addon_data.config.OnCancel = function()
-    addon_data.utils.PrintMsg("Cancel Pressed")
-end
-
-addon_data.config.InitializeVisuals = function()
-    -- Create the main config panel
-    addon_data.config.panel = CreateFrame("Frame", addon_name .. "ConfigPanel", UIParent)
-    local panel = addon_data.config.panel
-    panel.name = "WeaponSwingTimer"
-    panel.default = addon_data.config.OnDefault
-    panel.okay = addon_data.config.OnOkay
-    panel.cancel = addon_data.config.OnCancel
-    InterfaceOptions_AddCategory(panel)
-    -- Add the player child panel
-    panel.player_panel = addon_data.player.CreateConfigPanel(panel)
-    panel.player_panel.name = "Player Swing Bars"
-    panel.player_panel.parent = panel.name
-    panel.player_panel.default = addon_data.config.OnDefault
-    InterfaceOptions_AddCategory(panel.player_panel)
-    -- Add the target child panel
-    panel.target_panel = CreateFrame("Frame", addon_name .. "TargetConfigPanel", panel);
-    panel.target_panel.name = "Target Swing Bars"
-    panel.target_panel.parent = panel.name
-    panel.target_panel.default = addon_data.config.OnDefault
-    InterfaceOptions_AddCategory(panel.target_panel)
-end
-
-LHGWST_config_frame = {}
-
-LHGWST_config_frame.UpdateConfigFrameValues = function()
-    LHGWST_config_frame.config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
-    LHGWST_config_frame.config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
-    LHGWST_config_frame.config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
-    LHGWST_config_frame.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
-    LHGWST_config_frame.config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
-    LHGWST_config_frame.config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
-    LHGWST_config_frame.config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
-    LHGWST_config_frame.config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
-    LHGWST_config_frame.config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
-	LHGWST_config_frame.config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
-	LHGWST_config_frame.config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
-	LHGWST_config_frame.config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
-end
-
 
 addon_data.config.CheckBoxFactory = function(g_name, parent, checkbtn_text, tooltip_text, on_click_func)
     local checkbox = CreateFrame("CheckButton", addon_name .. g_name, parent, "ChatConfigCheckButtonTemplate")
@@ -78,7 +46,7 @@ end
 
 addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_func)
     local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent)
-    edit_box_obj.title_text = TextFactory(edit_box_obj, title, 12)
+    edit_box_obj.title_text = addon_data.config.TextFactory(edit_box_obj, title, 12)
     edit_box_obj.title_text:SetPoint("TOP", 0, 12)
     edit_box_obj:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -146,210 +114,109 @@ addon_data.config.SliderFactory = function(g_name, parent, title, min_val, max_v
     return slider
 end
 
-
-
-
-local function Width_OnEnterPressed(self)
-    self:ClearFocus()
-    LHG_WST_Settings.width = tonumber(self:GetText())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.UpdateConfigValues = function()
+    local panel = addon_data.config.config_frame
+    local settings = character_player_settings
+    panel.show_text_checkbox:SetChecked(settings.show_text)
+    panel.is_locked_checkbox:SetChecked(settings.is_locked)
+    panel.in_combat_alpha_slider:SetValue(settings.in_combat_alpha)
+    panel.in_combat_alpha_slider.editbox:SetCursorPosition(0)
+    panel.ooc_alpha_slider:SetValue(settings.ooc_alpha)
+    panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
+    panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
+    panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
 end
 
-local function Height_OnEnterPressed(self)
-    self:ClearFocus()
-    LHG_WST_Settings.height = tonumber(self:GetText())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.ShowTextCheckBoxOnClick = function(self)
+    character_player_settings.show_text = self:GetChecked()
+    character_target_settings.show_text = self:GetChecked()
 end
 
-local function XOffset_OnEnterPressed(self)
-    self:ClearFocus()
-    LHG_WST_Settings.x_pos = tonumber(self:GetText())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.IsLockedCheckBoxOnClick = function(self)
+    character_player_settings.is_locked = self:GetChecked()
+    character_target_settings.is_locked = self:GetChecked()
+    addon_data.player.frame:EnableMouse(not character_target_settings.is_locked)
+    addon_data.target.frame:EnableMouse(not character_target_settings.is_locked)
 end
 
-local function YOffset_OnEnterPressed(self)
-    self:ClearFocus()
-    LHG_WST_Settings.y_pos = tonumber(self:GetText())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.CombatAlphaOnValChange = function(self)
+    character_player_settings.in_combat_alpha = tonumber(self:GetValue())
+    character_target_settings.in_combat_alpha = tonumber(self:GetValue())
 end
 
-local function CombatAlpha_OnValueChanged(self)
-    LHG_WST_Settings.in_combat_alpha = tonumber(self:GetValue())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.OOCAlphaOnValChange = function(self)
+    character_player_settings.ooc_alpha = tonumber(self:GetValue())
+    character_target_settings.ooc_alpha = tonumber(self:GetValue())
 end
 
-local function OOCAlpha_OnValueChanged(self)
-    LHG_WST_Settings.ooc_alpha = tonumber(self:GetValue())
-    LHGWSTMain.UpdateVisuals()
+addon_data.config.BackplaneAlphaOnValChange = function(self)
+    character_player_settings.backplane_alpha = tonumber(self:GetValue())
+    character_target_settings.backplane_alpha = tonumber(self:GetValue())
 end
 
-local function BackplaneAlpha_OnValueChanged(self)
-    LHG_WST_Settings.backplane_alpha = tonumber(self:GetValue())
-    LHGWSTMain.UpdateVisuals()
-end
-
-local function CRPFixedDelay_OnEnterPressed(self)
-    self:ClearFocus()
-    LHG_WST_Settings.crp_fixed_delay = tonumber(self:GetText())
-    LHGWSTMain.UpdateVisuals()
-end
-
-local function HideConfigFrame()
-    LHGWST_config_frame.config_frame:Hide()
-end
-
-local function ConfigFrame_OnDragStart()
-    LHGWST_config_frame.config_frame:StartMoving()
-end
-
-local function ConfigFrame_OnDragStop()
-    LHGWST_config_frame.config_frame:StopMovingOrSizing()
-end
-
-
-
-
-
---simple round number func
-local SimpleRound = function(num, step)
-    return floor(num / step) * step
-end
- 
-
-
-LHGWST_config_frame.CreateLHGWSTConfigFrame = function()
-    -- Setup the config frame
-    LHGWST_config_frame.config_frame = CreateFrame("Frame", "WSTConfigFrame", UIParent)
-    local config_frame = LHGWST_config_frame.config_frame
-    config_frame:SetBackdrop({
-        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        tile = true,
-        tileSize = 100,
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4}
-    })
-    config_frame:SetBackdropColor(0,0,0,1)
-    config_frame:SetWidth(450)
-    config_frame:SetHeight(310)
-    config_frame:SetPoint("CENTER", 0, 0)
-    config_frame:Hide()
-    -- Setup the config frame's title
-    config_frame.title_frame = CreateFrame("Frame", "WSTConfigFrameTitle", config_frame)
-    config_frame.title_frame:SetBackdrop({
-        bgFile = "Interface/FrameGeneral/UI-Background-Rock",
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        tile = true,
-        tileSize = 100,
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4}
-    })
-    config_frame.title_frame:SetBackdropColor(1,1,1,1)
-    config_frame.title_frame:SetWidth(config_frame:GetWidth())
-    config_frame.title_frame:SetHeight(30)
-    config_frame.title_frame:SetPoint("TOP", 0, 0)
-    -- Add the title's name
-    config_frame.title_frame.text = TextFactory(
-        config_frame.title_frame, "WeaponSwingTimer Configuration", 16)
-    config_frame.title_frame.text:SetPoint("CENTER", 0, 0)
-    -- Add the close button
-    config_frame.title_frame.close_btn = CreateFrame("Button", "WSTCloseButton", config_frame.title_frame)
-    config_frame.title_frame.close_btn:SetWidth(20)
-    config_frame.title_frame.close_btn:SetHeight(20)
-    config_frame.title_frame.close_btn:SetNormalTexture("Interface/Addons/WeaponSwingTimer/Images/CloseUp")
-    config_frame.title_frame.close_btn:SetPushedTexture("Interface/Addons/WeaponSwingTimer/Images/CloseDown")
-    config_frame.title_frame.close_btn:SetPoint("RIGHT", -5, 0)
-    config_frame.title_frame.close_btn:SetScript("OnClick", HideConfigFrame)
-    -- Add the lock checkbox
-    config_frame.lock_checkbtn = CreateFrame("CheckButton", "WSTLockCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.lock_checkbtn:SetPoint("TOPLEFT", 17, -40)
-    getglobal(config_frame.lock_checkbtn:GetName() .. 'Text'):SetText(" Lock Frame")
-    config_frame.lock_checkbtn.tooltip = "Prevents the frame from being dragged."
-    config_frame.lock_checkbtn:SetScript("OnClick", function(self)
-        LHG_WST_Settings.is_locked = self:GetChecked()
-    end)
-    config_frame.lock_checkbtn:SetChecked(LHG_WST_Settings.is_locked)
-    -- Add restore defaults button
-    config_frame.restore_defaults_btn = CreateFrame("Button", nil, config_frame)
-	config_frame.restore_defaults_btn:SetPoint("BOTTOMRIGHT", -20, 20)
-	config_frame.restore_defaults_btn:SetWidth(75)
-	config_frame.restore_defaults_btn:SetHeight(25)
-	config_frame.restore_defaults_btn:SetText("Defaults")
-	config_frame.restore_defaults_btn:SetNormalFontObject("GameFontNormal")
-	local ntex = config_frame.restore_defaults_btn:CreateTexture()
-	ntex:SetTexture("Interface/Buttons/UI-Panel-Button-Up")
-	ntex:SetTexCoord(0, 0.625, 0, 0.6875)
-	ntex:SetAllPoints()	
-	config_frame.restore_defaults_btn:SetNormalTexture(ntex)
-	local htex = config_frame.restore_defaults_btn:CreateTexture()
-	htex:SetTexture("Interface/Buttons/UI-Panel-Button-Highlight")
-	htex:SetTexCoord(0, 0.625, 0, 0.6875)
-	htex:SetAllPoints()
-	config_frame.restore_defaults_btn:SetHighlightTexture(htex)
-	local ptex = config_frame.restore_defaults_btn:CreateTexture()
-	ptex:SetTexture("Interface/Buttons/UI-Panel-Button-Down")
-	ptex:SetTexCoord(0, 0.625, 0, 0.6875)
-	ptex:SetAllPoints()
-	config_frame.restore_defaults_btn:SetPushedTexture(ptex)
-    config_frame.restore_defaults_btn:SetScript("OnClick", LHGWSTCore.RestoreDefaults)
-    -- Add the width control
-    config_frame.width_editbox = EditBoxFactory(config_frame, "Width", Width_OnEnterPressed)
-    config_frame.width_editbox:SetPoint("TOPLEFT", 20, -80, "BOTTOMRIGHT", 60, -140)
-    config_frame.width_editbox:SetText(tostring(LHG_WST_Settings.width))
-    -- Add the height control
-    config_frame.height_editbox = EditBoxFactory(config_frame, "Height", Height_OnEnterPressed)
-    config_frame.height_editbox:SetPoint("TOPLEFT", 140, -80)
-    config_frame.height_editbox:SetText(tostring(LHG_WST_Settings.height))
-    -- Add the x offset control
-    config_frame.xoffset_editbox = EditBoxFactory(config_frame, "X Offset", XOffset_OnEnterPressed)
-    config_frame.xoffset_editbox:SetPoint("TOPLEFT", 20, -120)
-    config_frame.xoffset_editbox:SetText(tostring(LHG_WST_Settings.x_pos))
-    -- Add the y offset control
-    config_frame.yoffset_editbox = EditBoxFactory(config_frame, "Y Offset", YOffset_OnEnterPressed)
-    config_frame.yoffset_editbox:SetPoint("TOPLEFT", 140, -120)
-    config_frame.yoffset_editbox:SetText(tostring(LHG_WST_Settings.y_pos))
-    -- Add the alpha sliders
-    config_frame.combat_alpha_slider = CreateBasicSlider(config_frame, "WSTCombatAlphaSlider", "In Combat Alpha", 0, 1, 0.05, CombatAlpha_OnValueChanged)
-    config_frame.combat_alpha_slider:SetPoint("TOPLEFT", 20, -170)
-    config_frame.combat_alpha_slider:SetValue(LHG_WST_Settings.in_combat_alpha)
-    config_frame.ooc_alpha_slider = CreateBasicSlider(config_frame, "WSTOOCAlphaSlider", "Out of Combat Alpha", 0, 1, 0.05, OOCAlpha_OnValueChanged)
-    config_frame.ooc_alpha_slider:SetPoint("TOPLEFT", 20, -220)
-    config_frame.ooc_alpha_slider:SetValue(LHG_WST_Settings.ooc_alpha)
-    config_frame.backplane_alpha_slider = CreateBasicSlider(config_frame, "WSTBackPlaneAlphaSlider", "Backplane Alpha", 0, 1, 0.05, BackplaneAlpha_OnValueChanged)
-    config_frame.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -270)
-    config_frame.backplane_alpha_slider:SetValue(LHG_WST_Settings.backplane_alpha)
-	-- Add the CRP Title Text
-	config_frame.crp_title_text = TextFactory(config_frame, "CRP Settings", 16)
-	config_frame.crp_title_text:SetPoint("TOPLEFT", 300, -40)
-	-- Add the CRP Ping enabled
-	config_frame.crp_ping_checkbtn = CreateFrame("CheckButton", "WSTCRPPingCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_ping_checkbtn:SetPoint("TOPLEFT", 295, -60)
-    getglobal(config_frame.crp_ping_checkbtn:GetName() .. 'Text'):SetText(" CRP Ping Delay")
-    config_frame.crp_ping_checkbtn.tooltip = "Enabled the crit reactive procs ping delay."
-    config_frame.crp_ping_checkbtn:SetScript("OnClick", function(self)
-        LHG_WST_Settings.crp_ping_enabled = self:GetChecked()
-    end)
-    config_frame.crp_ping_checkbtn:SetChecked(LHG_WST_Settings.crp_ping_enabled)
-	-- Add the CRP fixed delay enabled
-	config_frame.crp_fixed_checkbtn = CreateFrame("CheckButton", "WSTCRPFixedCheckbtn", config_frame, "OptionsCheckButtonTemplate")
-    config_frame.crp_fixed_checkbtn:SetPoint("TOPLEFT", 295, -90)
-    getglobal(config_frame.crp_fixed_checkbtn:GetName() .. 'Text'):SetText(" CRP Fixed Delay")
-    config_frame.crp_fixed_checkbtn.tooltip = "Enabled the crit reactive procs fixed delay."
-    config_frame.crp_fixed_checkbtn:SetScript("OnClick", function(self)
-        LHG_WST_Settings.crp_fixed_enabled = self:GetChecked()
-    end)
-    config_frame.crp_fixed_checkbtn:SetChecked(LHG_WST_Settings.crp_fixed_enabled)
-	-- Add the CRP fixed delay editbox
-	config_frame.crp_fixed_delay_editbox = EditBoxFactory(config_frame, "Fixed Delay (secs)", CRPFixedDelay_OnEnterPressed)
-    config_frame.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 300, -140)
-    config_frame.crp_fixed_delay_editbox:SetText(tostring(LHG_WST_Settings.crp_fixed_delay))
-    -- Set the scripts that control the config_frame
-    config_frame:SetMovable(true)
-    config_frame.title_frame:EnableMouse(true)
-    config_frame.title_frame:RegisterForDrag("LeftButton")
-    config_frame.title_frame:SetScript("OnDragStart", ConfigFrame_OnDragStart)
-    config_frame.title_frame:SetScript("OnDragStop", ConfigFrame_OnDragStop)
-    -- return the config frame
-    return config_frame
+addon_data.config.CreateConfigPanel = function(parent_panel)
+    addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "MainConfigPanel", parent_panel)
+    local panel = addon_data.config.config_frame
+    local settings = character_player_settings
+    todo_notice = 
+[[This config landing page in under construction. 
+I plan to put a guide or welcome here.]]
+    panel.todo_text = addon_data.config.TextFactory(panel, todo_notice, 14)
+    panel.todo_text:SetJustifyH("LEFT")
+    panel.todo_text:SetPoint("TOPLEFT", 15, -15)
+    
+    -- Title Text
+    panel.title_text = addon_data.config.TextFactory(panel, "Global Swing Bar Settings", 20)
+    panel.title_text:SetPoint("TOPLEFT", 15, -175)
+    panel.title_text:SetTextColor(1, 0.9, 0, 1)
+    -- Show Text Checkbox
+    panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
+        "ShowTextCheckBox",
+        panel,
+        " Show Text",
+        "Enables the text on the swing bars.",
+        addon_data.config.ShowTextCheckBoxOnClick)
+    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -220)
+    -- Is Locked Checkbox
+    panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
+        "IsLockedCheckBox",
+        panel,
+        " Lock",
+        "Locks all of the swing bar frames, preventing them from being dragged.",
+        addon_data.config.IsLockedCheckBoxOnClick)
+    panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -200)
+    -- In Combat Alpha Slider
+    panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
+        "InCombatAlphaSlider",
+        panel,
+        "In Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.config.CombatAlphaOnValChange)
+    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 150, -225)
+    -- Out Of Combat Alpha Slider
+    panel.ooc_alpha_slider = addon_data.config.SliderFactory(
+        "OOCAlphaSlider",
+        panel,
+        "Out of Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.config.OOCAlphaOnValChange)
+    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 150, -275)
+    -- Backplane Alpha Slider
+    panel.backplane_alpha_slider = addon_data.config.SliderFactory(
+        "BackplaneAlphaSlider",
+        panel,
+        "Backplane Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.config.BackplaneAlphaOnValChange)
+    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 150, -325)
+    -- Return the final panel
+    addon_data.config.UpdateConfigValues()
+    return panel
 end
 

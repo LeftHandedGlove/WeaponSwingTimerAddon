@@ -1,8 +1,8 @@
 # WeaponSwingTimerAddon
 WeaponSwingTimer is an addon for WoW Classic that tracks your's and your target's swing timers. It resets on abilities that would reset a swing timer, such as Warrior's Slam, and also takes parry haste into account. Both frames can be moved around with the typical click-and-drag. A configuration window can be brought up with /wst /WeaponSwingTimer or /weaponswingtimer where more visual options are available.
 
-![alt text](images/CurseImage.png)
-![alt text](images/ConfigWindow.png)
+![alt text](Images/CurseImage.png)
+![alt text](Images/ConfigWindow.png)
 
 ## Version 3.0 Update Explaination
 TODO:Youtube link goes here.

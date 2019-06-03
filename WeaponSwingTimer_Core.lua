@@ -30,32 +30,31 @@ local function LoadAllSettings()
     addon_data.core.LoadSettings()
     addon_data.player.LoadSettings()
     addon_data.target.LoadSettings()
+    addon_data.hunter.LoadSettings()
 end
 
 addon_data.core.RestoreAllDefaults = function()
     addon_data.core.RestoreDefaults()
     addon_data.player.RestoreDefaults()
     addon_data.target.RestoreDefaults()
-    addon_data.player.UpdateVisuals()
-    addon_data.target.UpdateVisuals()
+    addon_data.hunter.RestoreDefaults()
 end
 
 local function InitializeAllVisuals()
     addon_data.player.InitializeVisuals()
     addon_data.target.InitializeVisuals()
+    addon_data.hunter.InitializeVisuals()
     addon_data.config.InitializeVisuals()
 end
 
-local function UpdateAllVisuals()
-    addon_data.player.UpdateVisuals()
-    addon_data.target.UpdateVisuals()
+local function UpdateAllVisualsOnUpdate()
+    addon_data.player.UpdateVisualsOnUpdate()
+    addon_data.target.UpdateVisualsOnUpdate()
 end
 
 local function UpdateAllSwingTimers(elapsed)
     addon_data.player.UpdateSwingTimer(elapsed)
     addon_data.target.UpdateSwingTimer(elapsed)
-    addon_data.player.UpdateVisuals()
-    addon_data.target.UpdateVisuals()
 end
 
 addon_data.core.LoadSettings = function()
@@ -78,8 +77,10 @@ addon_data.core.RestoreDefaults = function()
 end
 
 local function CoreFrame_OnUpdate(self, elapsed)
-    UpdateAllSwingTimers(elapsed)
     addon_data.target.UpdateInfo()
+    UpdateAllSwingTimers(elapsed)
+    UpdateAllVisualsOnUpdate()
+    addon_data.hunter.OnUpdate(elapsed)
 end
 
 local function MissHandler(unit, miss_type, is_offhand)
@@ -152,6 +153,14 @@ local function OnAddonLoaded(self)
 	addon_data.core.core_frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 	addon_data.core.core_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	addon_data.core.core_frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+    addon_data.core.core_frame:RegisterEvent("START_AUTOREPEAT_SPELL")
+    addon_data.core.core_frame:RegisterEvent("STOP_AUTOREPEAT_SPELL")
+    addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_START")
+    addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+    addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+    
+     
 	-- Load the settings for the core and all timers
     LoadAllSettings()
     InitializeAllVisuals()
@@ -171,10 +180,8 @@ local function CoreFrame_OnEvent(self, event, ...)
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         addon_data.core.in_combat = false
-        UpdateAllVisuals()
     elseif event == "PLAYER_REGEN_DISABLED" then
         addon_data.core.in_combat = true
-        UpdateAllVisuals()
     elseif event == "PLAYER_TARGET_CHANGED" then
         addon_data.target.UpdateInfo()
         addon_data.target.ZeroizeSwingTimer()
@@ -211,6 +218,28 @@ local function CoreFrame_OnEvent(self, event, ...)
         end
     elseif event == "UNIT_INVENTORY_CHANGED" then
         addon_data.player.UpdateInfo()
+    elseif event == "START_AUTOREPEAT_SPELL" then
+        addon_data.hunter.OnStartAutorepeatSpell()
+    elseif event == "STOP_AUTOREPEAT_SPELL" then
+        addon_data.hunter.OnStopAutorepeatSpell()
+    elseif event == "UNIT_SPELLCAST_START" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastStart(spell_name, rank, cast_time)
+    elseif event == "UNIT_SPELLCAST_STOP" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastStop(spell_name, rank, cast_time)
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastSucceeded(spell_name, rank, cast_time)
+    elseif event == "UNIT_SPELLCAST_DELAYED" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastDelayed(spell_name, rank, cast_time)
+    elseif event == "UNIT_SPELLCAST_FAILED" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastFailed(spell_name, rank, cast_time)
+    elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
+        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
+        addon_data.hunter.OnUnitSpellCastInterrupted(spell_name, rank, cast_time)
     end
 end
 

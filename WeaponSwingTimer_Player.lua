@@ -82,16 +82,18 @@ addon_data.player.UpdateSwingTimer = function(elapsed)
                 addon_data.player.main_swing_timer = 0
             end
         end
-        if addon_data.player.off_swing_timer > 0 then
-            addon_data.player.off_swing_timer = addon_data.player.off_swing_timer - elapsed
-            if addon_data.player.off_swing_timer < 0 then
-                addon_data.player.off_swing_timer = 0
+        if addon_data.player.has_offhand then
+            if addon_data.player.off_swing_timer > 0 then
+                addon_data.player.off_swing_timer = addon_data.player.off_swing_timer - elapsed
+                if addon_data.player.off_swing_timer < 0 then
+                    addon_data.player.off_swing_timer = 0
+                end
             end
         end
     end
 end
 
-addon_data.player.UpdateVisuals = function()
+addon_data.player.UpdateVisualsOnUpdate = function()
     local settings = character_player_settings
     local frame = addon_data.player.frame
 	if settings.enabled then
@@ -246,7 +248,7 @@ addon_data.player.InitializeVisuals = function()
     off_text.right:SetJustifyV("CENTER")
     off_text.right:SetJustifyH("RIGHT")
     -- Show it off
-    addon_data.player.UpdateVisuals()
+    addon_data.player.UpdateVisualsOnUpdate()
     frame:Show()
 end
 

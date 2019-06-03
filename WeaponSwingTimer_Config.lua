@@ -22,6 +22,12 @@ addon_data.config.InitializeVisuals = function()
     panel.target_panel = addon_data.target.CreateConfigPanel(panel)
     panel.target_panel:SetSize(250, 200)
     panel.target_panel:SetPoint("TOPLEFT", 340, -375)
+    -- Add the hunter child panel
+    panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel)
+    panel.hunter_panel.name = "Hunter Bar Settings"
+    panel.hunter_panel.parent = panel.name
+    panel.hunter_panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(panel.hunter_panel)
 end
 
 addon_data.config.TextFactory = function(parent, text, size)

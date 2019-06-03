@@ -88,16 +88,18 @@ addon_data.target.UpdateSwingTimer = function(elapsed)
                 addon_data.target.main_swing_timer = 0
             end
         end
-        if addon_data.target.off_swing_timer > 0 then
-            addon_data.target.off_swing_timer = addon_data.target.off_swing_timer - elapsed
-            if addon_data.target.off_swing_timer < 0 then
-                addon_data.target.off_swing_timer = 0
+        if addon_data.target.has_offhand then
+            if addon_data.target.off_swing_timer > 0 then
+                addon_data.target.off_swing_timer = addon_data.target.off_swing_timer - elapsed
+                if addon_data.target.off_swing_timer < 0 then
+                    addon_data.target.off_swing_timer = 0
+                end
             end
         end
     end
 end
 
-addon_data.target.UpdateVisuals = function()
+addon_data.target.UpdateVisualsOnUpdate = function()
     local settings = character_target_settings
     local frame = addon_data.target.frame
 	if (settings.enabled) and (UnitExists("target")) and (not UnitIsDeadOrGhost("target")) then
@@ -328,7 +330,7 @@ addon_data.target.InitializeVisuals = function()
     frame.crp_off_fixed_line.texture = fixed_texture
     ]]--
     -- Show it off
-    addon_data.target.UpdateVisuals()
+    addon_data.target.UpdateVisualsOnUpdate()
     frame:Hide()
 end
 

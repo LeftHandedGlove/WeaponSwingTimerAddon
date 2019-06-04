@@ -66,7 +66,9 @@ addon_data.player.ResetMainSwingTimer = function()
 end
 
 addon_data.player.ResetOffSwingTimer = function()
-    addon_data.player.off_swing_timer = addon_data.player.off_weapon_speed
+    if addon_data.player.has_offhand then
+        addon_data.player.off_swing_timer = addon_data.player.off_weapon_speed
+    end
 end
 
 addon_data.player.ZeroizeSwingTimer = function()

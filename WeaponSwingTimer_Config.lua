@@ -136,28 +136,39 @@ end
 addon_data.config.ShowTextCheckBoxOnClick = function(self)
     character_player_settings.show_text = self:GetChecked()
     character_target_settings.show_text = self:GetChecked()
+    character_hunter_settings.show_text = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.config.IsLockedCheckBoxOnClick = function(self)
     character_player_settings.is_locked = self:GetChecked()
     character_target_settings.is_locked = self:GetChecked()
+    character_hunter_settings.is_locked = self:GetChecked()
     addon_data.player.frame:EnableMouse(not character_target_settings.is_locked)
     addon_data.target.frame:EnableMouse(not character_target_settings.is_locked)
+    addon_data.hunter.frame:EnableMouse(not character_target_settings.is_locked)
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.config.CombatAlphaOnValChange = function(self)
     character_player_settings.in_combat_alpha = tonumber(self:GetValue())
     character_target_settings.in_combat_alpha = tonumber(self:GetValue())
+    character_hunter_settings.in_combat_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.config.OOCAlphaOnValChange = function(self)
     character_player_settings.ooc_alpha = tonumber(self:GetValue())
     character_target_settings.ooc_alpha = tonumber(self:GetValue())
+    character_hunter_settings.ooc_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.config.BackplaneAlphaOnValChange = function(self)
     character_player_settings.backplane_alpha = tonumber(self:GetValue())
     character_target_settings.backplane_alpha = tonumber(self:GetValue())
+    character_hunter_settings.backplane_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.config.CreateConfigPanel = function(parent_panel)

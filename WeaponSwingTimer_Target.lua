@@ -81,6 +81,7 @@ addon_data.target.ZeroizeSwingTimer = function()
 end
 
 addon_data.target.UpdateSwingTimer = function(elapsed)
+    addon_data.target.UpdateInfo()
     if character_target_settings.enabled then
         if addon_data.target.main_swing_timer > 0 then
             addon_data.target.main_swing_timer = addon_data.target.main_swing_timer - elapsed

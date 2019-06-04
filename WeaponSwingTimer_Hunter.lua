@@ -5,7 +5,7 @@ addon_data.hunter = {}
 addon_data.hunter.default_settings = {
 	enabled = true,
 	width = 300,
-	height = 10,
+	height = 12,
     point = "CENTER",
 	rel_point = "CENTER",
 	x_offset = 0,
@@ -14,22 +14,25 @@ addon_data.hunter.default_settings = {
 	ooc_alpha = 0.25,
 	backplane_alpha = 0.5,
 	is_locked = false,
-    show_text = true
+    show_text = true,
+    show_aimedshot_cast_bar = true,
+    show_multishot_cast_bar = true,
+    show_latency_bars = true,
+    show_multishot_clip_bar = true
 }
 
 addon_data.hunter.shooting = false
-addon_data.hunter.range_speed = 0
+addon_data.hunter.range_speed = 3.0
 addon_data.hunter.auto_cast_time = 0.5
-addon_data.hunter.shot_timer = 0
-addon_data.hunter.last_shot_time = GetTime()
-addon_data.hunter.auto_shot_ready = false
+addon_data.hunter.shot_timer = 0.5
+addon_data.hunter.last_shot_time = 0
+addon_data.hunter.auto_shot_ready = true
 
 addon_data.hunter.casting = false
-addon_data.hunter.cast_timer = 0
-addon_data.hunter.cast_time = 0
+addon_data.hunter.cast_timer = 0.1
+addon_data.hunter.cast_time = 0.1
 
 addon_data.hunter.range_weapon_id = 0
-addon_data.hunter.last_pos = {x = 0, y = 0}
 addon_data.hunter.has_moved = false
 addon_data.hunter.berserk_haste = 0
 addon_data.hunter.class = 0
@@ -39,6 +42,8 @@ addon_data.hunter.LoadSettings = function()
     -- If the carried over settings dont exist then make them
     if not character_hunter_settings then
         character_hunter_settings = {}
+        _, class, _ = UnitClass("player")
+        character_hunter_settings.enabled = (class == "HUNTER")
     end
     -- If the carried over settings aren't set then set them to the defaults
     for setting, value in pairs(addon_data.hunter.default_settings) do
@@ -53,6 +58,7 @@ addon_data.hunter.RestoreDefaults = function()
         character_hunter_settings[setting] = value
     end
     addon_data.hunter.UpdateVisualsOnSettingsChange()
+    addon_data.hunter.UpdateConfigPanelValues()
 end
 
 addon_data.hunter.UpdateInfo = function()
@@ -117,7 +123,7 @@ addon_data.hunter.UpdateAutoShotTimer = function(elapsed)
     local curr_time = GetTime()
     addon_data.hunter.shot_timer = addon_data.hunter.shot_timer - elapsed
     -- If the player moved then the timer resets
-    if addon_data.hunter.has_moved then
+    if addon_data.hunter.has_moved or addon_data.hunter.casting then
         if addon_data.hunter.shot_timer <= addon_data.hunter.auto_cast_time then
             addon_data.hunter.ResetShotTimer()
         end
@@ -138,7 +144,7 @@ addon_data.hunter.UpdateAutoShotTimer = function(elapsed)
     end
 end
 
-addon_data.hunter.UpdatingCastingBar = function(elapsed)
+addon_data.hunter.UpdateCastTimer = function(elapsed)
     addon_data.hunter.cast_timer = addon_data.hunter.cast_timer + elapsed
 end
 
@@ -147,17 +153,12 @@ addon_data.hunter.OnUpdate = function(elapsed)
     addon_data.hunter.range_speed, _, _, _, _, _ = UnitRangedDamage("player")
     addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved
-    local new_x, new_y, _, _ = UnitPosition("player")
-    local x_changed = addon_data.hunter.last_pos.x ~= new_x
-    local y_changed = addon_data.hunter.last_pos.y ~= new_y
-    addon_data.hunter.has_moved = x_changed or y_changed
-    addon_data.hunter.last_pos.x = new_x
-    addon_data.hunter.last_pos.y = new_y
+    addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers
     if addon_data.hunter.casting then
-        addon_data.hunter.UpdatingCastingBar(elapsed)
+        addon_data.hunter.UpdateCastTimer(elapsed)
     end
     -- Update the visuals
     addon_data.hunter.UpdateVisualsOnUpdate()
@@ -175,39 +176,49 @@ addon_data.hunter.OnStopAutorepeatSpell = function()
 end
 
 addon_data.hunter.OnUnitSpellCastStart = function(spell_name, rank, cast_time)
-    if spell_name == "Aimed Shot" or spell_name == "Multi-Shot" then
-        addon_data.hunter.casting = true
-        addon_data.hunter.cast_timer = 0
-        addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0.4, 0, 1)
-        local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-        addon_data.hunter.cast_time = (end_time / 1000) - (start_time / 1000)
-        addon_data.hunter.frame.spell_text_center:SetText(name .. " [Rank " .. tostring(rank) .. "]")
+    if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
+       (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
+            addon_data.hunter.casting = true
+            addon_data.hunter.cast_timer = 0
+            addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0.4, 0, 1)
+            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
+            addon_data.hunter.cast_time = (end_time / 1000) - (start_time / 1000)
+            if character_hunter_settings.show_text then
+                addon_data.hunter.frame.spell_text_center:SetText(name .. " [Rank " .. tostring(rank) .. "]")
+            end
     end
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(spell_name, rank, cast_time)
-    if spell_name == "Aimed Shot" or spell_name == "Multi-Shot" then
-        addon_data.hunter.casting = false
-        addon_data.hunter.frame.spell_bar:SetColorTexture(0, 0.5, 0, 1)
+    if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
+       (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
+            addon_data.hunter.casting = false
+            addon_data.hunter.frame.spell_bar:SetColorTexture(0, 0.5, 0, 1)
+            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
     end
 end
 
 addon_data.hunter.OnUnitSpellCastDelayed = function(spell_name, rank, cast_time)
-    if spell_name == "Aimed Shot" or spell_name == "Multi-Shot" then
-        local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-        local current_timer = (GetTime() - (startTime / 1000))
-        if current_timer < 0 then
-            current_timer = 0
-        end
-        addon_data.hunter.cast_timer = current_timer
+    if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
+       (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
+            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
+            local current_timer = (GetTime() - (start_time / 1000))
+            if current_timer < 0 then
+                current_timer = 0
+            end
+            addon_data.hunter.cast_timer = current_timer
     end
 end
 
 addon_data.hunter.OnUnitSpellCastInterrupted = function(spell_name, rank, cast_time)
-    if spell_name == "Aimed Shot" or spell_name == "Multi-Shot" then
-        addon_data.hunter.casting = false
-        addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0, 0, 1)
-        addon_data.hunter.frame.spell_text_center:SetText("Interrupted")
+    if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
+       (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
+            addon_data.hunter.casting = false
+            addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0, 0, 1)
+            if character_hunter_settings.show_text then
+                addon_data.hunter.frame.spell_text_center:SetText("Interrupted")
+            end
+            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
     end
 end
 
@@ -218,18 +229,27 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
     local shot_timer = addon_data.hunter.shot_timer
     local auto_cast_time = addon_data.hunter.auto_cast_time
 	if settings.enabled then
+        if addon_data.core.in_combat or addon_data.hunter.shooting or addon_data.hunter.casting then
+            frame:SetAlpha(settings.in_combat_alpha)
+        else
+            frame:SetAlpha(settings.ooc_alpha)
+        end
         if addon_data.hunter.auto_shot_ready then
             frame.shot_bar:SetColorTexture(1, 0, 0, 1)
             new_width = settings.width * (auto_cast_time - shot_timer) / auto_cast_time
+            frame.multishot_clip_bar:Hide()
         else
             frame.shot_bar:SetColorTexture(1, 1, 1, 1)
             new_width = settings.width * ((shot_timer - auto_cast_time) / (range_speed - auto_cast_time))
+            if settings.show_multishot_clip_bar then
+                frame.multishot_clip_bar:Show()
+                multishot_clip_width = (settings.width * 2) * (addon_data.hunter.auto_cast_time / 
+                                       (addon_data.hunter.range_speed - addon_data.hunter.auto_cast_time))
+                frame.multishot_clip_bar:SetWidth(multishot_clip_width)
+            end
         end
-        if new_width < 10 then
-            frame.shot_bar:Hide()
+        if new_width < 1 then
             new_width = 1
-        else
-            frame.shot_bar:Show()
         end
         frame.shot_bar:SetWidth(new_width)
         if addon_data.hunter.casting then
@@ -242,13 +262,23 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             frame.spell_bar:SetWidth(new_width)
             
         else
-            new_alpha = frame.spell_bar:GetAlpha() - 0.001
+            new_alpha = frame.spell_bar:GetAlpha() - 0.005
             if new_alpha <= 0 then
                 new_alpha = 0
                 frame:SetSize(settings.width, settings.height)
                 frame.spell_text_center:SetText("")
             end
             frame.spell_bar:SetAlpha(new_alpha)
+        end
+        if settings.show_latency_bars then
+            if addon_data.hunter.casting then
+                frame.cast_latency:Show()
+                _, _, _, latency = GetNetStats()
+                lag_width = settings.width * ((latency / 1000) / addon_data.hunter.cast_time)
+                frame.cast_latency:SetWidth(lag_width)
+            else
+                frame.cast_latency:Hide()
+            end
         end
     end
 end
@@ -257,18 +287,38 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
     local settings = character_hunter_settings
     local frame = addon_data.hunter.frame
 	if settings.enabled then
-        
+        frame:Show()
+        frame:ClearAllPoints()
+        frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
         frame.backdrop:SetColorTexture(0, 0, 0, settings.backplane_alpha)
-        
-        frame:SetPoint("TOP", 0, -600)
         frame.backdrop:SetPoint("TOPLEFT", -1, 1)
         frame.backdrop:SetPoint("BOTTOMRIGHT", 1, -1)
         frame.shot_bar:SetPoint("TOP", 0, 0)
-        frame.spell_bar:SetPoint("BOTTOMLEFT", 0, 0)
-        
-        frame:SetSize(settings.width, settings.height)
         frame.shot_bar:SetHeight(settings.height)
+        frame.multishot_clip_bar:SetPoint("TOP", 0, 0)
+        frame.multishot_clip_bar:SetHeight(settings.height)
+        frame.multishot_clip_bar:SetColorTexture(1, 0, 0, 0.7)
+        frame.spell_bar:SetPoint("BOTTOMLEFT", 0, 0)
         frame.spell_bar:SetHeight(settings.height)
+        frame.spell_text_center:SetPoint("CENTER", 2, -(settings.height / 2))
+        frame.cast_latency:SetHeight(settings.height)
+        frame.cast_latency:SetPoint("BOTTOMRIGHT", 0, 0)
+        frame.cast_latency:SetColorTexture(1, 0, 0, 0.75)
+        if settings.show_latency_bars then
+            frame.cast_latency:Show()
+        else
+            frame.cast_latency:Hide()
+        end
+        if settings.show_multishot_clip_bar then
+            frame.multishot_clip_bar:Show()
+        else
+            frame.multishot_clip_bar:Hide()
+        end
+        if not settings.show_text then
+            frame.spell_text_center:SetText("")
+        end
+    else
+        frame:Hide()
     end
 end
 
@@ -304,16 +354,18 @@ addon_data.hunter.InitializeVisuals = function()
     frame.backdrop = frame:CreateTexture(nil,"BACKGROUND")
     -- Create the shot bar
     frame.shot_bar = frame:CreateTexture(nil, "ARTWORK")
+    -- Create the multishot clip bar
+    frame.multishot_clip_bar = frame:CreateTexture(nil, "OVERLAY")
     -- Create the range spell shot bar
     frame.spell_bar = frame:CreateTexture(nil, "ARTWORK")
     -- Create the range spell shot bar center text
     frame.spell_text_center = frame:CreateFontString(nil, "OVERLAY")
-    frame.spell_text_center:SetFont("Fonts/FRIZQT__.ttf", 12)
+    frame.spell_text_center:SetFont("Fonts/FRIZQT__.ttf", 11)
     frame.spell_text_center:SetTextColor(1, 1, 1, 1)
     frame.spell_text_center:SetJustifyV("CENTER")
     frame.spell_text_center:SetJustifyH("LEFT")
-    frame.spell_text_center:SetPoint("BOTTOM", 2, 0)
-    
+    -- Create the latency bar
+    frame.cast_latency = frame:CreateTexture(nil,"OVERLAY")
     -- Show it off
     addon_data.hunter.UpdateVisualsOnSettingsChange()
     addon_data.hunter.UpdateVisualsOnUpdate()
@@ -321,105 +373,156 @@ addon_data.hunter.InitializeVisuals = function()
 end
 
 addon_data.hunter.UpdateConfigPanelValues = function()
+    local panel = addon_data.hunter.config_frame
+    local settings = character_hunter_settings
+    panel.enabled_checkbox:SetChecked(settings.enabled)
+    panel.show_aimedshot_cast_bar_checkbox:SetChecked(settings.show_aimedshot_cast_bar)
+    panel.show_multishot_cast_bar_checkbox:SetChecked(settings.show_multishot_cast_bar)
+    panel.show_latency_bar_checkbox:SetChecked(settings.show_latency_bars)
+    panel.show_multishot_clip_bar_checkbox:SetChecked(settings.show_multishot_clip_bar)
+    panel.width_editbox:SetText(tostring(settings.width))
+    panel.width_editbox:SetCursorPosition(0)
+    panel.height_editbox:SetText(tostring(settings.height))
+    panel.height_editbox:SetCursorPosition(0)
+    panel.x_offset_editbox:SetText(tostring(settings.x_offset))
+    panel.x_offset_editbox:SetCursorPosition(0)
+    panel.y_offset_editbox:SetText(tostring(settings.y_offset))
+    panel.y_offset_editbox:SetCursorPosition(0)
 end
 
+addon_data.hunter.EnabledCheckBoxOnClick = function(self)
+    character_hunter_settings.enabled = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.ShowAimedShotCastBarCheckBoxOnClick = function(self)
+    character_hunter_settings.show_aimedshot_cast_bar = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.ShowMultiShotCastBarCheckBoxOnClick = function(self)
+    character_hunter_settings.show_multishot_cast_bar = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.ShowLatencyBarsCheckBoxOnClick = function(self)
+    character_hunter_settings.show_latency_bars = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.ShowMultiShotClipBarCheckBoxOnClick = function(self)
+   character_hunter_settings.show_multishot_clip_bar = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.WidthEditBoxOnEnter = function(self)
+    character_hunter_settings.width = tonumber(self:GetText())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.HeightEditBoxOnEnter = function(self)
+    character_hunter_settings.height = tonumber(self:GetText())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.XOffsetEditBoxOnEnter = function(self)
+    character_hunter_settings.x_offset = tonumber(self:GetText())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.YOffsetEditBoxOnEnter = function(self)
+    character_hunter_settings.y_offset = tonumber(self:GetText())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+
+
 addon_data.hunter.CreateConfigPanel = function(parent_panel)
-    addon_data.target.config_frame = CreateFrame("Frame", addon_name .. "TargetConfigPanel", parent_panel)
-    local panel = addon_data.target.config_frame
-    local settings = character_target_settings
+    addon_data.hunter.config_frame = CreateFrame("Frame", addon_name .. "HunterConfigPanel", parent_panel)
+    local panel = addon_data.hunter.config_frame
+    local settings = character_hunter_settings
     -- Title Text
-    panel.title_text = addon_data.config.TextFactory(panel, "Target Swing Bar Settings", 20)
-    panel.title_text:SetPoint("TOPLEFT", 15, 0)
+    panel.title_text = addon_data.config.TextFactory(panel, "Hunter Shot Bar Settings", 20)
+    panel.title_text:SetPoint("TOPLEFT", 15, -15)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
     -- Enabled Checkbox
     panel.enabled_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetEnabledCheckBox",
+        "HunterEnabledCheckBox",
         panel,
         " Enable",
-        "Enables the target's swing bars.",
-        addon_data.target.EnabledCheckBoxOnClick)
-    panel.enabled_checkbox:SetPoint("TOPLEFT", 10, -30)
-    -- Show Off-Hand Checkbox
-    panel.show_offhand_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetShowOffHandCheckBox",
+        "Enables the hunter's Auto Shot and casting bars.",
+        addon_data.hunter.EnabledCheckBoxOnClick)
+    panel.enabled_checkbox:SetPoint("TOPLEFT", 10, -45)
+    -- Show Aimed Shot Cast Bar Checkbox
+    panel.show_aimedshot_cast_bar_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowAimedShotCastBarCheckBox",
         panel,
-        " Show Off-Hand",
-        "Enables the target's off-hand swing bar.",
-        addon_data.target.ShowOffHandCheckBoxOnClick)
-    panel.show_offhand_checkbox:SetPoint("TOPLEFT", 10, -50)
+        " Show Aimed Shot cast bar",
+        "Allows the cast bar to show Aimed Shot casts.",
+        addon_data.hunter.ShowAimedShotCastBarCheckBoxOnClick)
+    panel.show_aimedshot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -65)
+    -- Show Multi Shot Cast Bar Checkbox
+    panel.show_multishot_cast_bar_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowMultiShotCastBarCheckBox",
+        panel,
+        " Show Multi-Shot cast bar",
+        "Allows the cast bar to show Multi-Shot casts.",
+        addon_data.hunter.ShowMultiShotCastBarCheckBoxOnClick)
+    panel.show_multishot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -85)
+    -- Show Latency Bar Checkbox
+    panel.show_latency_bar_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowLatencyBarCheckBox",
+        panel,
+        " Show latency bar",
+        "Shows a bar that represents latency on cast bar.",
+        addon_data.hunter.ShowLatencyBarsCheckBoxOnClick)
+    panel.show_latency_bar_checkbox:SetPoint("TOPLEFT", 10, -105)
+    -- Show Multi-Shot Clip Bar Checkbox
+    panel.show_multishot_clip_bar_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowMultiShotClipBarCheckBox",
+        panel,
+        " Show Multi-Shot clip bar",
+        "Shows a bar that represents when a Multi-Shot would clip an Auto Shot.",
+        addon_data.hunter.ShowMultiShotClipBarCheckBoxOnClick)
+    panel.show_multishot_clip_bar_checkbox:SetPoint("TOPLEFT", 10, -125)
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
-        "TargetWidthEditBox",
+        "HunterWidthEditBox",
         panel,
         "Bar Width",
         100,
         25,
-        addon_data.target.WidthEditBoxOnEnter)
-    panel.width_editbox:SetPoint("TOPLEFT", 15, -100, "BOTTOMRIGHT", 115, -125)
+        addon_data.hunter.WidthEditBoxOnEnter)
+    panel.width_editbox:SetPoint("TOPLEFT", 15, -180, "BOTTOMRIGHT", 115, -205)
     -- Height EditBox
     panel.height_editbox = addon_data.config.EditBoxFactory(
-        "TargetHeightEditBox",
+        "HunterHeightEditBox",
         panel,
         "Bar Height",
         100,
         25,
-        addon_data.target.HeightEditBoxOnEnter)
-    panel.height_editbox:SetPoint("TOPLEFT", 125, -100, "BOTTOMRIGHT", 225, -125)
+        addon_data.hunter.HeightEditBoxOnEnter)
+    panel.height_editbox:SetPoint("TOPLEFT", 125, -180, "BOTTOMRIGHT", 225, -205)
     -- X Offset EditBox
     panel.x_offset_editbox = addon_data.config.EditBoxFactory(
-        "TargetXOffsetEditBox",
+        "HunterXOffsetEditBox",
         panel,
         "X Offset",
         100,
         25,
-        addon_data.target.XOffsetEditBoxOnEnter)
-    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -150, "BOTTOMRIGHT", 115, -175)
+        addon_data.hunter.XOffsetEditBoxOnEnter)
+    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -230, "BOTTOMRIGHT", 115, -255)
     -- Y Offset EditBox
     panel.y_offset_editbox = addon_data.config.EditBoxFactory(
-        "TargetYOffsetEditBox",
+        "HunterYOffsetEditBox",
         panel,
         "Y Offset",
         100,
         25,
-        addon_data.target.YOffsetEditBoxOnEnter)
-    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -150, "BOTTOMRIGHT", 225, -175)
-    --[[
-    -- CRP Title
-    panel.crp_title_text = addon_data.config.TextFactory(panel, "Crit Reactive Proc Settings", 20)
-    panel.crp_title_text:SetPoint("TOPLEFT", 350, -15)
-    panel.crp_title_text:SetTextColor(1, 0.9, 0, 1)
-    -- CRP Ping Enabled Checkbox
-    panel.crp_ping_enabled_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetCRPPingEnableCheckBox",
-        panel,
-        " CRP Ping Line Enable",
-        "Enables the CRP ping delay line over the target's swing bars.",
-        addon_data.target.CRPPingEnabledCheckBoxOnClick)
-    panel.crp_ping_enabled_checkbox:SetPoint("TOPLEFT", 310, -50)
-    panel.crp_ping_enabled_checkbox:SetChecked(character_target_settings.crp_ping_enabled)
-    -- CRP Fixed Enabled Checkbox
-    panel.crp_fixed_enabled_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetCRPFixedEnableCheckBox",
-        panel,
-        " CRP Fixed Line Enable",
-        "Enables the CRP fixed delay line over the target's swing bars.",
-        addon_data.target.CRPFixedEnabledCheckBoxOnClick)
-    panel.crp_fixed_enabled_checkbox:SetPoint("TOPLEFT", 310, -70)
-    panel.crp_fixed_enabled_checkbox:SetChecked(character_target_settings.enabled)
-    -- CRP Fixed Delay Editbox
-    panel.crp_fixed_delay_editbox = addon_data.config.EditBoxFactory(
-        "TargetCRPFixedDelayEditBox",
-        panel,
-        "CRP Fixed Delay (secs)",
-        150,
-        25,
-        addon_data.target.CRPFixedDelayEditBoxOnEnter)
-    panel.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 345, -125, "BOTTOMRIGHT", 495, -150)
-    panel.crp_fixed_delay_editbox:SetText(tostring(settings.crp_fixed_delay))
-    panel.crp_fixed_delay_editbox:SetCursorPosition(0)
-    ]]--
+        addon_data.hunter.YOffsetEditBoxOnEnter)
+    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -230, "BOTTOMRIGHT", 225, -255)
     -- Return the final panel
-    addon_data.target.UpdateConfigValues()
+    addon_data.hunter.UpdateConfigPanelValues()
     return panel
 end
 

@@ -6,13 +6,15 @@ TODO: Youtube link goes here
 
 ## Melee Bars
 The melee bars track the player's and target's main-hand and off-hand swings. It resets on abilities that would reset a swing timer, such as Warrior's Slam, and also takes parry haste into account. Both frames can be moved around with the typical click-and-drag. A configuration window can be brought up with /wst /WeaponSwingTimer or /weaponswingtimer where more visual options are available.
+
 ![alt text](Images/CurseImage.png)
 ![alt text](Images/ConfigWindow.png)
 
 ## Hunter Bars
 The hunter bars track the player's Auto Shot timing and also track the cast time for Aimed Shot and Multi-Shot. The Auto Shot bar turns white when an Auto Shot is fired. While the bar is white, the hunter can move and cast freely without clipping their next Auto Shot. When the white bar is depleted, the hunter should stand still while their Auto Shot is 'casting'. If Auto Shot or Multi-Shot are cast
+
 ![alt text](Images/HunterBar.png)
-![alt text](Images/HunterConfig.png)
+![alt text](Images/HunterOptions.png)
 
 ## Installation
 ### Download

@@ -29,6 +29,7 @@ addon_data.hunter.last_shot_time = 0
 addon_data.hunter.auto_shot_ready = true
 
 addon_data.hunter.casting = false
+addon_data.hunter.casting_shot = false
 addon_data.hunter.cast_timer = 0.1
 addon_data.hunter.cast_time = 0.1
 
@@ -157,7 +158,7 @@ addon_data.hunter.OnUpdate = function(elapsed)
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers
-    if addon_data.hunter.casting then
+    if addon_data.hunter.casting_shot then
         addon_data.hunter.UpdateCastTimer(elapsed)
     end
     -- Update the visuals
@@ -176,9 +177,12 @@ addon_data.hunter.OnStopAutorepeatSpell = function()
 end
 
 addon_data.hunter.OnUnitSpellCastStart = function(spell_name, rank, cast_time)
+    if spell_name ~= "Auto Shot" then
+        addon_data.hunter.casting = true
+    end
     if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
        (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
-            addon_data.hunter.casting = true
+            addon_data.hunter.casting_shot = true
             addon_data.hunter.cast_timer = 0
             addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0.4, 0, 1)
             local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
@@ -190,9 +194,12 @@ addon_data.hunter.OnUnitSpellCastStart = function(spell_name, rank, cast_time)
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(spell_name, rank, cast_time)
+    if spell_name ~= "Auto Shot" then
+        addon_data.hunter.casting = false
+    end
     if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
        (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
-            addon_data.hunter.casting = false
+            addon_data.hunter.casting_shot = false
             addon_data.hunter.frame.spell_bar:SetColorTexture(0, 0.5, 0, 1)
             addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
     end
@@ -211,9 +218,12 @@ addon_data.hunter.OnUnitSpellCastDelayed = function(spell_name, rank, cast_time)
 end
 
 addon_data.hunter.OnUnitSpellCastInterrupted = function(spell_name, rank, cast_time)
+    if spell_name ~= "Auto Shot" then
+        addon_data.hunter.casting = false
+    end
     if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
        (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
-            addon_data.hunter.casting = false
+            addon_data.hunter.casting_shot = false
             addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0, 0, 1)
             if character_hunter_settings.show_text then
                 addon_data.hunter.frame.spell_text_center:SetText("Interrupted")
@@ -229,7 +239,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
     local shot_timer = addon_data.hunter.shot_timer
     local auto_cast_time = addon_data.hunter.auto_cast_time
 	if settings.enabled then
-        if addon_data.core.in_combat or addon_data.hunter.shooting or addon_data.hunter.casting then
+        if addon_data.core.in_combat or addon_data.hunter.shooting or addon_data.hunter.casting_shot then
             frame:SetAlpha(settings.in_combat_alpha)
         else
             frame:SetAlpha(settings.ooc_alpha)
@@ -252,7 +262,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             new_width = 1
         end
         frame.shot_bar:SetWidth(new_width)
-        if addon_data.hunter.casting then
+        if addon_data.hunter.casting_shot then
             frame:SetSize(settings.width, (settings.height * 2) + 2)
             frame.spell_bar:SetAlpha(1)
             new_width = settings.width * (addon_data.hunter.cast_timer / addon_data.hunter.cast_time)
@@ -271,7 +281,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             frame.spell_bar:SetAlpha(new_alpha)
         end
         if settings.show_latency_bars then
-            if addon_data.hunter.casting then
+            if addon_data.hunter.casting_shot then
                 frame.cast_latency:Show()
                 _, _, _, latency = GetNetStats()
                 lag_width = settings.width * ((latency / 1000) / addon_data.hunter.cast_time)

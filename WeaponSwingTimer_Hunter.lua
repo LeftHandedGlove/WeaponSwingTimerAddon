@@ -23,7 +23,7 @@ addon_data.hunter.default_settings = {
 
 addon_data.hunter.shooting = false
 addon_data.hunter.range_speed = 3.0
-addon_data.hunter.auto_cast_time = 0.5
+addon_data.hunter.auto_cast_time = 0.65
 addon_data.hunter.shot_timer = 0.5
 addon_data.hunter.last_shot_time = 0
 addon_data.hunter.auto_shot_ready = true
@@ -253,8 +253,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             new_width = settings.width * ((shot_timer - auto_cast_time) / (range_speed - auto_cast_time))
             if settings.show_multishot_clip_bar then
                 frame.multishot_clip_bar:Show()
-                multishot_clip_width = (settings.width * 2) * (addon_data.hunter.auto_cast_time / 
-                                       (addon_data.hunter.range_speed - addon_data.hunter.auto_cast_time))
+                multishot_clip_width = (settings.width * 2) * (0.5 / (addon_data.hunter.range_speed - 0.5))
                 frame.multishot_clip_bar:SetWidth(multishot_clip_width)
             end
         end

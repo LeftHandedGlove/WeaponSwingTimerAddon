@@ -1,18 +1,18 @@
-# WeaponSwingTimerAddon
-WeaponSwingTimer is an addon for WoW Classic that tracks your's and your target's swing timers. It resets on abilities that would reset a swing timer, such as Warrior's Slam, and also takes parry haste into account. Both frames can be moved around with the typical click-and-drag. A configuration window can be brought up with /wst /WeaponSwingTimer or /weaponswingtimer where more visual options are available.
+# WeaponSwingTimer
+WeaponSwingTimer is an addon for WoW Classic that tracks your's and your target's swing timers. If you're a hunter, it also tracks Auto Shot timing and castable shots cast time.
 
+## Latest Update Video
+TODO: Youtube link goes here
+
+## Melee Bars
+The melee bars track the player's and target's main-hand and off-hand swings. It resets on abilities that would reset a swing timer, such as Warrior's Slam, and also takes parry haste into account. Both frames can be moved around with the typical click-and-drag. A configuration window can be brought up with /wst /WeaponSwingTimer or /weaponswingtimer where more visual options are available.
 ![alt text](Images/CurseImage.png)
 ![alt text](Images/ConfigWindow.png)
 
-## Version 3.0 Update Explaination
-TODO:Youtube link goes here.
-
-## Crit Reactive Procs (CRPs) Update For V3.0
-A recent video by Esfand (https://www.youtube.com/watch?v=Op9kWkI4F-I) showed that Crit Reactive Procs can be triggered if correctly timed. 
-
-I felt like my old update (v2.0) spread misinformation about when to stand up for CRPs to trigger. I studied the video further and it seems like as long as the player stands up when the the target's swing timer resets (i.e. when the bar empties and starts filling up) a CRP will trigger. 
-
-**Ideally the player would stand up when the target's swing timer resets, causing the CRPs to trigger.**
+## Hunter Bars
+The hunter bars track the player's Auto Shot timing and also track the cast time for Aimed Shot and Multi-Shot. The Auto Shot bar turns white when an Auto Shot is fired. While the bar is white, the hunter can move and cast freely without clipping their next Auto Shot. When the white bar is depleted, the hunter should stand still while their Auto Shot is 'casting'. If Auto Shot or Multi-Shot are cast
+![alt text](Images/HunterBar.png)
+![alt text](Images/HunterConfig.png)
 
 ## Installation
 ### Download

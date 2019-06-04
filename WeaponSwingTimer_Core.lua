@@ -220,6 +220,8 @@ local function CoreFrame_OnEvent(self, event, ...)
         end
     elseif event == "UNIT_INVENTORY_CHANGED" then
         addon_data.player.UpdateInfo()
+        addon_data.player.ResetMainSwingTimer()
+        addon_data.player.ResetOffSwingTimer()
     elseif event == "START_AUTOREPEAT_SPELL" then
         addon_data.hunter.OnStartAutorepeatSpell()
     elseif event == "STOP_AUTOREPEAT_SPELL" then

@@ -104,9 +104,11 @@ local function MissHandler(unit, miss_type, is_offhand)
                     addon_data.target.main_swing_timer = min_swing_time
                 end
             else
-                min_swing_time = addon_data.target.off_weapon_speed * 0.2
-                if addon_data.target.off_swing_timer > min_swing_time then
-                    addon_data.target.off_swing_timer = min_swing_time
+                if addon_data.target.has_offhand and addon_data.target.off_weapon_speed then
+                    min_swing_time = addon_data.target.off_weapon_speed * 0.2
+                    if addon_data.target.off_swing_timer > min_swing_time then
+                        addon_data.target.off_swing_timer = min_swing_time
+                    end
                 end
             end
         else

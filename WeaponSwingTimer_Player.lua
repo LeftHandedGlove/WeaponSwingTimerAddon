@@ -69,7 +69,6 @@ addon_data.player.UpdateInfo = function()
                                                     (new_off_speed /addon_data.player.off_weapon_speed)
                 addon_data.player.off_weapon_speed = off_main_speed
             end
-            
     end
     
     addon_data.player.guid = UnitGUID("player")

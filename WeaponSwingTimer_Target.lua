@@ -64,6 +64,14 @@ addon_data.target.UpdateInfo = function()
         else
             addon_data.target.has_offhand = true
         end
+        -- FIXME: Temp fix until I can nail down the divide by zero error
+        if addon_data.target.main_weapon_speed == 0 then
+            addon_data.target.main_weapon_speed = 2
+        end
+        if addon_data.target.off_weapon_speed == 0 then
+            addon_data.target.off_weapon_speed = 2
+        end
+        -- Handling for getting haste buffs in combat
         if new_main_speed ~= addon_data.target.main_weapon_speed or 
            new_off_speed ~= addon_data.target.off_weapon_speed then
                 addon_data.target.main_swing_timer = addon_data.target.main_swing_timer * 

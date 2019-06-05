@@ -152,6 +152,11 @@ end
 addon_data.hunter.OnUpdate = function(elapsed)
     -- Update the ranged attack speed
     new_range_speed, _, _, _, _, _ = UnitRangedDamage("player")
+    -- FIXME: Temp fix until I can nail down the divide by zero error
+    if addon_data.hunter.range_speed == 0 then
+        addon_data.hunter.range_speed = 3
+    end
+    -- Handling for getting haste buffs in combat
     if new_range_speed ~= addon_data.hunter.range_speed then
         if not addon_data.hunter.auto_shot_ready then
             addon_data.hunter.shot_timer = addon_data.hunter.shot_timer * 

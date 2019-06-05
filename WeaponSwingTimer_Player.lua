@@ -19,10 +19,10 @@ addon_data.player.default_settings = {
 }
 
 addon_data.player.main_swing_timer = 0.1
-addon_data.player.main_weapon_speed = 3
+addon_data.player.main_weapon_speed = 2
 addon_data.player.main_weapon_id = 0
 addon_data.player.off_swing_timer = 0.1
-addon_data.player.off_weapon_speed = 3
+addon_data.player.off_weapon_speed = 2
 addon_data.player.off_weapon_id = 0
 addon_data.player.has_offhand = false
 addon_data.player.class = 0
@@ -59,18 +59,25 @@ addon_data.player.UpdateInfo = function()
     else
         addon_data.player.has_offhand = true
     end
+    -- FIXME: Temp fix until I can nail down the divide by zero error
+    if addon_data.player.main_weapon_speed == 0 then
+        addon_data.player.main_weapon_speed = 2
+    end
+    if addon_data.player.off_weapon_speed == 0 then
+        addon_data.player.off_weapon_speed = 2
+    end
+    -- Handling for getting haste buffs in combat
     if new_main_speed ~= addon_data.player.main_weapon_speed or 
        new_off_speed ~= addon_data.player.off_weapon_speed then
             addon_data.player.main_swing_timer = addon_data.player.main_swing_timer * 
-                                                 (new_main_speed /addon_data.player.main_weapon_speed)
+                                                 (new_main_speed / addon_data.player.main_weapon_speed)
             addon_data.player.main_weapon_speed = new_main_speed
             if addon_data.player.has_offhand then
                 addon_data.player.off_swing_timer = addon_data.player.off_swing_timer * 
-                                                    (new_off_speed /addon_data.player.off_weapon_speed)
+                                                    (new_off_speed / addon_data.player.off_weapon_speed)
                 addon_data.player.off_weapon_speed = off_main_speed
             end
     end
-    
     addon_data.player.guid = UnitGUID("player")
 end
 

@@ -9,7 +9,7 @@ end
 
 addon_data.config.InitializeVisuals = function()
     -- Create the main config panel
-    addon_data.config.panel = addon_data.config.CreateConfigPanel(UIParent)
+    addon_data.config.panel = addon_data.config.CreateMainConfigPanel(UIParent)
     local panel = addon_data.config.panel
     addon_data.config.panel.name = "WeaponSwingTimer"
     addon_data.config.panel.default = addon_data.config.OnDefault
@@ -17,17 +17,19 @@ addon_data.config.InitializeVisuals = function()
     -- Add the player child panel
     panel.player_panel = addon_data.player.CreateConfigPanel(panel)
     panel.player_panel:SetSize(250, 200)
-    panel.player_panel:SetPoint("TOPLEFT", 0, -375)
+    panel.player_panel:SetPoint("TOPLEFT", 325, -15)
     -- Add the target child panel
     panel.target_panel = addon_data.target.CreateConfigPanel(panel)
     panel.target_panel:SetSize(250, 200)
-    panel.target_panel:SetPoint("TOPLEFT", 340, -375)
+    panel.target_panel:SetPoint("TOPLEFT", 325, -225)
     -- Add the hunter child panel
     panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel)
-    panel.hunter_panel.name = "Hunter Bar Settings"
-    panel.hunter_panel.parent = panel.name
-    panel.hunter_panel.default = addon_data.config.OnDefault
-    InterfaceOptions_AddCategory(panel.hunter_panel)
+    panel.hunter_panel:SetSize(250, 200)
+    panel.hunter_panel:SetPoint("TOPLEFT", 0, -250)
+    --panel.hunter_panel.name = "Hunter Bar Settings"
+    --panel.hunter_panel.parent = panel.name
+    --panel.hunter_panel.default = addon_data.config.OnDefault
+    --InterfaceOptions_AddCategory(panel.hunter_panel)
 end
 
 addon_data.config.TextFactory = function(parent, text, size)
@@ -171,20 +173,13 @@ addon_data.config.BackplaneAlphaOnValChange = function(self)
     addon_data.core.UpdateAllVisualsOnSettingsChange()
 end
 
-addon_data.config.CreateConfigPanel = function(parent_panel)
+addon_data.config.CreateMainConfigPanel = function(parent_panel)
     addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "MainConfigPanel", parent_panel)
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
-    todo_notice = 
-[[This config landing page in under construction. 
-I plan to put a guide or welcome here.]]
-    panel.todo_text = addon_data.config.TextFactory(panel, todo_notice, 14)
-    panel.todo_text:SetJustifyH("LEFT")
-    panel.todo_text:SetPoint("TOPLEFT", 15, -15)
-    
     -- Title Text
-    panel.title_text = addon_data.config.TextFactory(panel, "Global Swing Bar Settings", 20)
-    panel.title_text:SetPoint("TOPLEFT", 15, -175)
+    panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
+    panel.title_text:SetPoint("TOPLEFT", 15, -15)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
     -- Show Text Checkbox
     panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
@@ -193,15 +188,15 @@ I plan to put a guide or welcome here.]]
         " Show Text",
         "Enables the text on the swing bars.",
         addon_data.config.ShowTextCheckBoxOnClick)
-    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -220)
+    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -55)
     -- Is Locked Checkbox
     panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
         "IsLockedCheckBox",
         panel,
-        " Lock",
+        " Lock All Bars",
         "Locks all of the swing bar frames, preventing them from being dragged.",
         addon_data.config.IsLockedCheckBoxOnClick)
-    panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -200)
+    panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -35)
     -- In Combat Alpha Slider
     panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
         "InCombatAlphaSlider",
@@ -211,7 +206,7 @@ I plan to put a guide or welcome here.]]
         1,
         0.05,
         addon_data.config.CombatAlphaOnValChange)
-    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 150, -225)
+    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 20, -100)
     -- Out Of Combat Alpha Slider
     panel.ooc_alpha_slider = addon_data.config.SliderFactory(
         "OOCAlphaSlider",
@@ -221,7 +216,7 @@ I plan to put a guide or welcome here.]]
         1,
         0.05,
         addon_data.config.OOCAlphaOnValChange)
-    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 150, -275)
+    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 20, -150)
     -- Backplane Alpha Slider
     panel.backplane_alpha_slider = addon_data.config.SliderFactory(
         "BackplaneAlphaSlider",
@@ -231,7 +226,7 @@ I plan to put a guide or welcome here.]]
         1,
         0.05,
         addon_data.config.BackplaneAlphaOnValChange)
-    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 150, -325)
+    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -200)
     -- Return the final panel
     addon_data.config.UpdateConfigValues()
     return panel

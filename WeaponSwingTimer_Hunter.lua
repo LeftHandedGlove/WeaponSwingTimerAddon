@@ -58,6 +58,8 @@ addon_data.hunter.RestoreDefaults = function()
     for setting, value in pairs(addon_data.hunter.default_settings) do
         character_hunter_settings[setting] = value
     end
+    _, class, _ = UnitClass("player")
+    character_hunter_settings.enabled = (class == "HUNTER")
     addon_data.hunter.UpdateVisualsOnSettingsChange()
     addon_data.hunter.UpdateConfigPanelValues()
 end

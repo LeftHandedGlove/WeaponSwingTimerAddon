@@ -2,6 +2,10 @@ local addon_name, addon_data = ...
 
 addon_data.target = {}
 
+--[[============================================================================================]]--
+--[[===================================== SETTINGS RELATED =====================================]]--
+--[[============================================================================================]]--
+
 addon_data.target.default_settings = {
 	enabled = true,
 	width = 300,
@@ -15,21 +19,24 @@ addon_data.target.default_settings = {
 	backplane_alpha = 0.5,
 	is_locked = false,
     show_text = true,
-	show_offhand = true,
-    crp_ping_enabled = false,
-    crp_fixed_enabled = false,
-    crp_fixed_delay = 0.25
+	show_offhand = true
 }
 
-addon_data.target.main_swing_timer = 0.1
-addon_data.target.main_weapon_speed = 2
-addon_data.target.main_weapon_id = 0
-addon_data.target.off_swing_timer = 0.1
-addon_data.target.off_weapon_speed = 2
-addon_data.target.off_weapon_id = 0
-addon_data.target.has_offhand = false
-addon_data.target.class = 0
+addon_data.target.class = 'WARRIOR'
 addon_data.target.guid = 0
+
+addon_data.target.main_swing_timer = 0.00001
+addon_data.target.prev_main_weapon_speed = 2
+addon_data.target.main_weapon_speed = 2
+addon_data.target.main_weapon_id = GetInventoryItemID("target", 16)
+addon_data.target.main_speed_changed = false
+
+addon_data.target.off_swing_timer = 0.00001
+addon_data.target.prev_off_weapon_speed = 2
+addon_data.target.off_weapon_speed = 2
+addon_data.target.off_weapon_id = GetInventoryItemID("target", 17)
+addon_data.target.has_offhand = false
+addon_data.target.off_speed_changed = false
 
 addon_data.target.LoadSettings = function()
     -- If the carried over settings dont exist then make them
@@ -48,22 +55,42 @@ addon_data.target.RestoreDefaults = function()
     for setting, value in pairs(addon_data.target.default_settings) do
         character_target_settings[setting] = value
     end
-    addon_data.target.UpdateFramePointAndSize()
-    
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
-addon_data.target.UpdateInfo = function()
+--[[============================================================================================]]--
+--[[====================================== LOGIC RELATED =======================================]]--
+--[[============================================================================================]]--
+addon_data.target.OnPlayerTargetChanged = function()
     if UnitExists("target") then
         addon_data.target.class = UnitClass("target")[2]
-        addon_data.target.main_weapon_id = GetInventoryItemID("target", 16)
-        addon_data.target.off_weapon_id = GetInventoryItemID("target", 17)
-        -- Update the weapon swing speed
-        new_main_speed, new_off_speed = UnitAttackSpeed("target")
-        if not new_off_speed then
-            addon_data.target.has_offhand = false
-        else
-            addon_data.target.has_offhand = true
-        end
+        addon_data.target.guid = UnitGUID("target")
+        addon_data.target.ZeroizeSwingTimers()
+    end
+end
+
+addon_data.target.OnInventoryChange = function()
+    local new_main_guid = GetInventoryItemID("target", 16)
+    local new_off_guid = GetInventoryItemID("target", 17)
+    -- Check for a main hand weapon change
+    if addon_data.target.main_weapon_id ~= new_main_guid then
+        addon_data.target.UpdateMainWeaponSpeed()
+        addon_data.target.ResetMainSwingTimer()
+    end
+    addon_data.target.main_weapon_id = new_main_guid
+    -- Check for an off hand weapon change
+    if addon_data.target.off_weapon_id ~= new_off_guid then
+        addon_data.target.UpdateOffWeaponSpeed()
+        addon_data.target.ResetOffSwingTimer()
+    end
+    addon_data.target.off_weapon_id = new_off_guid
+end
+
+addon_data.target.OnUpdate = function(elapsed)
+    if character_target_settings.enabled and UnitExists("target") then
+        -- Update the weapon speed
+        addon_data.target.UpdateMainWeaponSpeed()
+        addon_data.target.UpdateOffWeaponSpeed()
         -- FIXME: Temp fix until I can nail down the divide by zero error
         if addon_data.target.main_weapon_speed == 0 then
             addon_data.target.main_weapon_speed = 2
@@ -71,45 +98,74 @@ addon_data.target.UpdateInfo = function()
         if addon_data.target.off_weapon_speed == 0 then
             addon_data.target.off_weapon_speed = 2
         end
-        -- Handling for getting haste buffs in combat
-        if new_main_speed ~= addon_data.target.main_weapon_speed or 
-           new_off_speed ~= addon_data.target.off_weapon_speed then
-                addon_data.target.main_swing_timer = addon_data.target.main_swing_timer * 
-                                                     (new_main_speed /addon_data.target.main_weapon_speed)
-                addon_data.target.main_weapon_speed = new_main_speed
-                if addon_data.target.has_offhand then
-                    addon_data.target.off_swing_timer = addon_data.target.off_swing_timer * 
-                                                        (new_off_speed /addon_data.target.off_weapon_speed)
-                    addon_data.target.off_weapon_speed = off_main_speed
-                end
+        -- If the weapon speed changed for either hand then a buff occured and we need to modify the timers
+        if addon_data.target.main_speed_changed or addon_data.target.off_speed_changed then
+            local main_multiplier = addon_data.target.main_weapon_speed / addon_data.target.prev_main_weapon_speed
+            addon_data.target.main_swing_timer = addon_data.target.main_swing_timer * main_multiplier
+            if addon_data.target.has_offhand then
+                local off_multiplier = (addon_data.target.off_weapon_speed / addon_data.target.prev_off_weapon_speed)
+                addon_data.target.off_swing_timer = addon_data.target.off_swing_timer * off_multiplier
+            end
         end
-        
-        addon_data.target.guid = UnitGUID("target")
+        -- Update the main hand swing timer
+        addon_data.target.UpdateMainSwingTimer(elapsed)
+        -- Update the off hand swing timer
+        addon_data.target.UpdateOffSwingTimer(elapsed)
     end
+    -- Update the visuals
+        addon_data.target.UpdateVisualsOnUpdate()
+end
+
+addon_data.target.OnCombatLogUnfiltered = function(combat_info)
+    local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = unpack(combat_info)
+    if (source_guid == addon_data.target.guid) then
+        if (event == "SWING_DAMAGE") then
+            local _, _, _, _, _, _, _, _, _, is_offhand = select(12, unpack(combat_info))
+            if is_offhand then
+                addon_data.target.ResetOffSwingTimer()
+            else
+                addon_data.target.ResetMainSwingTimer()
+            end
+        elseif (event == "SWING_MISSED") then
+            local miss_type, is_offhand = select(12, unpack(combat_info))
+            addon_data.core.MissHandler("target", miss_type, is_offhand)
+        elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
+            addon_data.core.SpellHandler("target", spell_name)
+        end
+    end
+    
 end
 
 addon_data.target.ResetMainSwingTimer = function()
-    addon_data.target.main_swing_timer = addon_data.target.main_weapon_speed
+    if UnitExists("target") then
+        addon_data.target.main_swing_timer = addon_data.target.main_weapon_speed
+    end
 end
 
 addon_data.target.ResetOffSwingTimer = function()
-    addon_data.target.off_swing_timer = addon_data.target.off_weapon_speed
+    if addon_data.target.has_offhand and UnitExists("target") then
+        addon_data.target.off_swing_timer = addon_data.target.off_weapon_speed
+    end
 end
 
-addon_data.target.ZeroizeSwingTimer = function()
+addon_data.target.ZeroizeSwingTimers = function()
     addon_data.target.main_swing_timer = 0.0001
     addon_data.target.off_swing_timer = 0.0001
 end
 
-addon_data.target.UpdateSwingTimer = function(elapsed)
-    addon_data.target.UpdateInfo()
-    if character_target_settings.enabled then
+addon_data.target.UpdateMainSwingTimer = function(elapsed)
+    if character_target_settings.enabled and UnitExists("target") then
         if addon_data.target.main_swing_timer > 0 then
             addon_data.target.main_swing_timer = addon_data.target.main_swing_timer - elapsed
             if addon_data.target.main_swing_timer < 0 then
                 addon_data.target.main_swing_timer = 0
             end
         end
+    end
+end
+
+addon_data.target.UpdateOffSwingTimer = function(elapsed)
+    if character_target_settings.enabled and UnitExists("target") then
         if addon_data.target.has_offhand then
             if addon_data.target.off_swing_timer > 0 then
                 addon_data.target.off_swing_timer = addon_data.target.off_swing_timer - elapsed
@@ -121,127 +177,155 @@ addon_data.target.UpdateSwingTimer = function(elapsed)
     end
 end
 
+addon_data.target.UpdateMainWeaponSpeed = function()
+    if UnitExists("target") then
+        -- Handle the nil when first selecting target
+        if addon_data.target.main_weapon_speed then
+            addon_data.target.prev_main_weapon_speed = addon_data.target.main_weapon_speed
+        else
+            addon_data.target.prev_main_weapon_speed, _ = UnitAttackSpeed("target")
+        end
+        -- Update the weapon speed
+        addon_data.target.main_weapon_speed, _ = UnitAttackSpeed("target")
+        if addon_data.target.main_weapon_speed ~= addon_data.target.prev_main_weapon_speed then
+            addon_data.target.main_speed_changed = true
+        else
+            addon_data.target.main_speed_changed = false
+        end
+    end
+end
+
+addon_data.target.UpdateOffWeaponSpeed = function()
+    if UnitExists("target") then
+        -- Handle the nil when first selecting target
+        if addon_data.target.off_weapon_speed then
+            addon_data.target.prev_off_weapon_speed = addon_data.target.off_weapon_speed
+        else
+            _, addon_data.target.prev_off_weapon_speed = UnitAttackSpeed("target")
+        end
+        -- Update the weapon speed
+        _, addon_data.target.off_weapon_speed = UnitAttackSpeed("target")
+        -- Check to see if we have an off-hand
+        if (not addon_data.target.off_weapon_speed) or (addon_data.target.off_weapon_speed == 0) then
+            addon_data.target.has_offhand = false
+        else
+            addon_data.target.has_offhand = true
+        end
+        if addon_data.target.off_weapon_speed ~= addon_data.target.prev_off_weapon_speed then
+            addon_data.target.off_speed_changed = true
+        else
+            addon_data.target.off_speed_changed = false
+        end
+    end
+end
+
+--[[============================================================================================]]--
+--[[===================================== VISUALS RELATED ======================================]]--
+--[[============================================================================================]]--
 addon_data.target.UpdateVisualsOnUpdate = function()
     local settings = character_target_settings
     local frame = addon_data.target.frame
-	if (settings.enabled) and (UnitExists("target")) and (not UnitIsDeadOrGhost("target")) then
+    if settings.enabled and UnitExists("target") then
         frame:Show()
-        -- Update the main-hand bar
         local main_speed = addon_data.target.main_weapon_speed
         local main_timer = addon_data.target.main_swing_timer
+        -- FIXME: Handle divide by 0 error
         if main_speed == 0 then
             main_speed = 2
         end
-        -- Update the main-hand bar's width
+        -- Update the main bars width
         main_width = settings.width - (settings.width * (main_timer / main_speed))
-        frame.main_hand_bar:SetWidth(main_width)
-        frame.main_hand_bar:SetHeight(settings.height)
-        -- Update the main-hand bar's text
-        frame.main_hand_bar.text.left:SetPoint("LEFT", 5, 0)
-        frame.main_hand_bar.text.right:SetPoint("LEFT", settings.width - 20, 0)
-        if settings.show_text then
-            frame.main_hand_bar.text.left:SetText("Main-Hand")
-            frame.main_hand_bar.text.right:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
-        else
-            frame.main_hand_bar.text.left:SetText("")
-            frame.main_hand_bar.text.right:SetText("")
-        end
-        -- Update the off-hand bar
-        if addon_data.target.has_offhand and character_target_settings.show_offhand then
-            frame.off_hand_bar:Show()
+        frame.main_bar:SetWidth(main_width)
+        -- Update the main bars text
+        frame.main_left_text:SetText("Main-Hand")
+        frame.main_right_text:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
+        -- Update the off hand bar
+        if addon_data.target.has_offhand and settings.show_offhand then
+            frame.off_bar:Show()
+            if settings.show_text then
+                frame.off_left_text:Show()
+                frame.off_right_text:Show()
+            end
             local off_speed = addon_data.target.off_weapon_speed
             local off_timer = addon_data.target.off_swing_timer
+            -- FIXME: Handle divide by 0 error
             if off_speed == 0 then
                 off_speed = 2
             end
             -- Update the off-hand bar's width
             off_width = settings.width - (settings.width * (off_timer / off_speed))
-            frame.off_hand_bar:SetWidth(off_width)
-            frame.off_hand_bar:SetHeight(settings.height)
+            frame.off_bar:SetWidth(off_width)
             -- Update the off-hand bar's text
-            frame.off_hand_bar.text.left:SetPoint("LEFT", 5, 0)
-            frame.off_hand_bar.text.right:SetPoint("LEFT", settings.width - 20, 0)
-            if settings.show_text then
-                frame.off_hand_bar.text.left:SetText("Off-Hand")
-                frame.off_hand_bar.text.right:SetText(tostring(addon_data.utils.SimpleRound(off_timer, 0.1)))
-            else
-                frame.off_hand_bar.text.left:SetText("")
-                frame.off_hand_bar.text.right:SetText("")
-            end
+            frame.off_left_text:SetText("Off-Hand")
+            frame.off_right_text:SetText(tostring(addon_data.utils.SimpleRound(off_timer, 0.1)))
         else
-            frame.off_hand_bar:Hide()
+            frame.off_bar:Hide()
+            frame.off_left_text:Hide()
+            frame.off_right_text:Hide()
         end
         -- Update the frame's appearance based on settings
-        frame:SetWidth(settings.width + 2)
         if addon_data.target.has_offhand and character_target_settings.show_offhand then
-            frame:SetHeight((settings.height * 2) + 4)
+            frame:SetHeight((settings.height * 2) + 2)
         else
-            frame:SetHeight(settings.height + 2)
+            frame:SetHeight(settings.height)
         end
         -- Update the alpha
-        frame.texture:SetColorTexture(0, 0, 0, settings.backplane_alpha)
         if addon_data.core.in_combat then
             frame:SetAlpha(settings.in_combat_alpha)
         else
             frame:SetAlpha(settings.ooc_alpha)
         end
-        --[[
-        -- Update the CRP lines
-        local main_ping_offset = 0
-        local off_ping_offset = 0
-        if settings.crp_ping_enabled then
-            frame.crp_main_ping_line:Show()
-            local down, up, lagHome, lagWorld = GetNetStats()
-            main_ping_offset = (settings.width * (lagHome / 1000)) / addon_data.target.main_weapon_speed
-            frame.crp_main_ping_line:SetWidth(2)
-            frame.crp_main_ping_line:SetHeight(settings.height)
-            frame.crp_main_ping_line:SetPoint("TOPRIGHT", -main_ping_offset, -1)
-            if addon_data.target.has_offhand then
-                frame.crp_off_ping_line:Show()
-                off_ping_offset = (settings.width * (lagHome / 1000)) / addon_data.target.off_weapon_speed
-                frame.crp_off_ping_line:SetWidth(2)
-                frame.crp_off_ping_line:SetHeight(settings.height)
-                frame.crp_off_ping_line:SetPoint("BOTTOMRIGHT", -off_ping_offset, 1)
-            else
-                frame.crp_off_ping_line:Hide()
-            end
-        else
-            frame.crp_main_ping_line:Hide()
-            frame.crp_off_ping_line:Hide()
-        end
-        if settings.crp_fixed_enabled then
-            frame.crp_main_fixed_line:Show()
-            main_fixed_offset = ((settings.width * settings.crp_fixed_delay) / 
-                                addon_data.target.main_weapon_speed) + main_ping_offset
-            frame.crp_main_fixed_line:SetWidth(2)
-            frame.crp_main_fixed_line:SetHeight(settings.height)
-            frame.crp_main_fixed_line:SetPoint("TOPRIGHT", -main_fixed_offset, -1)
-            if addon_data.target.has_offhand then
-                frame.crp_off_fixed_line:Show()
-                off_fixed_offset = ((settings.width * settings.crp_fixed_delay) / 
-                                   addon_data.target.off_weapon_speed) + off_ping_offset
-                frame.crp_off_fixed_line:SetWidth(2)
-                frame.crp_off_fixed_line:SetHeight(settings.height)
-                frame.crp_off_fixed_line:SetPoint("BOTTOMRIGHT", -off_fixed_offset, 1)
-            else
-                frame.crp_off_fixed_line:Hide()
-            end
-        else
-            frame.crp_main_fixed_line:Hide()
-            frame.crp_off_fixed_line:Hide()
-        end
-        ]]--
-	else
+    else
         frame:Hide()
     end
 end
 
-addon_data.target.UpdateFramePointAndSize = function()
+addon_data.target.UpdateVisualsOnSettingsChange = function()
     local frame = addon_data.target.frame
     local settings = character_target_settings
-    frame:ClearAllPoints()
-    frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
-    addon_data.target.UpdateConfigValues()
+    if settings.enabled then
+        frame:Show()
+        frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
+        frame:SetWidth(settings.width)
+        frame.backdrop:SetColorTexture(0, 0, 0, settings.backplane_alpha)
+        frame.backdrop:SetPoint("TOPLEFT", -1, 1)
+        frame.backdrop:SetPoint("BOTTOMRIGHT", 1, -1)
+        frame.main_bar:SetPoint("TOPLEFT", 0, 0)
+        frame.main_bar:SetHeight(settings.height)
+        frame.main_left_text:SetPoint("TOPLEFT", 2, 1)
+        frame.main_right_text:SetPoint("TOPRIGHT", -5, 0)
+        frame.off_bar:SetPoint("BOTTOMLEFT", 0, 0)
+        frame.off_bar:SetHeight(settings.height)
+        frame.off_left_text:SetPoint("BOTTOMLEFT", 2, 0)
+        frame.off_right_text:SetPoint("BOTTOMRIGHT", -5, 0)
+        if settings.show_text then
+            frame.main_left_text:Show()
+            frame.main_right_text:Show()
+            frame.off_left_text:Show()
+            frame.off_right_text:Show()
+        else
+            frame.main_left_text:Hide()
+            frame.main_right_text:Hide()
+            frame.off_left_text:Hide()
+            frame.off_right_text:Hide()
+        end
+        if settings.show_offhand then
+            frame.off_bar:Show()
+            if settings.show_text then
+                frame.off_left_text:Show()
+                frame.off_right_text:Show()
+            else
+                frame.off_left_text:Hide()
+                frame.off_right_text:Hide()
+            end
+        else
+            frame.off_bar:Hide()
+            frame.off_left_text:Hide()
+            frame.off_right_text:Hide()
+        end
+    else
+        frame:Hide()
+    end
 end
 
 addon_data.target.OnFrameDragStart = function()
@@ -259,104 +343,62 @@ addon_data.target.OnFrameDragStop = function()
     settings.rel_point = rel_point
     settings.x_offset = addon_data.utils.SimpleRound(x_offset, 1)
     settings.y_offset = addon_data.utils.SimpleRound(y_offset, 1)
-    addon_data.target.UpdateConfigValues()
+    addon_data.target.UpdateConfigPanelValues()
 end
 
 addon_data.target.InitializeVisuals = function()
     local settings = character_target_settings
-    -- Create the frame that holds everything, this is also the backplane
+    -- Create the frame
     addon_data.target.frame = CreateFrame("Frame", addon_name .. "TargetFrame", UIParent)
     local frame = addon_data.target.frame
-    frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
-    local frame_texture = frame:CreateTexture(nil,"ARTWORK")
-    frame_texture:SetColorTexture(0, 0, 0, settings.backplane_alpha)
-    frame_texture:SetAllPoints(frame)
-    frame.texture = frame_texture
-    -- Set the scripts for the target's frame
     frame:SetMovable(true)
     frame:EnableMouse(not settings.is_locked)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", addon_data.target.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.target.OnFrameDragStop)
-    -- Create the main-hand bar
-    frame.main_hand_bar = CreateFrame("Frame", addon_name .. "TargetMainHandBar", frame)
-    frame.main_hand_bar:SetPoint("TOPLEFT", 1, -1)
-    local main_hand_texture = frame.main_hand_bar:CreateTexture(nil, "ARTWORK")
-    main_hand_texture:SetColorTexture(0.7, 0.2, 0.2, 1)
-    main_hand_texture:SetAllPoints(frame.main_hand_bar)
-    frame.main_hand_bar.texture = main_hand_texture
-    -- Create the main-hand bar's text
-    frame.main_hand_bar.text = CreateFrame("Frame", addon_name .. "TargetMainHandBarText", frame.main_hand_bar)
-    frame.main_hand_bar.text:SetFrameStrata("DIALOG")
-    local main_text = frame.main_hand_bar.text
-    main_text:SetAllPoints(frame.main_hand_bar)
-    main_text.left = main_text:CreateFontString(nil, "ARTWORK")
-    main_text.left:SetFont("Fonts/FRIZQT__.ttf", 10)
-    main_text.left:SetTextColor(1, 1, 1, 1)
-    main_text.left:SetJustifyV("CENTER")
-    main_text.left:SetJustifyH("LEFT")
-    main_text.right = main_text:CreateFontString(nil, "ARTWORK")
-    main_text.right:SetFont("Fonts/FRIZQT__.ttf", 10)
-    main_text.right:SetTextColor(1, 1, 1, 1)
-    main_text.right:SetJustifyV("CENTER")
-    main_text.right:SetJustifyH("RIGHT")
-    -- Create the off-hand bar
-    frame.off_hand_bar = CreateFrame("Frame", addon_name .. "TargetOffHandBar", frame)
-    frame.off_hand_bar:SetPoint("BOTTOMLEFT", 1, 1)
-    local off_hand_texture = frame.off_hand_bar:CreateTexture(nil,"ARTWORK")
-    off_hand_texture:SetColorTexture(0.7, 0.2, 0.2, 1)
-    off_hand_texture:SetAllPoints(frame.off_hand_bar)
-    frame.off_hand_bar.texture = off_hand_texture
-    -- Create the off-hand bar's text
-    frame.off_hand_bar.text = CreateFrame("Frame", addon_name .. "TargetOffHandBarText", frame.off_hand_bar)
-    frame.off_hand_bar.text:SetFrameStrata("DIALOG")
-    local off_text = frame.off_hand_bar.text
-    off_text:SetAllPoints(frame.off_hand_bar)
-    off_text.left = off_text:CreateFontString(nil, "ARTWORK")
-    off_text.left:SetFont("Fonts/FRIZQT__.ttf", 10)
-    off_text.left:SetTextColor(1, 1, 1, 1)
-    off_text.left:SetJustifyV("CENTER")
-    off_text.left:SetJustifyH("LEFT")
-    off_text.right = off_text:CreateFontString(nil, "ARTWORK")
-    off_text.right:SetFont("Fonts/FRIZQT__.ttf", 10)
-    off_text.right:SetTextColor(1, 1, 1, 1)
-    off_text.right:SetJustifyV("CENTER")
-    off_text.right:SetJustifyH("RIGHT")
-    --[[
-    -- Create the main-hand CRP ping delay line
-    frame.crp_main_ping_line = CreateFrame("Frame", addon_name .. "CRPMainPingDelayLine", frame)
-    frame.crp_main_ping_line:SetFrameStrata("HIGH")
-    local ping_texture = frame.crp_main_ping_line:CreateTexture(nil, "ARTWORK")
-    ping_texture:SetColorTexture(1, 0, 0, 1)
-    ping_texture:SetAllPoints(frame.crp_main_ping_line)
-    frame.crp_main_ping_line.texture = ping_texture
-    -- Create the off-hand CRP ping delay line
-    frame.crp_off_ping_line = CreateFrame("Frame", addon_name .. "CRPOffPingDelayLine", frame)
-    frame.crp_off_ping_line:SetFrameStrata("HIGH")
-    local ping_texture = frame.crp_off_ping_line:CreateTexture(nil, "ARTWORK")
-    ping_texture:SetColorTexture(1, 0, 0, 1)
-    ping_texture:SetAllPoints(frame.crp_off_ping_line)
-    -- Create the main-hand CRP fixed delay line
-    frame.crp_main_fixed_line = CreateFrame("Frame", addon_name .. "CRPMainFixedDelayLine", frame)
-    frame.crp_main_fixed_line:SetFrameStrata("HIGH")
-    local fixed_texture = frame.crp_main_fixed_line:CreateTexture(nil, "ARTWORK")
-    fixed_texture:SetColorTexture(1, 1, 0, 1)
-    fixed_texture:SetAllPoints(frame.crp_main_fixed_line)
-    frame.crp_main_fixed_line.texture = fixed_texture
-    -- Create the off-hand CRP fixed delay line
-    frame.crp_off_fixed_line = CreateFrame("Frame", addon_name .. "CRPOffFixedDelayLine", frame)
-    frame.crp_off_fixed_line:SetFrameStrata("HIGH")
-    local fixed_texture = frame.crp_off_fixed_line:CreateTexture(nil, "ARTWORK")
-    fixed_texture:SetColorTexture(1, 1, 0, 1)
-    fixed_texture:SetAllPoints(frame.crp_off_fixed_line)
-    frame.crp_off_fixed_line.texture = fixed_texture
-    ]]--
+    -- Create the backplane
+    frame.backdrop = frame:CreateTexture(nil,"BACKGROUND")
+    -- Create the main hand bar
+    frame.main_bar = frame:CreateTexture(nil,"ARTWORK")
+    frame.main_bar:SetColorTexture(0.7, 0.2, 0.2, 1)
+    -- Create the main hand bar left text
+    frame.main_left_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.main_left_text:SetTextColor(1, 1, 1, 1)
+    frame.main_left_text:SetJustifyV("CENTER")
+    frame.main_left_text:SetJustifyH("LEFT")
+    -- Create the main hand bar right text
+    frame.main_right_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.main_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.main_right_text:SetTextColor(1, 1, 1, 1)
+    frame.main_right_text:SetJustifyV("CENTER")
+    frame.main_right_text:SetJustifyH("RIGHT")
+    -- Create the off hand bar
+    frame.off_bar = frame:CreateTexture(nil,"ARTWORK")
+    frame.off_bar:SetColorTexture(0.7, 0.2, 0.2, 1)
+    -- Create the off hand bar left text
+    frame.off_left_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.off_left_text:SetTextColor(1, 1, 1, 1)
+    frame.off_left_text:SetJustifyV("CENTER")
+    frame.off_left_text:SetJustifyH("LEFT")
+    -- Create the off hand bar right text
+    frame.off_right_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.off_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.off_right_text:SetTextColor(1, 1, 1, 1)
+    frame.off_right_text:SetJustifyV("CENTER")
+    frame.off_right_text:SetJustifyH("RIGHT")
     -- Show it off
+    addon_data.target.UpdateVisualsOnSettingsChange()
     addon_data.target.UpdateVisualsOnUpdate()
-    frame:Hide()
+    frame:Show()
 end
 
-addon_data.target.UpdateConfigValues = function()
+--[[============================================================================================]]--
+--[[================================== CONFIG WINDOW RELATED ===================================]]--
+--[[============================================================================================]]--
+
+addon_data.target.UpdateConfigPanelValues = function()
     local panel = addon_data.target.config_frame
     local settings = character_target_settings
     panel.enabled_checkbox:SetChecked(settings.enabled)
@@ -373,45 +415,33 @@ end
 
 addon_data.target.EnabledCheckBoxOnClick = function(self)
     character_target_settings.enabled = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.ShowOffHandCheckBoxOnClick = function(self)
     character_target_settings.show_offhand = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.WidthEditBoxOnEnter = function(self)
     character_target_settings.width = tonumber(self:GetText())
-    addon_data.target.UpdateFramePointAndSize()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.HeightEditBoxOnEnter = function(self)
     character_target_settings.height = tonumber(self:GetText())
-    addon_data.target.UpdateFramePointAndSize()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.XOffsetEditBoxOnEnter = function(self)
     character_target_settings.x_offset = tonumber(self:GetText())
-    addon_data.target.UpdateFramePointAndSize()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.YOffsetEditBoxOnEnter = function(self)
     character_target_settings.y_offset = tonumber(self:GetText())
-    addon_data.target.UpdateFramePointAndSize()
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
-
---[[
-addon_data.target.CRPPingEnabledCheckBoxOnClick = function(self)
-    character_target_settings.crp_ping_enabled = self:GetChecked()
-end
-
-addon_data.target.CRPFixedEnabledCheckBoxOnClick = function(self)
-    character_target_settings.crp_fixed_enabled = self:GetChecked()
-end
-
-addon_data.target.CRPFixedDelayEditBoxOnEnter = function(self)
-    character_target_settings.crp_fixed_delay = tonumber(self:GetText())
-end
-]]--
 
 addon_data.target.CreateConfigPanel = function(parent_panel)
     addon_data.target.config_frame = CreateFrame("Frame", addon_name .. "TargetConfigPanel", parent_panel)
@@ -473,43 +503,8 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         25,
         addon_data.target.YOffsetEditBoxOnEnter)
     panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -150, "BOTTOMRIGHT", 225, -175)
-    --[[
-    -- CRP Title
-    panel.crp_title_text = addon_data.config.TextFactory(panel, "Crit Reactive Proc Settings", 20)
-    panel.crp_title_text:SetPoint("TOPLEFT", 350, -15)
-    panel.crp_title_text:SetTextColor(1, 0.9, 0, 1)
-    -- CRP Ping Enabled Checkbox
-    panel.crp_ping_enabled_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetCRPPingEnableCheckBox",
-        panel,
-        " CRP Ping Line Enable",
-        "Enables the CRP ping delay line over the target's swing bars.",
-        addon_data.target.CRPPingEnabledCheckBoxOnClick)
-    panel.crp_ping_enabled_checkbox:SetPoint("TOPLEFT", 310, -50)
-    panel.crp_ping_enabled_checkbox:SetChecked(character_target_settings.crp_ping_enabled)
-    -- CRP Fixed Enabled Checkbox
-    panel.crp_fixed_enabled_checkbox = addon_data.config.CheckBoxFactory(
-        "TargetCRPFixedEnableCheckBox",
-        panel,
-        " CRP Fixed Line Enable",
-        "Enables the CRP fixed delay line over the target's swing bars.",
-        addon_data.target.CRPFixedEnabledCheckBoxOnClick)
-    panel.crp_fixed_enabled_checkbox:SetPoint("TOPLEFT", 310, -70)
-    panel.crp_fixed_enabled_checkbox:SetChecked(character_target_settings.enabled)
-    -- CRP Fixed Delay Editbox
-    panel.crp_fixed_delay_editbox = addon_data.config.EditBoxFactory(
-        "TargetCRPFixedDelayEditBox",
-        panel,
-        "CRP Fixed Delay (secs)",
-        150,
-        25,
-        addon_data.target.CRPFixedDelayEditBoxOnEnter)
-    panel.crp_fixed_delay_editbox:SetPoint("TOPLEFT", 345, -125, "BOTTOMRIGHT", 495, -150)
-    panel.crp_fixed_delay_editbox:SetText(tostring(settings.crp_fixed_delay))
-    panel.crp_fixed_delay_editbox:SetCursorPosition(0)
-    ]]--
     -- Return the final panel
-    addon_data.target.UpdateConfigValues()
+    addon_data.target.UpdateConfigPanelValues()
     return panel
 end
 

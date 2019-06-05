@@ -47,14 +47,11 @@ local function InitializeAllVisuals()
     addon_data.config.InitializeVisuals()
 end
 
-local function UpdateAllVisualsOnUpdate()
-    addon_data.player.UpdateVisualsOnUpdate()
-    addon_data.target.UpdateVisualsOnUpdate()
-end
 
-local function UpdateAllSwingTimers(elapsed)
-    addon_data.player.UpdateSwingTimer(elapsed)
-    addon_data.target.UpdateSwingTimer(elapsed)
+addon_data.core.UpdateAllVisualsOnSettingsChange = function()
+    addon_data.player.UpdateVisualsOnSettingsChange()
+    addon_data.target.UpdateVisualsOnSettingsChange()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.core.LoadSettings = function()
@@ -77,13 +74,12 @@ addon_data.core.RestoreDefaults = function()
 end
 
 local function CoreFrame_OnUpdate(self, elapsed)
-    addon_data.target.UpdateInfo()
-    UpdateAllSwingTimers(elapsed)
-    UpdateAllVisualsOnUpdate()
+    addon_data.player.OnUpdate(elapsed)
+    addon_data.target.OnUpdate(elapsed)
     addon_data.hunter.OnUpdate(elapsed)
 end
 
-local function MissHandler(unit, miss_type, is_offhand)
+addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
     if miss_type == "PARRY" then
         if unit == "player" then
             if not is_offhand then
@@ -133,7 +129,7 @@ local function MissHandler(unit, miss_type, is_offhand)
     end
 end
 
-local function SpellHandler(unit, spell_name)
+addon_data.core.SpellHandler = function(unit, spell_name)
     for _, swing_spell in ipairs(swing_spells) do
         if spell_name == swing_spell then
             if unit == "player" then
@@ -161,16 +157,12 @@ local function OnAddonLoaded(self)
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-    
-     
 	-- Load the settings for the core and all timers
     LoadAllSettings()
     InitializeAllVisuals()
     -- Any other misc operations that happen at the start
-	addon_data.player.UpdateInfo()
-    addon_data.target.UpdateInfo()
-    addon_data.player.ZeroizeSwingTimer()
-	addon_data.target.ZeroizeSwingTimer()
+    addon_data.player.ZeroizeSwingTimers()
+	addon_data.target.ZeroizeSwingTimers()
     addon_data.utils.PrintMsg(load_message)
 end
 
@@ -185,43 +177,14 @@ local function CoreFrame_OnEvent(self, event, ...)
     elseif event == "PLAYER_REGEN_DISABLED" then
         addon_data.core.in_combat = true
     elseif event == "PLAYER_TARGET_CHANGED" then
-        addon_data.target.UpdateInfo()
-        addon_data.target.ZeroizeSwingTimer()
+        addon_data.target.OnPlayerTargetChanged()
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = CombatLogGetCurrentEventInfo()
-        if (source_guid == addon_data.player.guid) then
-            if (event == "SWING_DAMAGE") then
-                local _, _, _, _, _, _, _, _, _, is_offhand = select(12, CombatLogGetCurrentEventInfo())
-                if is_offhand then
-                    addon_data.player.ResetOffSwingTimer()
-                else
-                    addon_data.player.ResetMainSwingTimer()
-                end
-            elseif (event == "SWING_MISSED") then
-                local miss_type, is_offhand = select(12, CombatLogGetCurrentEventInfo())
-                MissHandler("player", miss_type, is_offhand)
-            elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
-                SpellHandler("player", spell_name)
-            end
-        elseif (source_guid == addon_data.target.guid) then
-            if (event == "SWING_DAMAGE") then
-                local _, _, _, _, _, _, _, _, _, is_offhand = select(12, CombatLogGetCurrentEventInfo())
-                if is_offhand then
-                    addon_data.target.ResetOffSwingTimer()
-                else
-                    addon_data.target.ResetMainSwingTimer()
-                end
-            elseif (event == "SWING_MISSED") then
-                local miss_type, is_offhand = select(12, CombatLogGetCurrentEventInfo())
-                MissHandler("target", miss_type, is_offhand)
-            elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
-                SpellHandler("target", spell_name)
-            end
-        end
+        local combat_info = {CombatLogGetCurrentEventInfo()}
+        addon_data.player.OnCombatLogUnfiltered(combat_info)
+        addon_data.target.OnCombatLogUnfiltered(combat_info)
     elseif event == "UNIT_INVENTORY_CHANGED" then
-        addon_data.player.UpdateInfo()
-        addon_data.player.ResetMainSwingTimer()
-        addon_data.player.ResetOffSwingTimer()
+        addon_data.player.OnInventoryChange()
+        addon_data.target.OnInventoryChange()
     elseif event == "START_AUTOREPEAT_SPELL" then
         addon_data.hunter.OnStartAutorepeatSpell()
     elseif event == "STOP_AUTOREPEAT_SPELL" then

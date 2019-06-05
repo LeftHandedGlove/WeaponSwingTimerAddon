@@ -91,7 +91,7 @@ end
 
 addon_data.player.UpdateSwingTimer = function(elapsed)
     addon_data.player.UpdateInfo()
-    if character_target_settings.enabled then 
+    if character_player_settings.enabled then 
         if addon_data.player.main_swing_timer > 0 then
             addon_data.player.main_swing_timer = addon_data.player.main_swing_timer - elapsed
             if addon_data.player.main_swing_timer < 0 then

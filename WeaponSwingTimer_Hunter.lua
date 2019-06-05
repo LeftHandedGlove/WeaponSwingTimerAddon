@@ -153,17 +153,11 @@ addon_data.hunter.OnUpdate = function(elapsed)
     -- Update the ranged attack speed
     new_range_speed, _, _, _, _, _ = UnitRangedDamage("player")
     if new_range_speed ~= addon_data.hunter.range_speed then
-        print(addon_data.hunter.range_speed)
-        print(new_range_speed)
-        print(addon_data.hunter.shot_timer)
         if not addon_data.hunter.auto_shot_ready then
             addon_data.hunter.shot_timer = addon_data.hunter.shot_timer * 
                                            (new_range_speed / addon_data.hunter.range_speed)
         end
         addon_data.hunter.range_speed = new_range_speed
-        print(addon_data.hunter.range_speed)
-        print(new_range_speed)
-        print(addon_data.hunter.shot_timer)
     end
     addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved

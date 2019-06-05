@@ -21,11 +21,11 @@ addon_data.target.default_settings = {
     crp_fixed_delay = 0.25
 }
 
-addon_data.target.main_swing_timer = 0
-addon_data.target.main_weapon_speed = 0
+addon_data.target.main_swing_timer = 0.1
+addon_data.target.main_weapon_speed = 2
 addon_data.target.main_weapon_id = 0
-addon_data.target.off_swing_timer = 0
-addon_data.target.off_weapon_speed = 0
+addon_data.target.off_swing_timer = 0.1
+addon_data.target.off_weapon_speed = 2
 addon_data.target.off_weapon_id = 0
 addon_data.target.has_offhand = false
 addon_data.target.class = 0

@@ -24,7 +24,7 @@ addon_data.hunter.default_settings = {
 addon_data.hunter.shooting = false
 addon_data.hunter.range_speed = 3.0
 addon_data.hunter.auto_cast_time = 0.65
-addon_data.hunter.shot_timer = 0.5
+addon_data.hunter.shot_timer = 0.65
 addon_data.hunter.last_shot_time = 0
 addon_data.hunter.auto_shot_ready = true
 
@@ -151,7 +151,20 @@ end
 
 addon_data.hunter.OnUpdate = function(elapsed)
     -- Update the ranged attack speed
-    addon_data.hunter.range_speed, _, _, _, _, _ = UnitRangedDamage("player")
+    new_range_speed, _, _, _, _, _ = UnitRangedDamage("player")
+    if new_range_speed ~= addon_data.hunter.range_speed then
+        print(addon_data.hunter.range_speed)
+        print(new_range_speed)
+        print(addon_data.hunter.shot_timer)
+        if not addon_data.hunter.auto_shot_ready then
+            addon_data.hunter.shot_timer = addon_data.hunter.shot_timer * 
+                                           (new_range_speed / addon_data.hunter.range_speed)
+        end
+        addon_data.hunter.range_speed = new_range_speed
+        print(addon_data.hunter.range_speed)
+        print(new_range_speed)
+        print(addon_data.hunter.shot_timer)
+    end
     addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved
     addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)

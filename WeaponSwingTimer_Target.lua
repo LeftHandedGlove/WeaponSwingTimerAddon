@@ -57,12 +57,25 @@ addon_data.target.UpdateInfo = function()
         addon_data.target.class = UnitClass("target")[2]
         addon_data.target.main_weapon_id = GetInventoryItemID("target", 16)
         addon_data.target.off_weapon_id = GetInventoryItemID("target", 17)
-        addon_data.target.main_weapon_speed, addon_data.target.off_weapon_speed = UnitAttackSpeed("target")
-        if not addon_data.target.off_weapon_speed then
+        -- Update the weapon swing speed
+        new_main_speed, new_off_speed = UnitAttackSpeed("target")
+        if not new_off_speed then
             addon_data.target.has_offhand = false
         else
             addon_data.target.has_offhand = true
         end
+        if new_main_speed ~= addon_data.target.main_weapon_speed or 
+           new_off_speed ~= addon_data.target.off_weapon_speed then
+                addon_data.target.main_swing_timer = addon_data.target.main_swing_timer * 
+                                                     (new_main_speed /addon_data.target.main_weapon_speed)
+                addon_data.target.main_weapon_speed = new_main_speed
+                if addon_data.target.has_offhand then
+                    addon_data.target.off_swing_timer = addon_data.target.off_swing_timer * 
+                                                        (new_off_speed /addon_data.target.off_weapon_speed)
+                    addon_data.target.off_weapon_speed = off_main_speed
+                end
+        end
+        
         addon_data.target.guid = UnitGUID("target")
     end
 end

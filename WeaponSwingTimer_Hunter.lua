@@ -2,6 +2,22 @@ local addon_name, addon_data = ...
 
 addon_data.hunter = {}
 
+addon_data.hunter.shot_spell_ids = {
+    [75] = {spell_name = 'Auto Shot', rank = nil, cooldown = nil},
+    [2643] = {spell_name = 'Multi-Shot', rank = 1, cooldown = 10},
+    [14288] = {spell_name = 'Multi-Shot', rank = 2, cooldown = 10},
+    [14289] = {spell_name = 'Multi-Shot', rank = 3, cooldown = 10},
+    [14290] = {spell_name = 'Multi-Shot', rank = 4, cooldown = 10},
+    [25294] = {spell_name = 'Multi-Shot', rank = 5, cooldown = 10},
+    [19434] = {spell_name = 'Aimed Shot', rank = 1, cooldown = 6},
+    [20900] = {spell_name = 'Aimed Shot', rank = 2, cooldown = 6},
+    [20901] = {spell_name = 'Aimed Shot', rank = 3, cooldown = 6},
+    [20902] = {spell_name = 'Aimed Shot', rank = 4, cooldown = 6},
+    [20903] = {spell_name = 'Aimed Shot', rank = 5, cooldown = 6},
+    [20904] = {spell_name = 'Aimed Shot', rank = 6, cooldown = 6}
+}
+
+
 addon_data.hunter.default_settings = {
 	enabled = true,
 	width = 300,
@@ -169,7 +185,6 @@ addon_data.hunter.OnUpdate = function(elapsed)
     addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved
     addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
-    print(GetUnitSpeed("player"))
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers
@@ -191,7 +206,7 @@ addon_data.hunter.OnStopAutorepeatSpell = function()
     addon_data.hunter.UpdateInfo()
 end
 
-addon_data.hunter.OnUnitSpellCastStart = function(spell_name, rank, cast_time)
+addon_data.hunter.OnUnitSpellCastStart = function(spell_name, cast_time)
     if spell_name ~= "Auto Shot" then
         addon_data.hunter.casting = true
     end
@@ -200,27 +215,24 @@ addon_data.hunter.OnUnitSpellCastStart = function(spell_name, rank, cast_time)
             addon_data.hunter.casting_shot = true
             addon_data.hunter.cast_timer = 0
             addon_data.hunter.frame.spell_bar:SetColorTexture(0.7, 0.4, 0, 1)
-            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-            addon_data.hunter.cast_time = (end_time / 1000) - (start_time / 1000)
+            addon_data.hunter.cast_time = cast_time
+            print(cast_time)
             if character_hunter_settings.show_text then
-                addon_data.hunter.frame.spell_text_center:SetText(name .. " [Rank " .. tostring(rank) .. "]")
+                addon_data.hunter.frame.spell_text_center:SetText(spell_name)
             end
     end
 end
 
-addon_data.hunter.OnUnitSpellCastSucceeded = function(spell_name, rank, cast_time)
+addon_data.hunter.OnUnitSpellCastSucceeded = function(spell_name)
     if spell_name ~= "Auto Shot" then
         addon_data.hunter.casting = false
-    end
-    if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
-       (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
-            addon_data.hunter.casting_shot = false
-            addon_data.hunter.frame.spell_bar:SetColorTexture(0, 0.5, 0, 1)
-            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+        addon_data.hunter.casting_shot = false
+        addon_data.hunter.frame.spell_bar:SetColorTexture(0, 0.5, 0, 1)
+        addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
     end
 end
 
-addon_data.hunter.OnUnitSpellCastDelayed = function(spell_name, rank, cast_time)
+addon_data.hunter.OnUnitSpellCastDelayed = function(spell_name, cast_time)
     if (spell_name == "Aimed Shot" and character_hunter_settings.show_aimedshot_cast_bar) or 
        (spell_name == "Multi-Shot" and character_hunter_settings.show_multishot_cast_bar) then
             local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
@@ -232,7 +244,7 @@ addon_data.hunter.OnUnitSpellCastDelayed = function(spell_name, rank, cast_time)
     end
 end
 
-addon_data.hunter.OnUnitSpellCastInterrupted = function(spell_name, rank, cast_time)
+addon_data.hunter.OnUnitSpellCastInterrupted = function(spell_name, cast_time)
     if spell_name ~= "Auto Shot" then
         addon_data.hunter.casting = false
     end

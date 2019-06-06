@@ -190,23 +190,17 @@ local function CoreFrame_OnEvent(self, event, ...)
     elseif event == "STOP_AUTOREPEAT_SPELL" then
         addon_data.hunter.OnStopAutorepeatSpell()
     elseif event == "UNIT_SPELLCAST_START" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastStart(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastStart(arg[3])
     elseif event == "UNIT_SPELLCAST_STOP" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastStop(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastStop(arg[3])
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastSucceeded(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastSucceeded(arg[3])
     elseif event == "UNIT_SPELLCAST_DELAYED" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastDelayed(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastDelayed(arg[3])
     elseif event == "UNIT_SPELLCAST_FAILED" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastFailed(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastFailed(arg[3])
     elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
-        local spell_name, rank, _, cast_time = GetSpellInfo(args[3])
-        addon_data.hunter.OnUnitSpellCastInterrupted(spell_name, rank, cast_time)
+        addon_data.hunter.OnUnitSpellCastInterrupted(arg[3])
     end
 end
 

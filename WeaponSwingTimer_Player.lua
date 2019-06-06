@@ -212,6 +212,7 @@ addon_data.player.UpdateVisualsOnUpdate = function()
         -- Update the main bars width
         main_width = settings.width - (settings.width * (main_timer / main_speed))
         frame.main_bar:SetWidth(main_width)
+        frame.main_spark:SetPoint('TOPLEFT', main_width - 16, 10)
         -- Update the main bars text
         frame.main_left_text:SetText("Main-Hand")
         frame.main_right_text:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
@@ -231,6 +232,7 @@ addon_data.player.UpdateVisualsOnUpdate = function()
             -- Update the off-hand bar's width
             off_width = settings.width - (settings.width * (off_timer / off_speed))
             frame.off_bar:SetWidth(off_width)
+            frame.off_spark:SetPoint('BOTTOMLEFT', off_width - 16, -12)
             -- Update the off-hand bar's text
             frame.off_left_text:SetText("Off-Hand")
             frame.off_right_text:SetText(tostring(addon_data.utils.SimpleRound(off_timer, 0.1)))
@@ -267,7 +269,7 @@ addon_data.player.UpdateVisualsOnSettingsChange = function()
         frame.main_bar:SetPoint("TOPLEFT", 0, 0)
         frame.main_bar:SetHeight(settings.height)
         frame.main_left_text:SetPoint("TOPLEFT", 2, 1)
-        frame.main_right_text:SetPoint("TOPRIGHT", -5, 0)
+        frame.main_right_text:SetPoint("TOPRIGHT", -5, 1)
         frame.off_bar:SetPoint("BOTTOMLEFT", 0, 0)
         frame.off_bar:SetHeight(settings.height)
         frame.off_left_text:SetPoint("BOTTOMLEFT", 2, 0)
@@ -334,7 +336,11 @@ addon_data.player.InitializeVisuals = function()
     frame.backdrop = frame:CreateTexture(nil,"BACKGROUND")
     -- Create the main hand bar
     frame.main_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.main_bar:SetColorTexture(0.3, 0.3, 0.6, 1)
+    frame.main_bar:SetColorTexture(0.2, 0.2, 1, 1)
+    -- Create the main spark
+    frame.main_spark = frame:CreateTexture(nil,"OVERLAY")
+    frame.main_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
+    frame.main_spark:SetSize(32, 32)
     -- Create the main hand bar left text
     frame.main_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
@@ -349,7 +355,11 @@ addon_data.player.InitializeVisuals = function()
     frame.main_right_text:SetJustifyH("RIGHT")
     -- Create the off hand bar
     frame.off_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.off_bar:SetColorTexture(0.3, 0.3, 0.6, 1)
+    frame.off_bar:SetColorTexture(0.2, 0.2, 1, 1)
+    -- Create the off spark
+    frame.off_spark = frame:CreateTexture(nil,"OVERLAY")
+    frame.off_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
+    frame.off_spark:SetSize(32, 32)
     -- Create the off hand bar left text
     frame.off_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
@@ -366,6 +376,19 @@ addon_data.player.InitializeVisuals = function()
     addon_data.player.UpdateVisualsOnSettingsChange()
     addon_data.player.UpdateVisualsOnUpdate()
     frame:Show()
+    
+    frame.randtexture = CreateFrame("Frame", addon_name .. "RandFrame", frame)
+    frame.randtexture:SetBackdrop({bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
+                                   edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border", 
+                                   tile = true, tileSize = 16, edgeSize = 16, 
+                                   insets = { left = 8, right = 8, top = 8, bottom = 8}});
+    frame.randtexture:SetBackdropColor(0,0,0,0.5);
+    frame.randtexture:SetPoint('TOPLEFT', -12, 12)
+    frame.randtexture:SetPoint('BOTTOMRIGHT', 12, -12)
+    frame.randtexture:SetFrameStrata('BACKGROUND')
+    
+    
+    
 end
 
 --[[============================================================================================]]--

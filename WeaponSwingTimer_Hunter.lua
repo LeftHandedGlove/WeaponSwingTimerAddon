@@ -169,6 +169,7 @@ addon_data.hunter.OnUpdate = function(elapsed)
     addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved
     addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
+    print(GetUnitSpeed("player"))
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers

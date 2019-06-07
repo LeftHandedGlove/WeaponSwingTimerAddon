@@ -82,30 +82,24 @@ end
 addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
     if miss_type == "PARRY" then
         if unit == "player" then
+            min_swing_time = addon_data.target.main_weapon_speed * 0.2
+            if addon_data.target.main_swing_timer > min_swing_time then
+                addon_data.target.main_swing_timer = min_swing_time
+            end
             if not is_offhand then
-                min_swing_time = addon_data.player.main_weapon_speed * 0.2
-                if addon_data.player.main_swing_timer > min_swing_time then
-                    addon_data.player.main_swing_timer = min_swing_time
-                end
+                addon_data.player.ResetMainSwingTimer()
             else
-                min_swing_time = addon_data.player.off_weapon_speed * 0.2
-                if addon_data.player.off_swing_timer > min_swing_time then
-                    addon_data.player.off_swing_timer = min_swing_time
-                end
+                addon_data.player.ResetOffSwingTimer()
             end
         elseif unit == "target" then
+            min_swing_time = addon_data.player.main_weapon_speed * 0.2
+            if addon_data.player.main_swing_timer > min_swing_time then
+                addon_data.player.main_swing_timer = min_swing_time
+            end
             if not is_offhand then
-                min_swing_time = addon_data.target.main_weapon_speed * 0.2
-                if addon_data.target.main_swing_timer > min_swing_time then
-                    addon_data.target.main_swing_timer = min_swing_time
-                end
+                addon_data.target.ResetMainSwingTimer()
             else
-                if addon_data.target.has_offhand and addon_data.target.off_weapon_speed then
-                    min_swing_time = addon_data.target.off_weapon_speed * 0.2
-                    if addon_data.target.off_swing_timer > min_swing_time then
-                        addon_data.target.off_swing_timer = min_swing_time
-                    end
-                end
+                addon_data.target.ResetOffSwingTimer()
             end
         else
             addon_data.utils.PrintMsg("Unexpected Unit Type in MissHandler().")
@@ -190,17 +184,17 @@ local function CoreFrame_OnEvent(self, event, ...)
     elseif event == "STOP_AUTOREPEAT_SPELL" then
         addon_data.hunter.OnStopAutorepeatSpell()
     elseif event == "UNIT_SPELLCAST_START" then
-        addon_data.hunter.OnUnitSpellCastStart(arg[3])
+        addon_data.hunter.OnUnitSpellCastStart(args[3])
     elseif event == "UNIT_SPELLCAST_STOP" then
-        addon_data.hunter.OnUnitSpellCastStop(arg[3])
+        addon_data.hunter.OnUnitSpellCastStop(args[3])
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        addon_data.hunter.OnUnitSpellCastSucceeded(arg[3])
+        addon_data.hunter.OnUnitSpellCastSucceeded(args[3])
     elseif event == "UNIT_SPELLCAST_DELAYED" then
-        addon_data.hunter.OnUnitSpellCastDelayed(arg[3])
+        addon_data.hunter.OnUnitSpellCastDelayed(args[3])
     elseif event == "UNIT_SPELLCAST_FAILED" then
-        addon_data.hunter.OnUnitSpellCastFailed(arg[3])
+        addon_data.hunter.OnUnitSpellCastFailed(args[3])
     elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
-        addon_data.hunter.OnUnitSpellCastInterrupted(arg[3])
+        addon_data.hunter.OnUnitSpellCastInterrupted(args[3])
     end
 end
 

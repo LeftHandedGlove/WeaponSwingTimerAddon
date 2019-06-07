@@ -9,7 +9,7 @@ addon_data.target = {}
 addon_data.target.default_settings = {
 	enabled = true,
 	width = 300,
-	height = 10,
+	height = 11,
     point = "CENTER",
 	rel_point = "CENTER",
 	x_offset = 0,
@@ -19,7 +19,9 @@ addon_data.target.default_settings = {
 	backplane_alpha = 0.5,
 	is_locked = false,
     show_text = true,
-	show_offhand = true
+	show_offhand = true,
+    show_border = true,
+    classic_bars = true
 }
 
 addon_data.target.class = 'WARRIOR'
@@ -236,6 +238,12 @@ addon_data.target.UpdateVisualsOnUpdate = function()
         -- Update the main bars width
         main_width = settings.width - (settings.width * (main_timer / main_speed))
         frame.main_bar:SetWidth(main_width)
+        frame.main_spark:SetPoint('TOPLEFT', main_width - 8, 0)
+        if main_width == settings.width or not settings.classic_bars then
+            frame.main_spark:Hide()
+        else
+            frame.main_spark:Show()
+        end
         -- Update the main bars text
         frame.main_left_text:SetText("Main-Hand")
         frame.main_right_text:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
@@ -255,6 +263,12 @@ addon_data.target.UpdateVisualsOnUpdate = function()
             -- Update the off-hand bar's width
             off_width = settings.width - (settings.width * (off_timer / off_speed))
             frame.off_bar:SetWidth(off_width)
+            frame.off_spark:SetPoint('BOTTOMLEFT', off_width - 8, 0)
+            if off_width == settings.width or not settings.classic_bars then
+                frame.off_spark:Hide()
+            else
+                frame.off_spark:Show()
+            end
             -- Update the off-hand bar's text
             frame.off_left_text:SetText("Off-Hand")
             frame.off_right_text:SetText(tostring(addon_data.utils.SimpleRound(off_timer, 0.1)))
@@ -285,19 +299,43 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
     local settings = character_target_settings
     if settings.enabled then
         frame:Show()
+        frame:ClearAllPoints()
         frame:SetPoint(settings.point, UIParent, settings.rel_point, settings.x_offset, settings.y_offset)
         frame:SetWidth(settings.width)
-        frame.backdrop:SetColorTexture(0, 0, 0, settings.backplane_alpha)
-        frame.backdrop:SetPoint("TOPLEFT", -1, 1)
-        frame.backdrop:SetPoint("BOTTOMRIGHT", 1, -1)
+        if settings.show_border then
+            frame.backplane:SetBackdrop({
+                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
+                edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border", 
+                tile = true, tileSize = 16, edgeSize = 16, 
+                insets = { left = 8, right = 8, top = 8, bottom = 8}})
+        else
+            frame.backplane:SetBackdrop({
+                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
+                edgeFile = nil, 
+                tile = true, tileSize = 16, edgeSize = 16, 
+                insets = { left = 11, right = 11, top = 11, bottom = 11}})
+        end
+        frame.backplane:SetBackdropColor(0, 0, 0, settings.backplane_alpha)
         frame.main_bar:SetPoint("TOPLEFT", 0, 0)
         frame.main_bar:SetHeight(settings.height)
-        frame.main_left_text:SetPoint("TOPLEFT", 2, 1)
-        frame.main_right_text:SetPoint("TOPRIGHT", -5, 0)
+         if settings.classic_bars then
+            frame.main_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
+        else
+            frame.main_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
+        end
+        frame.main_spark:SetSize(16, settings.height)
+        frame.main_left_text:SetPoint("TOPLEFT", 2, -(settings.height / 2) + 5)
+        frame.main_right_text:SetPoint("TOPRIGHT", -5, -(settings.height / 2) + 5)
         frame.off_bar:SetPoint("BOTTOMLEFT", 0, 0)
         frame.off_bar:SetHeight(settings.height)
-        frame.off_left_text:SetPoint("BOTTOMLEFT", 2, 0)
-        frame.off_right_text:SetPoint("BOTTOMRIGHT", -5, 0)
+        if settings.classic_bars then
+            frame.off_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
+        else
+            frame.off_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
+        end
+        frame.off_spark:SetSize(16, settings.height)
+        frame.off_left_text:SetPoint("BOTTOMLEFT", 2, (settings.height / 2) - 5)
+        frame.off_right_text:SetPoint("BOTTOMRIGHT", -5, (settings.height / 2) - 5)
         if settings.show_text then
             frame.main_left_text:Show()
             frame.main_right_text:Show()
@@ -309,7 +347,7 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
             frame.off_left_text:Hide()
             frame.off_right_text:Hide()
         end
-        if settings.show_offhand then
+        if settings.show_offhand and addon_data.player.has_offhand then
             frame.off_bar:Show()
             if settings.show_text then
                 frame.off_left_text:Show()
@@ -343,6 +381,7 @@ addon_data.target.OnFrameDragStop = function()
     settings.rel_point = rel_point
     settings.x_offset = addon_data.utils.SimpleRound(x_offset, 1)
     settings.y_offset = addon_data.utils.SimpleRound(y_offset, 1)
+    addon_data.target.UpdateVisualsOnSettingsChange()
     addon_data.target.UpdateConfigPanelValues()
 end
 
@@ -357,10 +396,16 @@ addon_data.target.InitializeVisuals = function()
     frame:SetScript("OnDragStart", addon_data.target.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.target.OnFrameDragStop)
     -- Create the backplane
-    frame.backdrop = frame:CreateTexture(nil,"BACKGROUND")
+    frame.backplane = CreateFrame("Frame", addon_name .. "TargetBackdropFrame", frame)
+    frame.backplane:SetPoint('TOPLEFT', -12, 12)
+    frame.backplane:SetPoint('BOTTOMRIGHT', 12, -12)
+    frame.backplane:SetFrameStrata('BACKGROUND')
     -- Create the main hand bar
     frame.main_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.main_bar:SetColorTexture(0.7, 0.2, 0.2, 1)
+    frame.main_bar:SetVertexColor(0.7, 0.2, 0.2, 1)
+    -- Create the main spark
+    frame.main_spark = frame:CreateTexture(nil,"OVERLAY")
+    frame.main_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the main hand bar left text
     frame.main_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
@@ -375,7 +420,10 @@ addon_data.target.InitializeVisuals = function()
     frame.main_right_text:SetJustifyH("RIGHT")
     -- Create the off hand bar
     frame.off_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.off_bar:SetColorTexture(0.7, 0.2, 0.2, 1)
+    frame.off_bar:SetVertexColor(0.7, 0.2, 0.2, 1)
+    -- Create the off spark
+    frame.off_spark = frame:CreateTexture(nil,"OVERLAY")
+    frame.off_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the off hand bar left text
     frame.off_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
@@ -403,6 +451,8 @@ addon_data.target.UpdateConfigPanelValues = function()
     local settings = character_target_settings
     panel.enabled_checkbox:SetChecked(settings.enabled)
     panel.show_offhand_checkbox:SetChecked(settings.show_offhand)
+    panel.show_border_checkbox:SetChecked(settings.show_border)
+    panel.classic_bars_checkbox:SetChecked(settings.classic_bars)
     panel.width_editbox:SetText(tostring(settings.width))
     panel.width_editbox:SetCursorPosition(0)
     panel.height_editbox:SetText(tostring(settings.height))
@@ -420,6 +470,16 @@ end
 
 addon_data.target.ShowOffHandCheckBoxOnClick = function(self)
     character_target_settings.show_offhand = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.ShowBorderCheckBoxOnClick = function(self)
+    character_target_settings.show_border = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.ClassicBarsCheckBoxOnClick = function(self)
+    character_target_settings.classic_bars = self:GetChecked()
     addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
@@ -467,6 +527,22 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         "Enables the target's off-hand swing bar.",
         addon_data.target.ShowOffHandCheckBoxOnClick)
     panel.show_offhand_checkbox:SetPoint("TOPLEFT", 10, -50)
+    -- Show Border Checkbox
+    panel.show_border_checkbox = addon_data.config.CheckBoxFactory(
+        "TargetShowBorderCheckBox",
+        panel,
+        " Show border",
+        "Enables the target bar's border.",
+        addon_data.target.ShowBorderCheckBoxOnClick)
+    panel.show_border_checkbox:SetPoint("TOPLEFT", 10, -70)
+    -- Show Classic Bars Checkbox
+    panel.classic_bars_checkbox = addon_data.config.CheckBoxFactory(
+        "TargetClassicBarsCheckBox",
+        panel,
+        " Classic bars",
+        "Enables the classic texture for the target's bars.",
+        addon_data.target.ClassicBarsCheckBoxOnClick)
+    panel.classic_bars_checkbox:SetPoint("TOPLEFT", 10, -90)
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
         "TargetWidthEditBox",
@@ -475,7 +551,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.target.WidthEditBoxOnEnter)
-    panel.width_editbox:SetPoint("TOPLEFT", 15, -100, "BOTTOMRIGHT", 115, -125)
+    panel.width_editbox:SetPoint("TOPLEFT", 15, -140, "BOTTOMRIGHT", 115, -165)
     -- Height EditBox
     panel.height_editbox = addon_data.config.EditBoxFactory(
         "TargetHeightEditBox",
@@ -484,7 +560,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.target.HeightEditBoxOnEnter)
-    panel.height_editbox:SetPoint("TOPLEFT", 125, -100, "BOTTOMRIGHT", 225, -125)
+    panel.height_editbox:SetPoint("TOPLEFT", 125, -140, "BOTTOMRIGHT", 225, -165)
     -- X Offset EditBox
     panel.x_offset_editbox = addon_data.config.EditBoxFactory(
         "TargetXOffsetEditBox",
@@ -493,7 +569,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.target.XOffsetEditBoxOnEnter)
-    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -150, "BOTTOMRIGHT", 115, -175)
+    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -190, "BOTTOMRIGHT", 115, -215)
     -- Y Offset EditBox
     panel.y_offset_editbox = addon_data.config.EditBoxFactory(
         "TargetYOffsetEditBox",
@@ -502,7 +578,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         100,
         25,
         addon_data.target.YOffsetEditBoxOnEnter)
-    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -150, "BOTTOMRIGHT", 225, -175)
+    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -190, "BOTTOMRIGHT", 225, -215)
     -- Return the final panel
     addon_data.target.UpdateConfigPanelValues()
     return panel

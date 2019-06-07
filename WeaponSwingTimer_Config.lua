@@ -21,15 +21,11 @@ addon_data.config.InitializeVisuals = function()
     -- Add the target child panel
     panel.target_panel = addon_data.target.CreateConfigPanel(panel)
     panel.target_panel:SetSize(250, 200)
-    panel.target_panel:SetPoint("TOPLEFT", 325, -225)
+    panel.target_panel:SetPoint("TOPLEFT", 325, -265)
     -- Add the hunter child panel
     panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel)
     panel.hunter_panel:SetSize(250, 200)
     panel.hunter_panel:SetPoint("TOPLEFT", 0, -250)
-    --panel.hunter_panel.name = "Hunter Bar Settings"
-    --panel.hunter_panel.parent = panel.name
-    --panel.hunter_panel.default = addon_data.config.OnDefault
-    --InterfaceOptions_AddCategory(panel.hunter_panel)
 end
 
 addon_data.config.TextFactory = function(parent, text, size)
@@ -227,6 +223,41 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
         0.05,
         addon_data.config.BackplaneAlphaOnValChange)
     panel.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -200)
+    
+    -- Extra Classic Button
+    panel.extra_classic_button = CreateFrame("Button", nil, panel)
+    panel.extra_classic_button:SetPoint('TOPLEFT', 515, -530)
+    panel.extra_classic_button:SetSize(150, 35)
+    panel.extra_classic_button:SetNormalTexture('Interface/Buttons/UI-Panel-Button-Up')
+    panel.extra_classic_button:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
+    panel.extra_classic_button:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
+    local fo = panel.extra_classic_button:CreateFontString()
+	fo:SetFont("Fonts/FRIZQT__.TTF",12)
+	fo:SetPoint("TOPLEFT", panel.extra_classic_button, "TOPLEFT", 10, -6)
+	fo:SetText("True Classic")
+	panel.extra_classic_button:SetFontString(fo)
+    panel.extra_classic_button:SetScript("OnClick", function(self)
+        if panel.extra_classic_frame:IsVisible() then
+            panel.extra_classic_frame:EnableKeyboard(false)
+            panel.extra_classic_frame:Hide()
+        else
+            panel.extra_classic_frame:EnableKeyboard(true)
+            panel.extra_classic_frame:Show()
+        end
+        
+    end)
+    -- Extra Classic Frame
+    panel.extra_classic_frame = CreateFrame("Frame", addon_name .. "ExtraClassicPanel", UIParent)
+    panel.extra_classic_frame:SetPoint('CENTER', 0, 10)
+    panel.extra_classic_frame:SetSize(GetScreenWidth(), GetScreenWidth() * 0.75)
+    panel.extra_classic_frame.texture = panel.extra_classic_frame:CreateTexture(nil, "ARTWORK")
+    panel.extra_classic_frame.texture:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/crazyui')
+    panel.extra_classic_frame.texture:SetAllPoints(panel.extra_classic_frame)
+    panel.extra_classic_frame:SetScript('OnKeyDown', function()
+        panel.extra_classic_frame:EnableKeyboard(false)
+        panel.extra_classic_frame:Hide()
+    end)
+    panel.extra_classic_frame:Hide()
     -- Return the final panel
     addon_data.config.UpdateConfigValues()
     return panel

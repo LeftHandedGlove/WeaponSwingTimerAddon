@@ -184,17 +184,17 @@ local function CoreFrame_OnEvent(self, event, ...)
     elseif event == "STOP_AUTOREPEAT_SPELL" then
         addon_data.hunter.OnStopAutorepeatSpell()
     elseif event == "UNIT_SPELLCAST_START" then
-        addon_data.hunter.OnUnitSpellCastStart(args[3])
+        addon_data.hunter.OnUnitSpellCastStart(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_STOP" then
-        addon_data.hunter.OnUnitSpellCastStop(args[3])
+        addon_data.hunter.OnUnitSpellCastStop(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        addon_data.hunter.OnUnitSpellCastSucceeded(args[3])
+        addon_data.hunter.OnUnitSpellCastSucceeded(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_DELAYED" then
-        addon_data.hunter.OnUnitSpellCastDelayed(args[3])
+        addon_data.hunter.OnUnitSpellCastDelayed(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_FAILED" then
-        addon_data.hunter.OnUnitSpellCastFailed(args[3])
+        addon_data.hunter.OnUnitSpellCastFailed(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
-        addon_data.hunter.OnUnitSpellCastInterrupted(args[3])
+        addon_data.hunter.OnUnitSpellCastInterrupted(args[1], args[3])
     end
 end
 

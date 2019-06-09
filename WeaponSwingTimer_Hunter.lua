@@ -208,67 +208,75 @@ addon_data.hunter.OnStopAutorepeatSpell = function()
     addon_data.hunter.UpdateInfo()
 end
 
-addon_data.hunter.OnUnitSpellCastStart = function(spell_id)
-    addon_data.hunter.casting = true
-    local spell_name
-    local settings = character_hunter_settings
-    for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-        if spell_id == id then
-            spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
-            if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
-               ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
-                    addon_data.hunter.casting_shot = true
-                    addon_data.hunter.cast_timer = 0
-                    addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)
-                    local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-                    addon_data.hunter.cast_time = (end_time - start_time) / 1000
-                    if character_hunter_settings.show_text then
-                        addon_data.hunter.frame.spell_text_center:SetText(text)
-                    end
+addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
+    if unit == 'player' then
+        addon_data.hunter.casting = true
+        local spell_name
+        local settings = character_hunter_settings
+        for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
+            if spell_id == id then
+                spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
+                if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
+                   ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
+                        addon_data.hunter.casting_shot = true
+                        addon_data.hunter.cast_timer = 0
+                        addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)
+                        local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
+                        addon_data.hunter.cast_time = (end_time - start_time) / 1000
+                        if character_hunter_settings.show_text then
+                            addon_data.hunter.frame.spell_text_center:SetText(text)
+                        end
+                end
+                break
             end
-            break
         end
     end
 end
 
-addon_data.hunter.OnUnitSpellCastSucceeded = function(spell_id)
-    if addon_data.hunter.shot_spell_ids[spell_id] then
-        if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
-            addon_data.hunter.casting = false
-            addon_data.hunter.casting_shot = false
-            addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
-            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
+    if unit == 'player' then
+        if addon_data.hunter.shot_spell_ids[spell_id] then
+            if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
+                addon_data.hunter.casting = false
+                addon_data.hunter.casting_shot = false
+                addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
+                addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+            end
         end
     end
 end
 
-addon_data.hunter.OnUnitSpellCastDelayed = function(spell_id)
-    for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-        if spell_id == id then
-            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-            local current_timer = (GetTime() - (start_time / 1000))
-            if current_timer < 0 then
-                current_timer = 0
+addon_data.hunter.OnUnitSpellCastDelayed = function(unit, spell_id)
+    if unit == 'player' then
+        for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
+            if spell_id == id then
+                local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
+                local current_timer = (GetTime() - (start_time / 1000))
+                if current_timer < 0 then
+                    current_timer = 0
+                end
+                addon_data.hunter.cast_timer = current_timer
             end
-            addon_data.hunter.cast_timer = current_timer
         end
     end
 end
 
-addon_data.hunter.OnUnitSpellCastInterrupted = function(spell_id)
-    if addon_data.hunter.shot_spell_ids[spell_id] then
-        if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
-            addon_data.hunter.casting = false
-        end
-    end
-    for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-        if spell_id == id then
-            addon_data.hunter.casting_shot = false
-            addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
-            if character_hunter_settings.show_text then
-                addon_data.hunter.frame.spell_text_center:SetText("Interrupted")
+addon_data.hunter.OnUnitSpellCastInterrupted = function(unit, spell_id)
+    if unit == 'player' then
+        if addon_data.hunter.shot_spell_ids[spell_id] then
+            if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
+                addon_data.hunter.casting = false
             end
-            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+        end
+        for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
+            if spell_id == id then
+                addon_data.hunter.casting_shot = false
+                addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
+                if character_hunter_settings.show_text then
+                    addon_data.hunter.frame.spell_text_center:SetText("Interrupted")
+                end
+                addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+            end
         end
     end
 end
@@ -538,7 +546,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
     local settings = character_hunter_settings
     -- Title Text
     panel.title_text = addon_data.config.TextFactory(panel, "Hunter Shot Bar Settings", 20)
-    panel.title_text:SetPoint("TOPLEFT", 15, -15)
+    panel.title_text:SetPoint("TOPLEFT", 15 , -15)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
     -- Enabled Checkbox
     panel.enabled_checkbox = addon_data.config.CheckBoxFactory(

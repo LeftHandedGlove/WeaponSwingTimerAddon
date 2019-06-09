@@ -234,10 +234,15 @@ addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
+    if addon_data.hunter.shot_spell_ids[spell_id] then
+        if addon_data.hunter.shot_spell_ids[spell_id].spell_name == 'Auto Shot' then
+            addon_data.hunter.shot_timer = UnitRangedDamage("player")
+        end
+    end
     if unit == 'player' then
+        addon_data.hunter.casting = false
         if addon_data.hunter.shot_spell_ids[spell_id] then
             if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
-                addon_data.hunter.casting = false
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
                 addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)

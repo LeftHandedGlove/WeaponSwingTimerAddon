@@ -9,7 +9,7 @@ addon_data.core.all_timers = {
     addon_data.player, addon_data.target
 }
 
-local load_message = "Thank you for installing WeaponSwingTimer by LeftHandedGlove! " .. 
+local load_message = "Thank you for installing WeaponSwingTimer Version 3.4.2 by LeftHandedGlove! " .. 
                      "Use |cFFFFC300/weaponswingtimer|r or |cFFFFC300/wst|r for more options."
 					 
 addon_data.core.default_settings = {

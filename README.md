@@ -2,7 +2,7 @@
 WeaponSwingTimer is an addon for WoW Classic that tracks your's and your target's swing timers. If you're a hunter, it also tracks Auto Shot timing and castable shots cast time.
 
 ## Latest Update Video
-https://www.youtube.com/watch?v=akFijHoorRg
+https://www.youtube.com/watch?v=gWTdI4V321g
 
 ## Melee Bars
 The melee bars track the player's and target's main-hand and off-hand swings. It resets on abilities that would reset a swing timer, such as Warrior's Slam, and also takes parry haste into account. Both frames can be moved around with the typical click-and-drag. A configuration window can be brought up with /wst /WeaponSwingTimer or /weaponswingtimer where more visual options are available.
@@ -14,7 +14,6 @@ The melee bars track the player's and target's main-hand and off-hand swings. It
 The hunter bars track the player's Auto Shot timing and also track the cast time for Aimed Shot and Multi-Shot. The Auto Shot bar turns white when an Auto Shot is fired. While the bar is white, the hunter can move and cast freely without clipping their next Auto Shot. When the white bar is depleted, the hunter should stand still while their Auto Shot is 'casting'. If Auto Shot or Multi-Shot are cast
 
 ![alt text](Images/HunterBar.png)
-![alt text](Images/HunterOptions.png)
 
 ## Installation
 ### Download

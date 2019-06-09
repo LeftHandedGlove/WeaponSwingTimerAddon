@@ -8,24 +8,64 @@ addon_data.config.OnDefault = function()
 end
 
 addon_data.config.InitializeVisuals = function()
+    --parent frame, this gets added to the interface options
+    addon_data.config.panel = CreateFrame("Frame", "MyFrame", UIParent)
+    local panel = addon_data.config.panel
+    panel.name = "WeaponSwingTimer"
+    panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(panel)
+
+    --scrollframe, this holds the scroll child, think of it like the window that holds the current content.
+    scrollframe = CreateFrame("ScrollFrame", nil, panel) 
+    scrollframe:SetAllPoints()
+    panel.scrollframe = scrollframe 
+
+    --scrollbar, the scroll bar on the side
+    scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
+    scrollbar:SetPoint("TOPLEFT", panel, "TOPRIGHT", -20, -20) 
+    scrollbar:SetPoint("BOTTOMLEFT", panel, "BOTTOMRIGHT", -20, 20) 
+    scrollbar:SetMinMaxValues(1, 500) 
+    scrollbar:SetValueStep(1) 
+    scrollbar.scrollStep = 1 
+    scrollbar:SetValue(0) 
+    scrollbar:SetWidth(16) 
+    scrollbar:SetScript("OnValueChanged", 
+    function (self, value) 
+    self:GetParent():SetVerticalScroll(value) 
+    end) 
+    local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND") 
+    scrollbg:SetAllPoints(scrollbar) 
+    scrollbg:SetColorTexture(0, 0, 0, 0.4) 
+    panel.scrollbar = scrollbar
+    
+    --content frame, this holds all of the titles and settings. 
+    local content = CreateFrame("Frame", nil, scrollframe) 
+    content:SetSize(1, 1) 
+    scrollframe.content = content 
+    scrollframe:SetScrollChild(content)
+    -- Add the player panel
+    content.player_panel = addon_data.player.CreateConfigPanel(content)
+    content.player_panel:SetPoint('TOPLEFT', 0, 0)
+    content.player_panel:SetSize(1, 1)
+    
+    
+    
+    
+    
+    --[[
     -- Create the main config panel
     addon_data.config.panel = addon_data.config.CreateMainConfigPanel(UIParent)
     local panel = addon_data.config.panel
     addon_data.config.panel.name = "WeaponSwingTimer"
     addon_data.config.panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(addon_data.config.panel)
-    -- Add the player child panel
-    panel.player_panel = addon_data.player.CreateConfigPanel(panel)
-    panel.player_panel:SetSize(250, 200)
-    panel.player_panel:SetPoint("TOPLEFT", 325, -15)
-    -- Add the target child panel
-    panel.target_panel = addon_data.target.CreateConfigPanel(panel)
-    panel.target_panel:SetSize(250, 200)
-    panel.target_panel:SetPoint("TOPLEFT", 325, -265)
-    -- Add the hunter child panel
-    panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel)
-    panel.hunter_panel:SetSize(250, 200)
-    panel.hunter_panel:SetPoint("TOPLEFT", 0, -250)
+    
+    -- Add the melee panel
+    addon_data.config.CreateMeleeConfigPanel(panel)
+    
+    -- Add the hunter panel
+    addon_data.config.CreateHunterConfigPanel(panel)
+    ]]--
 end
 
 addon_data.config.TextFactory = function(parent, text, size)
@@ -56,7 +96,7 @@ addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_f
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         tile = true,
-        tileSize = 100,
+        tileSize = 26,
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4}
     })
@@ -173,6 +213,19 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
     addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "MainConfigPanel", parent_panel)
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     -- Title Text
     panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
     panel.title_text:SetPoint("TOPLEFT", 15, -15)
@@ -262,4 +315,73 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
     addon_data.config.UpdateConfigValues()
     return panel
 end
+
+addon_data.config.CreateMeleeConfigPanel = function(parent_panel)
+    
+end
+
+addon_data.config.CreateHunterConfigPanel = function(parent_panel)
+    parent_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(parent_panel)
+    parent_panel.hunter_panel.name = 'Hunter Shot Bars'
+    parent_panel.hunter_panel.parent = parent_panel.name
+    InterfaceOptions_AddCategory(parent_panel.hunter_panel)
+    
+    
+    
+    --parent frame 
+    local frame = CreateFrame("Frame", "MyFrame", UIParent) 
+    frame:SetSize(150, 200) 
+    frame:SetPoint("CENTER") 
+    local texture = frame:CreateTexture() 
+    texture:SetAllPoints() 
+    texture:SetColorTexture(1,1,1,1) 
+    frame.background = texture 
+
+    --scrollframe 
+    scrollframe = CreateFrame("ScrollFrame", nil, frame) 
+    scrollframe:SetPoint("TOPLEFT", 10, -10) 
+    scrollframe:SetPoint("BOTTOMRIGHT", -10, 10) 
+    local texture = scrollframe:CreateTexture() 
+    texture:SetAllPoints() 
+    texture:SetColorTexture(.5,.5,.5,1) 
+    frame.scrollframe = scrollframe 
+
+    --scrollbar 
+    scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
+    scrollbar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 4, -16) 
+    scrollbar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 4, 16) 
+    scrollbar:SetMinMaxValues(1, 200) 
+    scrollbar:SetValueStep(1) 
+    scrollbar.scrollStep = 1 
+    scrollbar:SetValue(0) 
+    scrollbar:SetWidth(16) 
+    scrollbar:SetScript("OnValueChanged", 
+    function (self, value) 
+    self:GetParent():SetVerticalScroll(value) 
+    end) 
+    local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND") 
+    scrollbg:SetAllPoints(scrollbar) 
+    scrollbg:SetColorTexture(0, 0, 0, 0.4) 
+    frame.scrollbar = scrollbar 
+
+    --content frame 
+    local content = CreateFrame("Frame", nil, scrollframe) 
+    content:SetSize(128, 128) 
+    local texture = content:CreateTexture() 
+    texture:SetAllPoints() 
+    texture:SetTexture("Interface\\GLUES\\MainMenu\\Glues-BlizzardLogo") 
+    content.texture = texture 
+    scrollframe.content = content 
+
+    scrollframe:SetScrollChild(content)
+    
+    
+    
+    
+    
+end
+
+
+
+
 

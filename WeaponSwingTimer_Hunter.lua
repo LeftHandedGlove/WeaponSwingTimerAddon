@@ -43,7 +43,7 @@ addon_data.hunter.shooting = false
 addon_data.hunter.range_speed = 3.0
 addon_data.hunter.auto_cast_time = 0.65
 addon_data.hunter.shot_timer = 0.65
-addon_data.hunter.last_shot_time = 0
+addon_data.hunter.last_shot_time = GetTime()
 addon_data.hunter.auto_shot_ready = true
 
 addon_data.hunter.casting = false
@@ -124,7 +124,7 @@ addon_data.hunter.ResetShotTimer = function()
     -- The timer is reset to either the auto cast time or the difference between the time since the last shot and the current time depending on which is larger
     local curr_time = GetTime()
     local range_speed = addon_data.hunter.range_speed
-    if (curr_time - addon_data.hunter.last_shot_time) > (range_speed - addon_data.hunter.auto_cast_time) then
+    if (curr_time + 0.01 - addon_data.hunter.last_shot_time) > (range_speed - addon_data.hunter.auto_cast_time) then
         addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time
         addon_data.hunter.auto_shot_ready = true
     elseif curr_time ~= addon_data.hunter.last_shot_time then
@@ -149,12 +149,8 @@ addon_data.hunter.UpdateAutoShotTimer = function(elapsed)
             addon_data.hunter.ResetShotTimer()
         end
     end
-    -- If the shot timer is less than zero then a shot occured and the last shot should be update and the timer should be reset
-    if addon_data.hunter.shot_timer < 0 then
-        addon_data.hunter.last_shot_time = curr_time
-        addon_data.hunter.ResetShotTimer()
     -- If the shot timer is less than the auto cast time then the auto shot is ready
-    elseif addon_data.hunter.shot_timer <= addon_data.hunter.auto_cast_time then
+    if addon_data.hunter.shot_timer <= addon_data.hunter.auto_cast_time then
         addon_data.hunter.auto_shot_ready = true
         -- If we are not shooting then the timer should be reset
         if not addon_data.hunter.shooting then
@@ -234,13 +230,16 @@ addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
-    if addon_data.hunter.shot_spell_ids[spell_id] then
-        if addon_data.hunter.shot_spell_ids[spell_id].spell_name == 'Auto Shot' then
-            addon_data.hunter.shot_timer = UnitRangedDamage("player")
-        end
-    end
     if unit == 'player' then
         addon_data.hunter.casting = false
+        -- If the spell is Auto Shot then reset the shot timer
+        if addon_data.hunter.shot_spell_ids[spell_id] then
+            if addon_data.hunter.shot_spell_ids[spell_id].spell_name == 'Auto Shot' then
+                addon_data.hunter.last_shot_time = GetTime()
+                addon_data.hunter.ResetShotTimer()
+            end
+        end
+        -- Otherwise, set the cast bar to green
         if addon_data.hunter.shot_spell_ids[spell_id] then
             if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
                 addon_data.hunter.casting_shot = false
@@ -314,7 +313,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
         if new_width < 2 then
             new_width = 2
         end
-        frame.shot_bar:SetWidth(new_width)
+        frame.shot_bar:SetWidth(math.min(new_width, settings.width))
         if addon_data.hunter.casting_shot then
             frame:SetSize(settings.width, (settings.height * 2) + 2)
             frame.spell_bar:SetAlpha(1)

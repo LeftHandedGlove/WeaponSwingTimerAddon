@@ -184,9 +184,35 @@ addon_data.hunter.OnUpdate = function(elapsed)
         end
         addon_data.hunter.range_speed = new_range_speed
     end
-    addon_data.hunter.UpdateRangeCastSpeedModifier()
     -- Check to see if we have moved
     addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
+    -- Check to see if we are casting
+    if UnitCastingInfo('player') then
+        if not addon_data.hunter.casting then
+            local name, text, _, start_time, end_time, _, _, _, spell_id = UnitCastingInfo("player")
+            print(end_time - start_time)
+            addon_data.hunter.casting = true
+            local spell_name
+            local settings = character_hunter_settings
+            for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
+                if spell_id == id then
+                    spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
+                    if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
+                       ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
+                            addon_data.hunter.casting_shot = true
+                            addon_data.hunter.cast_timer = 0
+                            addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)
+                            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
+                            addon_data.hunter.cast_time = (end_time - start_time) / 1000
+                            if character_hunter_settings.show_text then
+                                addon_data.hunter.frame.spell_text_center:SetText(text)
+                            end
+                    end
+                    break
+                end
+            end
+        end
+    end
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers
@@ -209,6 +235,7 @@ addon_data.hunter.OnStopAutorepeatSpell = function()
 end
 
 addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
+--[[
     if unit == 'player' then
         addon_data.hunter.casting = true
         local spell_name
@@ -231,6 +258,7 @@ addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
             end
         end
     end
+]]--
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)

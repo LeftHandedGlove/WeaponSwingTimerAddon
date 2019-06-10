@@ -5,7 +5,6 @@ addon_data.config = {}
 addon_data.config.OnDefault = function()
     addon_data.core.RestoreAllDefaults()
     addon_data.config.UpdateConfigValues()
-    ReloadUI()
 end
 
 addon_data.config.InitializeVisuals = function()
@@ -27,7 +26,7 @@ addon_data.config.InitializeVisuals = function()
             self:SetVerticalScroll(scroll_value)
             self:GetParent().scrollbar:SetValue(scroll_value) 
         elseif direction == -1 then
-            scroll_value = math.min(self:GetVerticalScroll() + 50, 350)
+            scroll_value = math.min(self:GetVerticalScroll() + 50, 250)
             self:SetVerticalScroll(scroll_value)
             self:GetParent().scrollbar:SetValue(scroll_value)
         end
@@ -38,7 +37,7 @@ addon_data.config.InitializeVisuals = function()
     scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
     scrollbar:SetPoint("TOPLEFT", panel, "TOPRIGHT", -20, -20) 
     scrollbar:SetPoint("BOTTOMLEFT", panel, "BOTTOMRIGHT", -20, 20) 
-    scrollbar:SetMinMaxValues(1, 350) 
+    scrollbar:SetMinMaxValues(1, 250) 
     scrollbar:SetValueStep(1) 
     scrollbar.scrollStep = 1 
     scrollbar:SetValue(0) 
@@ -74,9 +73,6 @@ addon_data.config.InitializeVisuals = function()
     content.hunter_panel:SetPoint('TOPLEFT', 10, -570)
     content.hunter_panel:SetSize(1, 1)
     
-    
-    
-    addon_data.hunter.CreateConfigPanel()
     --[[
     -- Create the main config panel
     addon_data.config.panel = addon_data.config.CreateMainConfigPanel(UIParent)

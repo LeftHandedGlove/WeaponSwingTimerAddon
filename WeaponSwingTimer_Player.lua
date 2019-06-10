@@ -21,7 +21,12 @@ addon_data.player.default_settings = {
     show_text = true,
 	show_offhand = true,
     show_border = true,
-    classic_bars = true
+    classic_bars = true,
+    fill_empty = true,
+    main_r = 0.2, main_g = 0.2, main_b = 1.0, main_a = 1.0,
+    main_text_r = 1.0, main_text_g = 1.0, main_text_b = 1.0, main_text_a = 1.0,
+    off_r = 0.2, off_g = 0.2, off_b = 1.0, off_a = 1.0,
+    off_text_r = 1.0, off_text_g = 1.0, off_text_b = 1.0, off_text_a = 1.0,
 }
 
 addon_data.player.class = UnitClass("player")[2]
@@ -61,6 +66,7 @@ addon_data.player.RestoreDefaults = function()
         character_player_settings[setting] = value
     end
     addon_data.player.UpdateVisualsOnSettingsChange()
+    addon_data.player.UpdateConfigPanelValues()
 end
 
 --[[============================================================================================]]--
@@ -213,9 +219,12 @@ addon_data.player.UpdateVisualsOnUpdate = function()
         end
         -- Update the main bars width
         main_width = math.min(settings.width - (settings.width * (main_timer / main_speed)), settings.width)
+        if not settings.fill_empty then
+            main_width = settings.width - main_width + 0.001
+        end
         frame.main_bar:SetWidth(main_width)
         frame.main_spark:SetPoint('TOPLEFT', main_width - 8, 0)
-        if main_width == settings.width or not settings.classic_bars then
+        if main_width == settings.width or not settings.classic_bars or main_width == 0.001 then
             frame.main_spark:Hide()
         else
             frame.main_spark:Show()
@@ -237,10 +246,13 @@ addon_data.player.UpdateVisualsOnUpdate = function()
                 off_speed = 2
             end
             -- Update the off-hand bar's width
-            off_width = settings.width - (settings.width * (off_timer / off_speed))
+            off_width = math.min(settings.width - (settings.width * (off_timer / off_speed)), settings.width)
+            if not settings.fill_empty then
+                off_width = settings.width - off_width + 0.001
+            end
             frame.off_bar:SetWidth(off_width)
             frame.off_spark:SetPoint('BOTTOMLEFT', off_width - 8, 0)
-            if off_width == settings.width or not settings.classic_bars then
+            if off_width == settings.width or not settings.classic_bars or off_width == 0.001  then
                 frame.off_spark:Hide()
             else
                 frame.off_spark:Show()
@@ -297,9 +309,12 @@ addon_data.player.UpdateVisualsOnSettingsChange = function()
         else
             frame.main_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
         end
+        frame.main_bar:SetVertexColor(settings.main_r, settings.main_g, settings.main_b, settings.main_a)
         frame.main_spark:SetSize(16, settings.height)
         frame.main_left_text:SetPoint("TOPLEFT", 2, -(settings.height / 2) + 5)
+        frame.main_left_text:SetTextColor(settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
         frame.main_right_text:SetPoint("TOPRIGHT", -5, -(settings.height / 2) + 5)
+        frame.main_right_text:SetTextColor(settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
         frame.off_bar:SetPoint("BOTTOMLEFT", 0, 0)
         frame.off_bar:SetHeight(settings.height)
         if settings.classic_bars then
@@ -307,9 +322,12 @@ addon_data.player.UpdateVisualsOnSettingsChange = function()
         else
             frame.off_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
         end
+        frame.off_bar:SetVertexColor(settings.off_r, settings.off_g, settings.off_b, settings.off_a)
         frame.off_spark:SetSize(16, settings.height)
         frame.off_left_text:SetPoint("BOTTOMLEFT", 2, (settings.height / 2) - 5)
+        frame.off_left_text:SetTextColor(settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
         frame.off_right_text:SetPoint("BOTTOMRIGHT", -5, (settings.height / 2) - 5)
+        frame.off_right_text:SetTextColor(settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
         if settings.show_text then
             frame.main_left_text:Show()
             frame.main_right_text:Show()
@@ -359,22 +377,6 @@ addon_data.player.OnFrameDragStop = function()
     addon_data.player.UpdateConfigPanelValues()
 end
 
-
-function ShowColorPicker(r, g, b, a, changedCallback)
- ColorPickerFrame:SetColorRGB(r,g,b);
- ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = (a ~= nil), a;
- ColorPickerFrame.previousValues = {r,g,b,a};
- ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
-  changedCallback, changedCallback, changedCallback;
- ColorPickerFrame:Hide(); -- Need to run the OnShow handler.
- ColorPickerFrame:Show();
-end
-
-function Howdy()
-    print('Howdy')
-end
-
-
 addon_data.player.InitializeVisuals = function()
     local settings = character_player_settings
     -- Create the frame
@@ -392,48 +394,39 @@ addon_data.player.InitializeVisuals = function()
     frame.backplane:SetFrameStrata('BACKGROUND')
     -- Create the main hand bar
     frame.main_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.main_bar:SetVertexColor(0.2, 0.2, 1, 1)
     -- Create the main spark
     frame.main_spark = frame:CreateTexture(nil,"OVERLAY")
     frame.main_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the main hand bar left text
     frame.main_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
-    frame.main_left_text:SetTextColor(1, 1, 1, 1)
     frame.main_left_text:SetJustifyV("CENTER")
     frame.main_left_text:SetJustifyH("LEFT")
     -- Create the main hand bar right text
     frame.main_right_text = frame:CreateFontString(nil, "OVERLAY")
     frame.main_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
-    frame.main_right_text:SetTextColor(1, 1, 1, 1)
     frame.main_right_text:SetJustifyV("CENTER")
     frame.main_right_text:SetJustifyH("RIGHT")
     -- Create the off hand bar
     frame.off_bar = frame:CreateTexture(nil,"ARTWORK")
-    frame.off_bar:SetVertexColor(0.2, 0.2, 1, 1)
     -- Create the off spark
     frame.off_spark = frame:CreateTexture(nil,"OVERLAY")
     frame.off_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the off hand bar left text
     frame.off_left_text = frame:CreateFontString(nil, "OVERLAY")
     frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
-    frame.off_left_text:SetTextColor(1, 1, 1, 1)
     frame.off_left_text:SetJustifyV("CENTER")
     frame.off_left_text:SetJustifyH("LEFT")
     -- Create the off hand bar right text
     frame.off_right_text = frame:CreateFontString(nil, "OVERLAY")
     frame.off_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
-    frame.off_right_text:SetTextColor(1, 1, 1, 1)
     frame.off_right_text:SetJustifyV("CENTER")
     frame.off_right_text:SetJustifyH("RIGHT")
     -- Show it off
     addon_data.player.UpdateVisualsOnSettingsChange()
     addon_data.player.UpdateVisualsOnUpdate()
     frame:Show()
-    
 end
-
-
 
 --[[============================================================================================]]--
 --[[================================== CONFIG WINDOW RELATED ===================================]]--
@@ -446,6 +439,7 @@ addon_data.player.UpdateConfigPanelValues = function()
     panel.show_offhand_checkbox:SetChecked(settings.show_offhand)
     panel.show_border_checkbox:SetChecked(settings.show_border)
     panel.classic_bars_checkbox:SetChecked(settings.classic_bars)
+    panel.fill_empty_checkbox:SetChecked(settings.fill_empty)
     panel.width_editbox:SetText(tostring(settings.width))
     panel.width_editbox:SetCursorPosition(0)
     panel.height_editbox:SetText(tostring(settings.height))
@@ -454,6 +448,14 @@ addon_data.player.UpdateConfigPanelValues = function()
     panel.x_offset_editbox:SetCursorPosition(0)
     panel.y_offset_editbox:SetText(tostring(settings.y_offset))
     panel.y_offset_editbox:SetCursorPosition(0)
+    panel.main_color_picker.foreground:SetColorTexture(
+        settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+    panel.main_text_color_picker.foreground:SetColorTexture(
+        settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
+    panel.off_color_picker.foreground:SetColorTexture(
+        settings.off_r, settings.off_g, settings.off_b, settings.off_a)
+    panel.off_text_color_picker.foreground:SetColorTexture(
+        settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
 end
 
 addon_data.player.EnabledCheckBoxOnClick = function(self)
@@ -473,6 +475,11 @@ end
 
 addon_data.player.ClassicBarsCheckBoxOnClick = function(self)
     character_player_settings.classic_bars = self:GetChecked()
+    addon_data.player.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.player.FillEmptyCheckBoxOnClick = function(self)
+    character_player_settings.fill_empty = self:GetChecked()
     addon_data.player.UpdateVisualsOnSettingsChange()
 end
 
@@ -496,14 +503,122 @@ addon_data.player.YOffsetEditBoxOnEnter = function(self)
     addon_data.player.UpdateVisualsOnSettingsChange()
 end
 
+addon_data.player.MainColorPickerOnClick = function()
+    local settings = character_player_settings
+    local function MainOnActionFunc(restore)
+        local settings = character_player_settings
+        local new_r, new_g, new_b, new_a
+        if restore then
+            new_r, new_g, new_b, new_a = unpack(restore)
+        else
+            new_a, new_r, new_g, new_b = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        end
+        settings.main_r, settings.main_g, settings.main_b, settings.main_a = new_r, new_g, new_b, new_a
+        addon_data.player.frame.main_bar:SetVertexColor(
+            settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+        addon_data.player.config_frame.main_color_picker.foreground:SetColorTexture(
+            settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+    end
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+        MainOnActionFunc, MainOnActionFunc, MainOnActionFunc
+    ColorPickerFrame:SetColorRGB(settings.main_r, settings.main_g, settings.main_b)
+    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.opacity = settings.main_a
+    ColorPickerFrame.previousValues = {settings.main_r, settings.main_g, settings.main_b, settings.main_a}
+    ColorPickerFrame:Show()
+end
+
+addon_data.player.MainTextColorPickerOnClick = function()
+    local settings = character_player_settings
+    local function MainTextOnActionFunc(restore)
+        local settings = character_player_settings
+        local new_r, new_g, new_b, new_a
+        if restore then
+            new_r, new_g, new_b, new_a = unpack(restore)
+        else
+            new_a, new_r, new_g, new_b = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        end
+        settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a = new_r, new_g, new_b, new_a
+        --TODO
+        addon_data.player.frame.main_left_text:SetTextColor(
+            settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
+        addon_data.player.frame.main_right_text:SetTextColor(
+            settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
+        addon_data.player.config_frame.main_text_color_picker.foreground:SetColorTexture(
+            settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
+    end
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+        MainTextOnActionFunc, MainTextOnActionFunc, MainTextOnActionFunc
+    ColorPickerFrame:SetColorRGB(settings.main_text_r, settings.main_text_g, settings.main_text_b)
+    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.opacity = settings.main_text_a
+    ColorPickerFrame.previousValues = {settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a}
+    ColorPickerFrame:Show()
+end
+
+addon_data.player.OffColorPickerOnClick = function()
+    local settings = character_player_settings
+    local function OffOnActionFunc(restore)
+        local settings = character_player_settings
+        local new_r, new_g, new_b, new_a
+        if restore then
+            new_r, new_g, new_b, new_a = unpack(restore)
+        else
+            new_a, new_r, new_g, new_b = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        end
+        settings.off_r, settings.off_g, settings.off_b, settings.off_a = new_r, new_g, new_b, new_a
+        addon_data.player.frame.off_bar:SetVertexColor(
+            settings.off_r, settings.off_g, settings.off_b, settings.off_a)
+        addon_data.player.config_frame.off_color_picker.foreground:SetColorTexture(
+            settings.off_r, settings.off_g, settings.off_b, settings.off_a)
+    end
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+        OffOnActionFunc, OffOnActionFunc, OffOnActionFunc
+    ColorPickerFrame:SetColorRGB(settings.off_r, settings.off_g, settings.off_b)
+    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.opacity = settings.off_a
+    ColorPickerFrame.previousValues = {settings.off_r, settings.off_g, settings.off_b, settings.off_a}
+    ColorPickerFrame:Show()
+end
+
+addon_data.player.OffTextColorPickerOnClick = function()
+    local settings = character_player_settings
+    local function OffTextOnActionFunc(restore)
+        local settings = character_player_settings
+        local new_r, new_g, new_b, new_a
+        if restore then
+            new_r, new_g, new_b, new_a = unpack(restore)
+        else
+            new_a, new_r, new_g, new_b = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        end
+        settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a = new_r, new_g, new_b, new_a
+        --TODO
+        addon_data.player.frame.off_left_text:SetTextColor(
+            settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
+        addon_data.player.frame.off_right_text:SetTextColor(
+            settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
+        addon_data.player.config_frame.off_text_color_picker.foreground:SetColorTexture(
+            settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
+    end
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+        OffTextOnActionFunc, OffTextOnActionFunc, OffTextOnActionFunc
+    ColorPickerFrame:SetColorRGB(settings.off_text_r, settings.off_text_g, settings.off_text_b)
+    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.opacity = settings.off_text_a
+    ColorPickerFrame.previousValues = {settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a}
+    ColorPickerFrame:Show()
+end
+
 addon_data.player.CreateConfigPanel = function(parent_panel)
     addon_data.player.config_frame = CreateFrame("Frame", addon_name .. "PlayerConfigPanel", parent_panel)
     local panel = addon_data.player.config_frame
     local settings = character_player_settings
+    
     -- Title Text
     panel.title_text = addon_data.config.TextFactory(panel, "Player Swing Bar Settings", 20)
-    panel.title_text:SetPoint("TOPLEFT", 15, 0)
-    panel.title_text:SetTextColor(1, 0.9, 0, 1)
+    panel.title_text:SetPoint("TOPLEFT", 0, 0)
+    panel.title_text:SetTextColor(1, 0.82, 0, 1)
+    
     -- Enabled Checkbox
     panel.enabled_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerEnabledCheckBox",
@@ -511,7 +626,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Enable",
         "Enables the player's swing bars.",
         addon_data.player.EnabledCheckBoxOnClick)
-    panel.enabled_checkbox:SetPoint("TOPLEFT", 10, -30)
+    panel.enabled_checkbox:SetPoint("TOPLEFT", 0, -30)
     -- Show Off-Hand Checkbox
     panel.show_offhand_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerShowOffHandCheckBox",
@@ -519,7 +634,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Show Off-Hand",
         "Enables the player's off-hand swing bar.",
         addon_data.player.ShowOffHandCheckBoxOnClick)
-    panel.show_offhand_checkbox:SetPoint("TOPLEFT", 10, -50)
+    panel.show_offhand_checkbox:SetPoint("TOPLEFT", 0, -50)
     -- Show Border Checkbox
     panel.show_border_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerShowBorderCheckBox",
@@ -527,7 +642,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Show border",
         "Enables the player bar's border.",
         addon_data.player.ShowBorderCheckBoxOnClick)
-    panel.show_border_checkbox:SetPoint("TOPLEFT", 10, -70)
+    panel.show_border_checkbox:SetPoint("TOPLEFT", 0, -70)
     -- Show Classic Bars Checkbox
     panel.classic_bars_checkbox = addon_data.config.CheckBoxFactory(
         "PlayerClassicBarsCheckBox",
@@ -535,43 +650,86 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         " Classic bars",
         "Enables the classic texture for the player's bars.",
         addon_data.player.ClassicBarsCheckBoxOnClick)
-    panel.classic_bars_checkbox:SetPoint("TOPLEFT", 10, -90)
+    panel.classic_bars_checkbox:SetPoint("TOPLEFT", 0, -90)
+    -- Fill/Empty Checkbox
+    panel.fill_empty_checkbox = addon_data.config.CheckBoxFactory(
+        "PlayerFillEmptyCheckBox",
+        panel,
+        " Fill/Empty",
+        "Determines if the bar is full or empty when a swing is ready.",
+        addon_data.player.FillEmptyCheckBoxOnClick)
+    panel.fill_empty_checkbox:SetPoint("TOPLEFT", 0, -110)
+    
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
         "PlayerWidthEditBox",
         panel,
         "Bar Width",
-        100,
+        75,
         25,
         addon_data.player.WidthEditBoxOnEnter)
-    panel.width_editbox:SetPoint("TOPLEFT", 15, -140, "BOTTOMRIGHT", 115, -165)
+    panel.width_editbox:SetPoint("TOPLEFT", 200, -50, "BOTTOMRIGHT", 275, -75)
     -- Height EditBox
     panel.height_editbox = addon_data.config.EditBoxFactory(
         "PlayerHeightEditBox",
         panel,
         "Bar Height",
-        100,
+        75,
         25,
         addon_data.player.HeightEditBoxOnEnter)
-    panel.height_editbox:SetPoint("TOPLEFT", 125, -140, "BOTTOMRIGHT", 225, -165)
+    panel.height_editbox:SetPoint("TOPLEFT", 280, -50, "BOTTOMRIGHT", 355, -75)
     -- X Offset EditBox
     panel.x_offset_editbox = addon_data.config.EditBoxFactory(
         "PlayerXOffsetEditBox",
         panel,
         "X Offset",
-        100,
+        75,
         25,
         addon_data.player.XOffsetEditBoxOnEnter)
-    panel.x_offset_editbox:SetPoint("TOPLEFT", 15, -190, "BOTTOMRIGHT", 115, -215)
+    panel.x_offset_editbox:SetPoint("TOPLEFT", 200, -100, "BOTTOMRIGHT", 275, -125)
     -- Y Offset EditBox
     panel.y_offset_editbox = addon_data.config.EditBoxFactory(
         "PlayerYOffsetEditBox",
         panel,
         "Y Offset",
-        100,
+        75,
         25,
         addon_data.player.YOffsetEditBoxOnEnter)
-    panel.y_offset_editbox:SetPoint("TOPLEFT", 125, -190, "BOTTOMRIGHT", 225, -215)
+    panel.y_offset_editbox:SetPoint("TOPLEFT", 280, -100, "BOTTOMRIGHT", 355, -125)
+    
+    -- Main-hand color picker
+    panel.main_color_picker = addon_data.config.color_picker_factory(
+        'PlayerMainColorPicker',
+        panel,
+        settings.main_r, settings.main_g, settings.main_b, settings.main_a,
+        'Main-hand Bar Color',
+        addon_data.player.MainColorPickerOnClick)
+    panel.main_color_picker:SetPoint('TOPLEFT', 380, -40)
+    -- Main-hand color text picker
+    panel.main_text_color_picker = addon_data.config.color_picker_factory(
+        'PlayerMainTextColorPicker',
+        panel,
+        settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a,
+        'Main-hand Bar Text Color',
+        addon_data.player.MainTextColorPickerOnClick)
+    panel.main_text_color_picker:SetPoint('TOPLEFT', 380, -60)
+    -- Off-hand color picker
+    panel.off_color_picker = addon_data.config.color_picker_factory(
+        'PlayerOffColorPicker',
+        panel,
+        settings.off_r, settings.off_g, settings.off_b, settings.off_a,
+        'Off-hand Bar Color',
+        addon_data.player.OffColorPickerOnClick)
+    panel.off_color_picker:SetPoint('TOPLEFT', 380, -90)
+    -- Off-hand color text picker
+    panel.off_text_color_picker = addon_data.config.color_picker_factory(
+        'PlayerOffTextColorPicker',
+        panel,
+        settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a,
+        'Off-hand Bar Text Color',
+        addon_data.player.OffTextColorPickerOnClick)
+    panel.off_text_color_picker:SetPoint('TOPLEFT', 380, -110)
+    
     -- Return the final panel
     addon_data.player.UpdateConfigPanelValues()
     return panel

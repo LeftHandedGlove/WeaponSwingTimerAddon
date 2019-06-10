@@ -5,6 +5,7 @@ addon_data.config = {}
 addon_data.config.OnDefault = function()
     addon_data.core.RestoreAllDefaults()
     addon_data.config.UpdateConfigValues()
+    ReloadUI()
 end
 
 addon_data.config.InitializeVisuals = function()
@@ -17,14 +18,27 @@ addon_data.config.InitializeVisuals = function()
 
     --scrollframe, this holds the scroll child, think of it like the window that holds the current content.
     scrollframe = CreateFrame("ScrollFrame", nil, panel) 
-    scrollframe:SetAllPoints()
+    scrollframe:SetPoint('TOPLEFT', 5, -5)
+    scrollframe:SetPoint('BOTTOMRIGHT', -5, 5)
+    scrollframe:EnableMouseWheel(true)
+    scrollframe:SetScript('OnMouseWheel', function(self, direction)
+        if direction == 1 then
+            scroll_value = math.max(self:GetVerticalScroll() - 50, 1)
+            self:SetVerticalScroll(scroll_value)
+            self:GetParent().scrollbar:SetValue(scroll_value) 
+        elseif direction == -1 then
+            scroll_value = math.min(self:GetVerticalScroll() + 50, 350)
+            self:SetVerticalScroll(scroll_value)
+            self:GetParent().scrollbar:SetValue(scroll_value)
+        end
+    end)
     panel.scrollframe = scrollframe 
 
     --scrollbar, the scroll bar on the side
     scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
     scrollbar:SetPoint("TOPLEFT", panel, "TOPRIGHT", -20, -20) 
     scrollbar:SetPoint("BOTTOMLEFT", panel, "BOTTOMRIGHT", -20, 20) 
-    scrollbar:SetMinMaxValues(1, 500) 
+    scrollbar:SetMinMaxValues(1, 350) 
     scrollbar:SetValueStep(1) 
     scrollbar.scrollStep = 1 
     scrollbar:SetValue(0) 
@@ -35,7 +49,7 @@ addon_data.config.InitializeVisuals = function()
     end) 
     local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND") 
     scrollbg:SetAllPoints(scrollbar) 
-    scrollbg:SetColorTexture(0, 0, 0, 0.4) 
+    scrollbg:SetColorTexture(0, 0, 0, 0.6) 
     panel.scrollbar = scrollbar
     
     --content frame, this holds all of the titles and settings. 
@@ -43,15 +57,26 @@ addon_data.config.InitializeVisuals = function()
     content:SetSize(1, 1) 
     scrollframe.content = content 
     scrollframe:SetScrollChild(content)
+    -- Add the global panel
+    content.global_panel = addon_data.config.CreateConfigPanel(content)
+    content.global_panel:SetPoint('TOPLEFT', 10, -10)
+    content.global_panel:SetSize(1, 1)
     -- Add the player panel
     content.player_panel = addon_data.player.CreateConfigPanel(content)
-    content.player_panel:SetPoint('TOPLEFT', 0, 0)
+    content.player_panel:SetPoint('TOPLEFT', 10, -220)
     content.player_panel:SetSize(1, 1)
+    -- Add the target panel
+    content.target_panel = addon_data.target.CreateConfigPanel(content)
+    content.target_panel:SetPoint('TOPLEFT', 10, -395)
+    content.target_panel:SetSize(1, 1)
+    -- Add the hunter panel
+    content.hunter_panel = addon_data.hunter.CreateConfigPanel(content)
+    content.hunter_panel:SetPoint('TOPLEFT', 10, -570)
+    content.hunter_panel:SetSize(1, 1)
     
     
     
-    
-    
+    addon_data.hunter.CreateConfigPanel()
     --[[
     -- Create the main config panel
     addon_data.config.panel = addon_data.config.CreateMainConfigPanel(UIParent)
@@ -158,6 +183,23 @@ addon_data.config.SliderFactory = function(g_name, parent, title, min_val, max_v
     return slider
 end
 
+addon_data.config.color_picker_factory = function(g_name, parent, r, g, b, a, text, on_click_func)
+    local color_picker = CreateFrame('Button', addon_name .. g_name, parent)
+    color_picker:SetSize(15, 15)
+    color_picker.normal = color_picker:CreateTexture(nil, 'BACKGROUND')
+    color_picker.normal:SetColorTexture(1, 1, 1, 1)
+    color_picker.normal:SetPoint('TOPLEFT', -1, 1)
+    color_picker.normal:SetPoint('BOTTOMRIGHT', 1, -1)
+    color_picker.foreground = color_picker:CreateTexture(nil, 'ARTWORK')
+    color_picker.foreground:SetColorTexture(r, g, b, a)
+    color_picker.foreground:SetAllPoints()
+    color_picker:SetNormalTexture(color_picker.normal)
+    color_picker:SetScript('OnClick', on_click_func)
+    color_picker.text = addon_data.config.TextFactory(color_picker, text, 12)
+    color_picker.text:SetPoint('LEFT', 25, 0)
+    return color_picker
+end
+
 addon_data.config.UpdateConfigValues = function()
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
@@ -209,26 +251,13 @@ addon_data.config.BackplaneAlphaOnValChange = function(self)
     addon_data.core.UpdateAllVisualsOnSettingsChange()
 end
 
-addon_data.config.CreateMainConfigPanel = function(parent_panel)
-    addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "MainConfigPanel", parent_panel)
+addon_data.config.CreateConfigPanel = function(parent_panel)
+    addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "GlobalConfigPanel", parent_panel)
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     -- Title Text
     panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
-    panel.title_text:SetPoint("TOPLEFT", 15, -15)
+    panel.title_text:SetPoint("TOPLEFT", 0, 0)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
     -- Show Text Checkbox
     panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
@@ -255,7 +284,7 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
         1,
         0.05,
         addon_data.config.CombatAlphaOnValChange)
-    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 20, -100)
+    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 200, -55)
     -- Out Of Combat Alpha Slider
     panel.ooc_alpha_slider = addon_data.config.SliderFactory(
         "OOCAlphaSlider",
@@ -265,7 +294,7 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
         1,
         0.05,
         addon_data.config.OOCAlphaOnValChange)
-    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 20, -150)
+    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 200, -105)
     -- Backplane Alpha Slider
     panel.backplane_alpha_slider = addon_data.config.SliderFactory(
         "BackplaneAlphaSlider",
@@ -275,11 +304,11 @@ addon_data.config.CreateMainConfigPanel = function(parent_panel)
         1,
         0.05,
         addon_data.config.BackplaneAlphaOnValChange)
-    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 20, -200)
+    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 200, -155)
     
     -- Extra Classic Button
     panel.extra_classic_button = CreateFrame("Button", nil, panel)
-    panel.extra_classic_button:SetPoint('TOPLEFT', 515, -530)
+    panel.extra_classic_button:SetPoint('TOPLEFT', 475, 0)
     panel.extra_classic_button:SetSize(150, 35)
     panel.extra_classic_button:SetNormalTexture('Interface/Buttons/UI-Panel-Button-Up')
     panel.extra_classic_button:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")

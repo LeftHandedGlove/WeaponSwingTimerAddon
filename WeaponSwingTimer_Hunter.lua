@@ -31,12 +31,12 @@ addon_data.hunter.default_settings = {
 	backplane_alpha = 0.5,
 	is_locked = false,
     show_text = true,
-    show_aimedshot_cast_bar = true,
-    show_multishot_cast_bar = true,
-    show_latency_bars = true,
+    show_aimedshot_cast_bar = false,
+    show_multishot_cast_bar = false,
+    show_latency_bars = false,
     show_multishot_clip_bar = true,
-    show_border = false,
-    classic_bars = false,
+    show_border = true,
+    classic_bars = true,
     one_bar = false,
     cooldown_r = 1.0, cooldown_g = 1.0, cooldown_b = 1.0, cooldown_a = 1.0,
     auto_cast_r = 1.0, auto_cast_g = 0.0, auto_cast_b = 0.0, auto_cast_a = 1.0,
@@ -684,7 +684,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowAimedShotCastBarCheckBox",
         panel,
         " Aimed Shot cast bar",
-        "Allows the cast bar to show Aimed Shot casts.",
+        "Allows the cast bar to show Aimed Shot casts.\n\nNote: This is unstable in Classic.",
         addon_data.hunter.ShowAimedShotCastBarCheckBoxOnClick)
     panel.show_aimedshot_cast_bar_checkbox:SetPoint("TOPLEFT", 0, -50)
     -- Show Multi Shot Cast Bar Checkbox
@@ -692,7 +692,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowMultiShotCastBarCheckBox",
         panel,
         " Multi-Shot cast bar",
-        "Allows the cast bar to show Multi-Shot casts.",
+        "Allows the cast bar to show Multi-Shot casts.\n\nNote: This is unstable in Classic.",
         addon_data.hunter.ShowMultiShotCastBarCheckBoxOnClick)
     panel.show_multishot_cast_bar_checkbox:SetPoint("TOPLEFT", 0, -70)
     -- Show Latency Bar Checkbox
@@ -700,7 +700,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowLatencyBarCheckBox",
         panel,
         " Latency bar",
-        "Shows a bar that represents latency on cast bar.",
+        "Shows a bar that represents latency on cast bar.\n\nNote: This is unstable in Classic.",
         addon_data.hunter.ShowLatencyBarsCheckBoxOnClick)
     panel.show_latency_bar_checkbox:SetPoint("TOPLEFT", 0, -90)
     -- Show Multi-Shot Clip Bar Checkbox

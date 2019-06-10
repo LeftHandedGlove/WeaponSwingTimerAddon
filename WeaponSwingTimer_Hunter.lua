@@ -3,18 +3,18 @@ local addon_name, addon_data = ...
 addon_data.hunter = {}
 
 addon_data.hunter.shot_spell_ids = {
-    [75] = {spell_name = 'Auto Shot', rank = nil, cooldown = nil},
-    [2643] = {spell_name = 'Multi-Shot', rank = 1, cooldown = 10},
-    [14288] = {spell_name = 'Multi-Shot', rank = 2, cooldown = 10},
-    [14289] = {spell_name = 'Multi-Shot', rank = 3, cooldown = 10},
-    [14290] = {spell_name = 'Multi-Shot', rank = 4, cooldown = 10},
-    [25294] = {spell_name = 'Multi-Shot', rank = 5, cooldown = 10},
-    [19434] = {spell_name = 'Aimed Shot', rank = 1, cooldown = 6},
-    [20900] = {spell_name = 'Aimed Shot', rank = 2, cooldown = 6},
-    [20901] = {spell_name = 'Aimed Shot', rank = 3, cooldown = 6},
-    [20902] = {spell_name = 'Aimed Shot', rank = 4, cooldown = 6},
-    [20903] = {spell_name = 'Aimed Shot', rank = 5, cooldown = 6},
-    [20904] = {spell_name = 'Aimed Shot', rank = 6, cooldown = 6}
+    [75] = {spell_name = 'Auto Shot', rank = nil, cast_time = nil, cooldown = nil},
+    [2643] = {spell_name = 'Multi-Shot', rank = 1, cast_time = 0.5, cooldown = 10},
+    [14288] = {spell_name = 'Multi-Shot', rank = 2, cast_time = 0.5, cooldown = 10},
+    [14289] = {spell_name = 'Multi-Shot', rank = 3, cast_time = 0.5, cooldown = 10},
+    [14290] = {spell_name = 'Multi-Shot', rank = 4, cast_time = 0.5, cooldown = 10},
+    [25294] = {spell_name = 'Multi-Shot', rank = 5, cast_time = 0.5, cooldown = 10},
+    [19434] = {spell_name = 'Aimed Shot', rank = 1, cast_time = 3, cooldown = 6},
+    [20900] = {spell_name = 'Aimed Shot', rank = 2, cast_time = 3, cooldown = 6},
+    [20901] = {spell_name = 'Aimed Shot', rank = 3, cast_time = 3, cooldown = 6},
+    [20902] = {spell_name = 'Aimed Shot', rank = 4, cast_time = 3, cooldown = 6},
+    [20903] = {spell_name = 'Aimed Shot', rank = 5, cast_time = 3, cooldown = 6},
+    [20904] = {spell_name = 'Aimed Shot', rank = 6, cast_time = 3, cooldown = 6}
 }
 
 
@@ -31,9 +31,9 @@ addon_data.hunter.default_settings = {
 	backplane_alpha = 0.5,
 	is_locked = false,
     show_text = true,
-    show_aimedshot_cast_bar = false,
-    show_multishot_cast_bar = false,
-    show_latency_bars = false,
+    show_aimedshot_cast_bar = true,
+    show_multishot_cast_bar = true,
+    show_latency_bars = true,
     show_multishot_clip_bar = true,
     show_border = true,
     classic_bars = true,
@@ -54,12 +54,65 @@ addon_data.hunter.casting = false
 addon_data.hunter.casting_shot = false
 addon_data.hunter.cast_timer = 0.1
 addon_data.hunter.cast_time = 0.1
+addon_data.hunter.last_failed_time = GetTime()
 
 addon_data.hunter.range_weapon_id = 0
 addon_data.hunter.has_moved = false
 addon_data.hunter.berserk_haste = 0
 addon_data.hunter.class = 0
 addon_data.hunter.guid = 0
+
+addon_data.hunter.OnUseAction = function(action_id)
+    addon_data.hunter.scan_tip:SetAction(action_id)
+    name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(WSTScanTipTextLeft1:GetText())
+    if not addon_data.hunter.casting then
+        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+    end
+end
+
+addon_data.hunter.OnCastSpellByName = function(name, on_self)
+    name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(name)
+    if not addon_data.hunter.casting then
+        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+    end
+end
+
+addon_data.hunter.OnCastSpell = function(spell_id, spell_book_type)
+    name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(spell_id, spell_book_type)
+    if not addon_data.hunter.casting then
+        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+    end
+end
+
+addon_data.hunter.StartCastingSpell = function(spell_name, base_cast_time, spell_id)
+    local settings = character_hunter_settings
+    if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
+        if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
+            addon_data.hunter.casting = true
+            local settings = character_hunter_settings
+            for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
+                if spell_id == id then
+                    if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
+                       ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
+                            addon_data.hunter.casting_shot = true
+                            addon_data.hunter.cast_timer = 0
+                            addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)
+                            addon_data.hunter.UpdateRangeCastSpeedModifier()
+                            addon_data.hunter.cast_time = base_cast_time * addon_data.hunter.range_cast_speed_modifer
+                            if settings.show_latency_bars then
+                                _, _, _, latency = GetNetStats()
+                                addon_data.hunter.cast_time = addon_data.hunter.cast_time + (latency / 1000)
+                            end
+                            if character_hunter_settings.show_text then
+                                addon_data.hunter.frame.spell_text_center:SetText(spell_name)
+                            end
+                    end
+                    break
+                end
+            end
+        end
+    end
+end
 
 addon_data.hunter.LoadSettings = function()
     -- If the carried over settings dont exist then make them
@@ -74,6 +127,11 @@ addon_data.hunter.LoadSettings = function()
             character_hunter_settings[setting] = value
         end
     end
+    hooksecurefunc('UseAction', addon_data.hunter.OnUseAction)
+    hooksecurefunc('CastSpellByName', addon_data.hunter.OnCastSpellByName)
+    hooksecurefunc('CastSpell', addon_data.hunter.OnCastSpell)
+    addon_data.hunter.scan_tip = CreateFrame("GameTooltip", "WSTScanTip", nil, "GameTooltipTemplate")
+    addon_data.hunter.scan_tip:SetOwner(WorldFrame, "ANCHOR_NONE")
 end
 
 addon_data.hunter.RestoreDefaults = function()
@@ -186,33 +244,6 @@ addon_data.hunter.OnUpdate = function(elapsed)
     end
     -- Check to see if we have moved
     addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
-    -- Check to see if we are casting
-    if UnitCastingInfo('player') then
-        if not addon_data.hunter.casting then
-            local name, text, _, start_time, end_time, _, _, _, spell_id = UnitCastingInfo("player")
-            print(end_time - start_time)
-            addon_data.hunter.casting = true
-            local spell_name
-            local settings = character_hunter_settings
-            for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-                if spell_id == id then
-                    spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
-                    if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
-                       ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
-                            addon_data.hunter.casting_shot = true
-                            addon_data.hunter.cast_timer = 0
-                            addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)
-                            local name, text, _, start_time, end_time, _, _, _ = UnitCastingInfo("player")
-                            addon_data.hunter.cast_time = (end_time - start_time) / 1000
-                            if character_hunter_settings.show_text then
-                                addon_data.hunter.frame.spell_text_center:SetText(text)
-                            end
-                    end
-                    break
-                end
-            end
-        end
-    end
     -- Update the Auto Shot timer based on the updated settings
     addon_data.hunter.UpdateAutoShotTimer(elapsed)
     -- Update the cast bar timers
@@ -296,6 +327,16 @@ addon_data.hunter.OnUnitSpellCastDelayed = function(unit, spell_id)
         end
     end
 end
+
+addon_data.hunter.OnUnitSpellCastFailed = function(unit, spell_id)
+    local settings = character_hunter_settings
+    local frame = addon_data.hunter.frame
+    if unit == 'player' then
+        addon_data.hunter.last_failed_time = GetTime()
+    end
+end
+
+
 
 addon_data.hunter.OnUnitSpellCastInterrupted = function(unit, spell_id)
     if unit == 'player' then
@@ -455,7 +496,7 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
         frame.spell_spark:SetSize(16, settings.height)
         frame.spell_text_center:SetPoint("CENTER", 2, -(settings.height / 2))
         frame.cast_latency:SetHeight(settings.height)
-        frame.cast_latency:SetPoint("BOTTOMRIGHT", 0, 0)
+        frame.cast_latency:SetPoint("BOTTOMLEFT", 0, 0)
         frame.cast_latency:SetColorTexture(1, 0, 0, 0.75)
         if settings.show_latency_bars then
             frame.cast_latency:Show()

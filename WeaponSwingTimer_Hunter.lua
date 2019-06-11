@@ -401,8 +401,8 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             if settings.show_multishot_clip_bar then
                 frame.multishot_clip_bar:Show()
                 multishot_clip_width = math.min(settings.width * (0.5 / (addon_data.hunter.range_speed - 0.5)), settings.width)
-                frame.multishot_clip_bar:SetWidth(multishot_clip_width)
-                multi_offset = settings.width * (addon_data.hunter.auto_cast_time / addon_data.hunter.range_speed)
+                frame.multishot_clip_bar:SetWidth(2)
+                multi_offset = (settings.width * (addon_data.hunter.auto_cast_time / addon_data.hunter.range_speed)) + multishot_clip_width
                 frame.multishot_clip_bar:SetPoint('TOPRIGHT', -multi_offset, 0)
             end
             frame.shot_bar:SetWidth(math.min(timer_width, settings.width))
@@ -470,16 +470,19 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
             frame.auto_shot_cast_bar:Hide()
         else
             frame.shot_bar:SetPoint("TOPLEFT", 0, 0)
+            frame.shot_bar:SetVertexColor(settings.cooldown_r, settings.cooldown_g, settings.cooldown_b, settings.cooldown_a)
             frame.auto_shot_cast_bar:Show()
             frame.auto_shot_cast_bar:SetPoint('TOPRIGHT', 0, 0)
             frame.auto_shot_cast_bar:SetHeight(settings.height)
-            frame.auto_shot_cast_bar:SetColorTexture(settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
+            frame.auto_shot_cast_bar:SetVertexColor(settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
         end
         frame.shot_bar:SetHeight(settings.height)
         if settings.classic_bars then
             frame.shot_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
+            frame.auto_shot_cast_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
         else
             frame.shot_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
+            frame.auto_shot_cast_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Background')
         end
         frame.multishot_clip_bar:ClearAllPoints()
         if not settings.one_bar then
@@ -678,6 +681,7 @@ addon_data.hunter.CooldownColorPickerOnClick = function()
         settings.cooldown_r, settings.cooldown_g, settings.cooldown_b, settings.cooldown_a = new_r, new_g, new_b, new_a
         addon_data.hunter.config_frame.cooldown_color_picker.foreground:SetColorTexture(
             settings.cooldown_r, settings.cooldown_g, settings.cooldown_b, settings.cooldown_a)
+        addon_data.hunter.UpdateVisualsOnSettingsChange()
     end
     ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
         CooldownOnActionFunc, CooldownOnActionFunc, CooldownOnActionFunc
@@ -701,6 +705,7 @@ addon_data.hunter.AutoShotCastColorPickerOnClick = function()
         settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a = new_r, new_g, new_b, new_a
         addon_data.hunter.config_frame.autoshot_cast_color_picker.foreground:SetColorTexture(
             settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
+        addon_data.hunter.UpdateVisualsOnSettingsChange()
     end
     ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
         AutoShotCastOnActionFunc, AutoShotCastOnActionFunc, AutoShotCastOnActionFunc

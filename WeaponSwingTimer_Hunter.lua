@@ -66,25 +66,25 @@ addon_data.hunter.OnUseAction = function(action_id)
     addon_data.hunter.scan_tip:SetAction(action_id)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(WSTScanTipTextLeft1:GetText())
     if not addon_data.hunter.casting then
-        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+        addon_data.hunter.StartCastingSpell(name, real_spell_id)
     end
 end
 
 addon_data.hunter.OnCastSpellByName = function(name, on_self)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(name)
     if not addon_data.hunter.casting then
-        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+        addon_data.hunter.StartCastingSpell(name, real_spell_id)
     end
 end
 
 addon_data.hunter.OnCastSpell = function(spell_id, spell_book_type)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(spell_id, spell_book_type)
     if not addon_data.hunter.casting then
-        addon_data.hunter.StartCastingSpell(name, cast_time/1000, real_spell_id)
+        addon_data.hunter.StartCastingSpell(name, real_spell_id)
     end
 end
 
-addon_data.hunter.StartCastingSpell = function(spell_name, base_cast_time, spell_id)
+addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
     local settings = character_hunter_settings
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
@@ -94,6 +94,7 @@ addon_data.hunter.StartCastingSpell = function(spell_name, base_cast_time, spell
                 if spell_id == id then
                     if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
                        ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
+                            local base_cast_time = addon_data.hunter.shot_spell_ids[spell_id].cast_time
                             addon_data.hunter.casting_shot = true
                             addon_data.hunter.cast_timer = 0
                             addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0.4, 0, 1)

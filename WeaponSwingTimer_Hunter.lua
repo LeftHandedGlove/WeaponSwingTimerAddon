@@ -226,6 +226,9 @@ end
 
 addon_data.hunter.UpdateCastTimer = function(elapsed)
     addon_data.hunter.cast_timer = addon_data.hunter.cast_timer + elapsed
+    if addon_data.hunter.cast_timer > addon_data.hunter.cast_time + 0.1 then
+        addon_data.hunter.OnUnitSpellCastFailed('player', 1)
+    end
 end
 
 addon_data.hunter.OnUpdate = function(elapsed)
@@ -335,6 +338,14 @@ addon_data.hunter.OnUnitSpellCastFailed = function(unit, spell_id)
     local settings = character_hunter_settings
     local frame = addon_data.hunter.frame
     if unit == 'player' then
+        if addon_data.hunter.casting or addon_data.hunter.casting_shot then
+            addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
+            if character_hunter_settings.show_text then
+                addon_data.hunter.frame.spell_text_center:SetText("Failed")
+            end
+            addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+        end
+        addon_data.hunter.casting_shot = false
         addon_data.hunter.last_failed_time = GetTime()
     end
 end
@@ -401,7 +412,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             if settings.show_multishot_clip_bar then
                 frame.multishot_clip_bar:Show()
                 multishot_clip_width = math.min(settings.width * (0.5 / (addon_data.hunter.range_speed - 0.5)), settings.width)
-                frame.multishot_clip_bar:SetWidth(2)
+                frame.multishot_clip_bar:SetWidth(5)
                 multi_offset = (settings.width * (addon_data.hunter.auto_cast_time / addon_data.hunter.range_speed)) + multishot_clip_width
                 frame.multishot_clip_bar:SetPoint('TOPRIGHT', -multi_offset, 0)
             end

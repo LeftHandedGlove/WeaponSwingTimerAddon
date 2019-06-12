@@ -338,7 +338,7 @@ addon_data.hunter.OnUnitSpellCastFailed = function(unit, spell_id)
     local settings = character_hunter_settings
     local frame = addon_data.hunter.frame
     if unit == 'player' then
-        if addon_data.hunter.casting or addon_data.hunter.casting_shot then
+        if addon_data.hunter.casting and addon_data.hunter.casting_shot then
             addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
             if character_hunter_settings.show_text then
                 addon_data.hunter.frame.spell_text_center:SetText("Failed")

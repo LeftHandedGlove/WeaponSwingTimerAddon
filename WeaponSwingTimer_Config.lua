@@ -68,25 +68,18 @@ addon_data.config.InitializeVisuals = function()
     content.target_panel = addon_data.target.CreateConfigPanel(content)
     content.target_panel:SetPoint('TOPLEFT', 10, -395)
     content.target_panel:SetSize(1, 1)
-    -- Add the hunter panel
-    content.hunter_panel = addon_data.hunter.CreateConfigPanel(content)
-    content.hunter_panel:SetPoint('TOPLEFT', 10, -570)
-    content.hunter_panel:SetSize(1, 1)
-    
-    --[[
-    -- Create the main config panel
-    addon_data.config.panel = addon_data.config.CreateMainConfigPanel(UIParent)
-    local panel = addon_data.config.panel
-    addon_data.config.panel.name = "WeaponSwingTimer"
-    addon_data.config.panel.default = addon_data.config.OnDefault
-    InterfaceOptions_AddCategory(addon_data.config.panel)
-    
-    -- Add the melee panel
-    addon_data.config.CreateMeleeConfigPanel(panel)
     
     -- Add the hunter panel
-    addon_data.config.CreateHunterConfigPanel(panel)
-    ]]--
+    panel.config_hunter_panel = CreateFrame("Frame", "MyFrame", panel)
+    panel.config_hunter_panel:SetSize(1, 1)
+    panel.config_hunter_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel.config_hunter_panel)
+    panel.config_hunter_panel.hunter_panel:SetPoint('TOPLEFT', 10, -10)
+    panel.config_hunter_panel.hunter_panel:SetSize(1, 1)
+    panel.config_hunter_panel.name = 'Hunter'
+    panel.config_hunter_panel.parent = panel.name
+    InterfaceOptions_AddCategory(panel.config_hunter_panel)
+    
+
 end
 
 addon_data.config.TextFactory = function(parent, text, size)

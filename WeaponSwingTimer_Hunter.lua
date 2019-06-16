@@ -617,6 +617,19 @@ addon_data.hunter.UpdateConfigPanelValues = function()
         settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
     panel.multi_clip_color_picker.foreground:SetColorTexture(
         settings.clip_r, settings.clip_g, settings.clip_b, settings.clip_a)
+        
+    if settings.one_bar then
+        panel.explaination:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/HunterOneBarExplainedAlpha')
+        panel.explaination:SetSize(350, 175)
+        panel.explaination:SetPoint('TOPLEFT', -50, -235)
+    else
+        panel.explaination:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/HunterBarExplainedFullAlpha')
+        panel.explaination:SetSize(350, 350)
+        panel.explaination:SetPoint('TOPLEFT', -48, -260)
+    end
+        
+        
+    
 end
 
 addon_data.hunter.EnabledCheckBoxOnClick = function(self)
@@ -657,6 +670,7 @@ end
 addon_data.hunter.OneBarCheckBoxOnClick = function(self)
     character_hunter_settings.one_bar = self:GetChecked()
     addon_data.hunter.UpdateVisualsOnSettingsChange()
+    addon_data.hunter.UpdateConfigPanelValues()
 end
 
 addon_data.hunter.WidthEditBoxOnEnter = function(self)
@@ -819,7 +833,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
     panel.one_bar_checkbox = addon_data.config.CheckBoxFactory(
         "HunterOneBarCheckBox",
         panel,
-        " One bar",
+        " One bar / YaHT",
         "Changes the Auto Shot bar to a single bar that fills from left to right",
         addon_data.hunter.OneBarCheckBoxOnClick)
     panel.one_bar_checkbox:SetPoint("TOPLEFT", 0, -170)
@@ -884,6 +898,12 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         'Multi-Shot Clip Color',
         addon_data.hunter.MultiClipColorPickerOnClick)
     panel.multi_clip_color_picker:SetPoint('TOPLEFT', 380, -80)
+    -- Add the explaination text
+    panel.explaination_text = addon_data.config.TextFactory(panel, "Bar Explaination", 16)
+    panel.explaination_text:SetPoint("TOPLEFT", 0 , -250)
+    panel.explaination_text:SetTextColor(1, 0.9, 0, 1)
+    -- Add the explaination
+    panel.explaination = panel:CreateTexture(nil, 'ARTWORK')
     -- Return the final panel
     addon_data.hunter.UpdateConfigPanelValues()
     return panel

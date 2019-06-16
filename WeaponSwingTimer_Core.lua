@@ -18,13 +18,123 @@ addon_data.core.default_settings = {
 
 addon_data.core.in_combat = false
 
-local swing_spells = {
-    "Heroic Strike",
-    "Slam",
-	"Cleave",
-	"Raptor Strike",
-	"Maul"
+local swing_reset_spells = {}
+swing_reset_spells['DRUID'] = {
+    'Abolish Poison',
+    'Cure Poison',
+    'Entangling Roots',
+    'Gift of the Wild',
+    'Healing Touch',
+    'Hibernate',
+    'Hurricane',
+    'Mark of the Wild',
+    'Maul',
+    'Moonfire',
+    'Rebirth',
+    'Regrowth',
+    'Rejuvenation',
+    'Remove Curse',
+    'Soothe Animal',
+    'Starfire',
+    'Tranqility',
+    'Wrath'
 }
+swing_reset_spells['HUNTER'] = {
+    'Dismiss Pet',
+    'Eagle Eye',
+    'Eyes of the Beast',
+    'Mend Pet',
+    'Raptor Strike',
+    'Revive Pet',
+    'Scare Beast'
+}
+swing_reset_spells['MAGE'] = {
+    'Conjure Food',
+    'Conjure Mana Agate',
+    'Conjure Mana Citrine',
+    'Conjure Mana Jade',
+    'Conjure Mana Ruby',
+    'Conjure Water',
+    'Amplify Magic',
+    'Arcane Brilliance',
+    'Arcane Explosion',
+    'Arcane Intellect',
+    'Arcane Missles',
+    'Blast Wave',
+    'Blink',
+    'Blizzard',
+    'Cold Snap',
+    'Combustion',
+    'Cone of Cold',
+    'Counterspell',
+    'Dampen Magic',
+    'Fire Blast',
+    'Fire Ward',
+    'Fireball',
+    'Flamestrike',
+    'Frost Armor',
+    'Frost Nova',
+    'Frost Ward',
+    'Frostbolt',
+    'Ice Armor',
+    'Ice Barrier',
+    'Ice Block',
+    'Mage Armor',
+    'Mana Shield',
+    'Polymorph',
+    'Polymorph: Pig',
+    'Polymorph: Turtle',
+    'Portal: Darnassus',
+    'Portal: Ironforge',
+    'Portal: Orgimmar',
+    'Portal: Stormwind',
+    'Portal: Thunder Bluff',
+    'Portal: Undercity',
+    'Pyroblast',
+    'Remove Lesser Curse',
+    'Scorch',
+    'Slow Fall',
+    'Teleport: Darnassus',
+    'Teleport: Ironforge',
+    'Teleport: Orgimmar',
+    'Teleport: Stormwind',
+    'Teleport: Thunder Bluff',
+    'Teleport: Undercity',
+}
+swing_reset_spells['PALADIN'] = {
+    'Blessing of Kings',
+    'Blessing of Might',
+    'Blessing of Salvation',
+    'Blessing of Sanctuary',
+    'Blessing of Wisdom',
+    'Flash of Light',
+    'Greater Blessing of Kings',
+    'Greater Blessing of Might',
+    'Greater Blessing of Sanctuary',
+    'Greater Blessing of Wisdom',
+    'Hammer of Wrath',
+    'Holy Light',
+    'Holy Wrath',
+    'Redemption',
+    'Summon Charger',
+    'Summon Warhorse'
+}
+swing_reset_spells['PRIEST'] = {}
+swing_reset_spells['ROGUE'] = {}
+swing_reset_spells['SHAMAN'] = {}
+swing_reset_spells['WARLOCK'] = {}
+swing_reset_spells['WARRIOR'] = {
+    'Slam',
+    'Cleave',
+    'Heroic Strike'
+}
+
+for class, spell_table in pairs(swing_reset_spells) do
+    print(class, spell_table)
+    for spell_index, spell in ipairs(spell_table) do
+        print(spell)
+    end
+end
 
 local function LoadAllSettings()
     addon_data.core.LoadSettings()

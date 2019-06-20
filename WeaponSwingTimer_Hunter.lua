@@ -199,10 +199,6 @@ addon_data.hunter.ResetShotTimer = function()
     end
 end
 
-addon_data.hunter.ZeroizeShotTimer = function()
-    addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time
-end
-
 addon_data.hunter.UpdateAutoShotTimer = function(elapsed)
     local curr_time = GetTime()
     addon_data.hunter.shot_timer = addon_data.hunter.shot_timer - elapsed
@@ -262,8 +258,11 @@ end
 
 addon_data.hunter.OnStartAutorepeatSpell = function()
     addon_data.hunter.shooting = true
+    print('Autoshot started')
     addon_data.hunter.UpdateInfo()
-    addon_data.hunter.ResetShotTimer()
+    if addon_data.hunter.shot_timer <= addon_data.hunter.auto_cast_time then
+        addon_data.hunter.ResetShotTimer()
+    end
 end
 
 addon_data.hunter.OnStopAutorepeatSpell = function()

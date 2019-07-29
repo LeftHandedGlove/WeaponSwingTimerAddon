@@ -76,7 +76,7 @@ swing_reset_spells['DRUID'] = { -- Done
     "Travel Form",
     "Wrath"
 }
-swing_reset_spells['HUNTER'] = {
+swing_reset_spells['HUNTER'] = { -- Done
     "Aimed Shot",
     "Arcane Shot",
     "Aspect of the Beast",
@@ -103,7 +103,7 @@ swing_reset_spells['HUNTER'] = {
     "Flare",
     "Freezing Trap",
     "Frost Trap",
-    "Hunter's mark",
+    "Hunter's Mark",
     "Immolation Trap",
     "Intimidation",
     "Mend Pet",
@@ -118,6 +118,7 @@ swing_reset_spells['HUNTER'] = {
     "Scorpid Sting",
     "Serpent String",
     "Tame Beast",
+    "Throw",
     "Track Beast",
     "Track Demons",
     "Track Dragonkin",
@@ -127,6 +128,7 @@ swing_reset_spells['HUNTER'] = {
     "Track Humanoids",
     "Track Undead",
     "Tranquilizing Shot",
+    "Trueshot Aura",
     "Viper Sting",
     "Volley",
     "Wing Clip",

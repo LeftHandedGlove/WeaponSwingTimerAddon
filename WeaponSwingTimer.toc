@@ -1,4 +1,4 @@
-## Interface: 80100
+## Interface: 13000
 ## Title: WeaponSwingTimer
 ## Notes: Weapon swing timer addon for Classic WoW
 ## Author: LeftHandedGlove

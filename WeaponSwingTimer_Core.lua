@@ -19,7 +19,7 @@ addon_data.core.default_settings = {
 addon_data.core.in_combat = false
 
 local swing_reset_spells = {}
-swing_reset_spells['DRUID'] = {
+swing_reset_spells['DRUID'] = { -- Done
     "Abolish Poison",
     "Aquatic Form",
     "Barkskin",
@@ -408,16 +408,6 @@ swing_reset_spells['WARRIOR'] = {
     'Heroic Strike'
 }
 
-local _, player_class, _ = UnitClass('player')
-for class, spell_table in pairs(swing_reset_spells) do
-    print(class, spell_table)
-    if player_class == class then
-        for spell_index, spell in ipairs(spell_table) do
-            print(spell)
-        end
-    end
-end
-
 local function LoadAllSettings()
     addon_data.core.LoadSettings()
     addon_data.player.LoadSettings()
@@ -516,14 +506,20 @@ addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
 end
 
 addon_data.core.SpellHandler = function(unit, spell_name)
-    for _, swing_spell in ipairs(swing_spells) do
-        if spell_name == swing_spell then
-            if unit == "player" then
-                addon_data.player.ResetMainSwingTimer()
-            elseif unit == "target" then
-                addon_data.target.ResetMainSwingTimer()
-            else
-                addon_data.utils.PrintMsg("Unexpected Unit Type in SpellHandler().")
+    local _, player_class, _ = UnitClass('player')
+    for class, spell_table in pairs(swing_reset_spells) do
+        if player_class == class then
+            for spell_index, curr_spell in ipairs(spell_table) do
+                if spell_name == curr_spell then
+                    if unit == "player" then
+                        addon_data.player.ResetMainSwingTimer()
+                    elseif unit == "target" then
+                        addon_data.target.ResetMainSwingTimer()
+                    else
+                        addon_data.utils.PrintMsg("Unexpected Unit Type in SpellHandler().")
+                    end
+                end
+                
             end
         end
     end

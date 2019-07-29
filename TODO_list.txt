@@ -1,21 +1,14 @@
 FEATURES
-* Reverse bar fill.
-* Wand support.
-* Non-hunter gun, bow, throwing support.
+* Wand support
+* Non-hunter gun, bow, throwing support
 * Multi-language support. (deDE, enUS, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW)
 	* All Settings strings
 	* Greeting
 	* .toc file
 	* "Main-Hand" and "Off-Hand"
-* Tranquilizing Shot announcement.
-* Beautification (i.e. Borders, sparks, fonts, bar textures).
-* Landing page for settings.
+* Tranquilizing Shot announcement
+* Certain spell casts reset the swing bar
 
 BUGS
-* The settings interface looks like shit.
-* Spellcasts should reset the swing timer apparently? Need to test this with a mage or something.
-* Toggling the hunter bar enable while shooting causes the timer to be incorrect until autoshot is toggled on and off.
-* Toggling the melee bar enables while swinging causes the timer to be incorrect until a hit lands.
-* Untested Multishot.
-* Untested Hunter cast delay.
-* Hunter bar takes roughly 3 seconds to load when the interface is reloaded.
+* Hunter bar takes roughly 3 seconds to load when the interface is reloaded
+* Speed buffs should only affect the next swing

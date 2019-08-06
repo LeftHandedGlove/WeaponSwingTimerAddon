@@ -247,7 +247,7 @@ swing_reset_spells['PALADIN'] = { -- Done
     "Summon Warhorse",
     "Turn Undead"
 }
-swing_reset_spells['PRIEST'] = {
+swing_reset_spells['PRIEST'] = { -- Done
     "Abolish Disease",
     "Cure Disease",
     "Desperate Prayer",
@@ -256,17 +256,21 @@ swing_reset_spells['PRIEST'] = {
     "Divine Spirit",
     "Fade",
     "Fear Ward",
+	"Feedback",
     "Flash Heal",
     "Greater Heal",
     "Heal",
+	"Hex of Weakness",
     "Holy Fire",
     "Holy Nova",
     "Inner Fire",
+	"Inner Focus",
     "Lesser Heal",
     "Levitate",
     "Lightwell",
     "Mana Burn",
     "Mind Blast",
+	"Mind Control",
     "Mind Flay",
     "Mind Soothe",
     "Mind Vision",
@@ -283,8 +287,13 @@ swing_reset_spells['PRIEST'] = {
     "Shackle Undead",
     "Shadow Protection",
     "Shadow Word: Pain",
+	"Shadowform",
+	"Shadowguard",
     "Shoot",
+	"Silence",
     "Smite",
+	"Starshards",
+	"Touch of Weakness",
     "Vampiric Embrace"
 }
 swing_reset_spells['ROGUE'] = {

@@ -354,7 +354,7 @@ swing_reset_spells['ROGUE'] = { -- Done
 	"Would Poison III",
 	"Would Poison IV"
 }
-swing_reset_spells['SHAMAN'] = {
+swing_reset_spells['SHAMAN'] = { -- Done
     "Ancestral Spirit",
     "Astral Recall",
     "Chain Heal",

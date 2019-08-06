@@ -135,17 +135,12 @@ swing_reset_spells['HUNTER'] = { -- Done
     "Wyvern Sting"
 }
 swing_reset_spells['MAGE'] = {
-    --"Conjure Food",
-    --"Conjure Mana Agate",
-    --"Conjure Mana Citrine",
-    --"Conjure Mana Jade",
-    --"Conjure Mana Ruby",
-    --"Conjure Water",
     "Amplify Magic",
     "Arcane Brilliance",
     "Arcane Explosion",
     "Arcane Intellect",
     "Arcane Missles",
+	"Arcane Power",
     "Blast Wave",
     "Blink",
     "Blizzard",
@@ -154,6 +149,8 @@ swing_reset_spells['MAGE'] = {
     "Cone of Cold",
     "Counterspell",
     "Dampen Magic",
+	"Detect Magic",
+	"Evocation",
     "Fire Blast",
     "Fire Ward",
     "Fireball",
@@ -168,6 +165,7 @@ swing_reset_spells['MAGE'] = {
     "Mage Armor",
     "Mana Shield",
     "Polymorph",
+	"Polymorph: Cow",
     "Polymorph: Pig",
     "Polymorph: Turtle",
     "Portal: Darnassus",
@@ -176,6 +174,7 @@ swing_reset_spells['MAGE'] = {
     "Portal: Stormwind",
     "Portal: Thunder Bluff",
     "Portal: Undercity",
+	"Presence of Mind",
     "Pyroblast",
     "Remove Lesser Curse",
     "Scorch",
@@ -186,7 +185,13 @@ swing_reset_spells['MAGE'] = {
     "Teleport: Orgimmar",
     "Teleport: Stormwind",
     "Teleport: Thunder Bluff",
-    "Teleport: Undercity"
+    "Teleport: Undercity",
+	"Conjure Food",
+    "Conjure Mana Agate",
+    "Conjure Mana Citrine",
+    "Conjure Mana Jade",
+    "Conjure Mana Ruby",
+    "Conjure Water",
 }
 swing_reset_spells['PALADIN'] = {
     "Blessing of Freedom",

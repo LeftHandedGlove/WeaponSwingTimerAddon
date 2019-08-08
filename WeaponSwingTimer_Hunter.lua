@@ -88,7 +88,9 @@ addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
     local settings = character_hunter_settings
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
-            addon_data.hunter.casting = true
+            if spell_name ~= "Auto Shot" then
+                addon_data.hunter.casting = true
+            end
             local settings = character_hunter_settings
             for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
                 if spell_id == id then
@@ -358,7 +360,7 @@ addon_data.hunter.OnUnitSpellCastInterrupted = function(unit, spell_id)
             end
         end
         for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-            if spell_id == id then
+            if (spell_id == id) and (addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot') then
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
                 if character_hunter_settings.show_text then

@@ -258,7 +258,6 @@ end
 
 addon_data.hunter.OnStartAutorepeatSpell = function()
     addon_data.hunter.shooting = true
-    print('Autoshot started')
     addon_data.hunter.UpdateInfo()
     if addon_data.hunter.shot_timer <= addon_data.hunter.auto_cast_time then
         addon_data.hunter.ResetShotTimer()

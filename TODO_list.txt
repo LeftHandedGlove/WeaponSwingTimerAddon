@@ -15,3 +15,30 @@ FEATURES
 BUGS
 * Hunter bar takes roughly 3 seconds to load when the interface is reloaded
 * Speed buffs should only affect the next swing
+
+NOTES FROM STRESS TEST
+* Everything seemed really large
+* Changable font size would be nice
+* Changable fonts would also be nice
+* Profiles would also be nice
+* Snapping to center when click and drag would also be nice
+* Multiple textures would also be nice
+* Need to fixup the config menu
+* Spark needs to be brighter in the middle and less bright everywhere else, the size is fine
+* Blue bar is a little washed out
+* Red bar is also a little washed out
+* Get rid of global settings
+* Hunter bar needs some latency marker for the 0.5 "cast time" of autoshot
+* Make YaHT multishot bar two markers like it is with the onebar setting
+* Add text to the hunter bar
+* Remove unstable notes from hunter cast bar options description
+* Make YaHT not the default
+* Make the Multishot marker not on by default (Popup window when hunter turns 18 to enable it if they want to)
+* Make the multishot marker opacity full by default
+* Figure out why the colors are white instead of their colors (Something with some setting wanting opacity while others want transparency)
+* Landing page of the addon acts like a tutorial
+* Add something so the addon adds a button that attaches to the minimap
+* Hunter bar colors are a bit in your face
+* Bug with first attack not doing inital cast time when attack is toggled on for hunter shot
+
+

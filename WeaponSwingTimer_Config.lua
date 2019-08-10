@@ -69,13 +69,29 @@ addon_data.config.InitializeVisuals = function()
     content.target_panel:SetPoint('TOPLEFT', 10, -395)
     content.target_panel:SetSize(1, 1)
     
+    -- Add the player melee panel
+    panel.config_player_melee_panel = CreateFrame("Frame", nil, panel)
+    panel.config_player_melee_panel:SetSize(1, 1)
+    -- TODO: Add the player's config panel from the player file
+    panel.config_player_melee_panel.name = 'Player Melee Settings'
+    panel.config_player_melee_panel.parent = panel.name
+    InterfaceOptions_AddCategory(panel.config_player_melee_panel)
+    
+    -- Add the target melee panel
+    panel.config_target_melee_panel = CreateFrame("Frame", nil, panel)
+    panel.config_target_melee_panel:SetSize(1, 1)
+    -- TODO: Add the target's config panel from the target file
+    panel.config_target_melee_panel.name = 'Target Melee Settings'
+    panel.config_target_melee_panel.parent = panel.name
+    InterfaceOptions_AddCategory(panel.config_target_melee_panel)
+    
     -- Add the hunter panel
-    panel.config_hunter_panel = CreateFrame("Frame", "MyFrame", panel)
+    panel.config_hunter_panel = CreateFrame("Frame", nil, panel)
     panel.config_hunter_panel:SetSize(1, 1)
     panel.config_hunter_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel.config_hunter_panel)
     panel.config_hunter_panel.hunter_panel:SetPoint('TOPLEFT', 10, -10)
     panel.config_hunter_panel.hunter_panel:SetSize(1, 1)
-    panel.config_hunter_panel.name = 'Hunter'
+    panel.config_hunter_panel.name = 'Hunter Settings'
     panel.config_hunter_panel.parent = panel.name
     InterfaceOptions_AddCategory(panel.config_hunter_panel)
     

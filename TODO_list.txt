@@ -26,7 +26,9 @@ NOTES FROM STRESS TEST
 * Need to fixup the config menu
 * Spark needs to be brighter in the middle and less bright everywhere else, the size is fine
 * Blue bar is a little washed out
+	0.1, 0.1, 0.9 RGB is better
 * Red bar is also a little washed out
+	0.8, 0.1, 0.1 RGb is better
 * Get rid of global settings
 * Hunter bar needs some latency marker for the 0.5 "cast time" of autoshot
 * Make YaHT multishot bar two markers like it is with the onebar setting
@@ -40,5 +42,7 @@ NOTES FROM STRESS TEST
 * Add something so the addon adds a button that attaches to the minimap
 * Hunter bar colors are a bit in your face
 * Bug with first attack not doing inital cast time when attack is toggled on for hunter shot
+* The borders are really large, make them smaller
+	- Change border edge size to 12, change backdrop points to 9 instead of 12
 
 

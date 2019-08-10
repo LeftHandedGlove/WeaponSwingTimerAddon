@@ -23,9 +23,9 @@ addon_data.target.default_settings = {
     show_border = true,
     classic_bars = true,
     fill_empty = true,
-    main_r = 0.7, main_g = 0.2, main_b = 0.2, main_a = 1.0,
+    main_r = 0.8, main_g = 0.1, main_b = 0.1, main_a = 1.0,
     main_text_r = 1.0, main_text_g = 1.0, main_text_b = 1.0, main_text_a = 1.0,
-    off_r = 0.7, off_g = 0.2, off_b = 0.2, off_a = 1.0,
+    off_r = 0.8, off_g = 0.1, off_b = 0.1, off_a = 1.0,
     off_text_r = 1.0, off_text_g = 1.0, off_text_b = 1.0, off_text_a = 1.0
 }
 
@@ -318,7 +318,7 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
             frame.backplane:SetBackdrop({
                 bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
                 edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border", 
-                tile = true, tileSize = 16, edgeSize = 16, 
+                tile = true, tileSize = 16, edgeSize = 12, 
                 insets = { left = 8, right = 8, top = 8, bottom = 8}})
         else
             frame.backplane:SetBackdrop({
@@ -415,8 +415,8 @@ addon_data.target.InitializeVisuals = function()
     frame:SetScript("OnDragStop", addon_data.target.OnFrameDragStop)
     -- Create the backplane
     frame.backplane = CreateFrame("Frame", addon_name .. "TargetBackdropFrame", frame)
-    frame.backplane:SetPoint('TOPLEFT', -12, 12)
-    frame.backplane:SetPoint('BOTTOMRIGHT', 12, -12)
+    frame.backplane:SetPoint('TOPLEFT', -9, 9)
+    frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')
     -- Create the main hand bar
     frame.main_bar = frame:CreateTexture(nil,"ARTWORK")

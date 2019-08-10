@@ -34,12 +34,12 @@ addon_data.hunter.default_settings = {
     show_aimedshot_cast_bar = true,
     show_multishot_cast_bar = true,
     show_latency_bars = true,
-    show_multishot_clip_bar = true,
+    show_multishot_clip_bar = false,
     show_border = true,
     classic_bars = true,
     one_bar = false,
-    cooldown_r = 1.0, cooldown_g = 1.0, cooldown_b = 1.0, cooldown_a = 1.0,
-    auto_cast_r = 1.0, auto_cast_g = 0.0, auto_cast_b = 0.0, auto_cast_a = 1.0,
+    cooldown_r = 0.95, cooldown_g = 0.95, cooldown_b = 0.95, cooldown_a = 1.0,
+    auto_cast_r = 0.8, auto_cast_g = 0.0, auto_cast_b = 0.0, auto_cast_a = 1.0,
     clip_r = 1.0, clip_g = 0.0, clip_b = 0.0, clip_a = 0.7
 }
 
@@ -465,7 +465,7 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
             frame.backplane:SetBackdrop({
                 bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
                 edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border", 
-                tile = true, tileSize = 16, edgeSize = 16, 
+                tile = true, tileSize = 16, edgeSize = 12, 
                 insets = { left = 8, right = 8, top = 8, bottom = 8}})
         else
             frame.backplane:SetBackdrop({
@@ -564,8 +564,8 @@ addon_data.hunter.InitializeVisuals = function()
     frame:SetScript("OnDragStop", addon_data.hunter.OnFrameDragStop)
     -- Create the backplane
     frame.backplane = CreateFrame("Frame", addon_name .. "HunterBackdropFrame", frame)
-    frame.backplane:SetPoint('TOPLEFT', -12, 12)
-    frame.backplane:SetPoint('BOTTOMRIGHT', 12, -12)
+    frame.backplane:SetPoint('TOPLEFT', -9, 9)
+    frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')
     -- Create the shot bar
     frame.shot_bar = frame:CreateTexture(nil, "ARTWORK")
@@ -786,7 +786,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowAimedShotCastBarCheckBox",
         panel,
         " Aimed Shot cast bar",
-        "Allows the cast bar to show Aimed Shot casts.\n\nNote: This is unstable in Classic.",
+        "Allows the cast bar to show Aimed Shot casts.",
         addon_data.hunter.ShowAimedShotCastBarCheckBoxOnClick)
     panel.show_aimedshot_cast_bar_checkbox:SetPoint("TOPLEFT", 0, -50)
     -- Show Multi Shot Cast Bar Checkbox
@@ -794,7 +794,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowMultiShotCastBarCheckBox",
         panel,
         " Multi-Shot cast bar",
-        "Allows the cast bar to show Multi-Shot casts.\n\nNote: This is unstable in Classic.",
+        "Allows the cast bar to show Multi-Shot casts.",
         addon_data.hunter.ShowMultiShotCastBarCheckBoxOnClick)
     panel.show_multishot_cast_bar_checkbox:SetPoint("TOPLEFT", 0, -70)
     -- Show Latency Bar Checkbox
@@ -802,7 +802,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowLatencyBarCheckBox",
         panel,
         " Latency bar",
-        "Shows a bar that represents latency on cast bar.\n\nNote: This is unstable in Classic.",
+        "Shows a bar that represents latency on cast bar.",
         addon_data.hunter.ShowLatencyBarsCheckBoxOnClick)
     panel.show_latency_bar_checkbox:SetPoint("TOPLEFT", 0, -90)
     -- Show Multi-Shot Clip Bar Checkbox

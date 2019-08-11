@@ -25,7 +25,7 @@ addon_data.hunter.default_settings = {
     point = "CENTER",
 	rel_point = "CENTER",
 	x_offset = 0,
-	y_offset = -200,
+	y_offset = -250,
 	in_combat_alpha = 1.0,
 	ooc_alpha = 0.25,
 	backplane_alpha = 0.5,
@@ -45,8 +45,8 @@ addon_data.hunter.default_settings = {
 
 addon_data.hunter.shooting = false
 addon_data.hunter.range_speed = 3.0
-addon_data.hunter.auto_cast_time = 0.65
-addon_data.hunter.shot_timer = 0.65
+addon_data.hunter.auto_cast_time = 0.7001
+addon_data.hunter.shot_timer = 0.60
 addon_data.hunter.last_shot_time = GetTime()
 addon_data.hunter.auto_shot_ready = true
 
@@ -65,7 +65,7 @@ addon_data.hunter.guid = 0
 addon_data.hunter.OnUseAction = function(action_id)
     addon_data.hunter.scan_tip:SetAction(action_id)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(WSTScanTipTextLeft1:GetText())
-    if not addon_data.hunter.casting then
+    if not addon_data.hunter.casting and name then
         addon_data.hunter.StartCastingSpell(name, real_spell_id)
     end
 end
@@ -88,7 +88,8 @@ addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
     local settings = character_hunter_settings
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
-            if spell_name ~= "Auto Shot" then
+            _, _, _, cast_time, _, _, _ = GetSpellInfo(spell_id)
+            if spell_name ~= "Auto Shot" and cast_time > 0 then
                 addon_data.hunter.casting = true
             end
             local settings = character_hunter_settings
@@ -267,11 +268,13 @@ addon_data.hunter.OnStartAutorepeatSpell = function()
 end
 
 addon_data.hunter.OnStopAutorepeatSpell = function()
+    
     addon_data.hunter.shooting = false
     addon_data.hunter.UpdateInfo()
 end
 
 addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
+-- print(addon_data.hunter.shot_spell_ids[spell_id].spell_name)
 --[[
     if unit == 'player' then
         addon_data.hunter.casting = true
@@ -379,6 +382,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
     local shot_timer = addon_data.hunter.shot_timer
     local auto_cast_time = addon_data.hunter.auto_cast_time
 	if settings.enabled then
+        frame.shot_bar_text:SetText(tostring(addon_data.utils.SimpleRound(shot_timer, 0.1)))
         if addon_data.core.in_combat or addon_data.hunter.shooting or addon_data.hunter.casting_shot then
             frame:SetAlpha(settings.in_combat_alpha)
         else
@@ -487,6 +491,8 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
             frame.auto_shot_cast_bar:SetHeight(settings.height)
             frame.auto_shot_cast_bar:SetVertexColor(settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
         end
+        frame.shot_bar_text:SetPoint("RIGHT", -5, 0)
+        frame.shot_bar_text:SetTextColor(1.0, 1.0, 1.0, 1.0)
         frame.shot_bar:SetHeight(settings.height)
         if settings.classic_bars then
             frame.shot_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
@@ -525,8 +531,12 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
         else
             frame.multishot_clip_bar:Hide()
         end
-        if not settings.show_text then
-            frame.spell_text_center:SetText("")
+        if settings.show_text then
+            frame.spell_text_center:Show()
+            frame.shot_bar_text:Show()
+        else
+            frame.spell_text_center:Hide()
+            frame.shot_bar_text:Hide()
         end
     else
         frame:Hide()
@@ -544,6 +554,9 @@ addon_data.hunter.OnFrameDragStop = function()
     local settings = character_hunter_settings
     frame:StopMovingOrSizing()
     point, _, rel_point, x_offset, y_offset = frame:GetPoint()
+    if x_offset < 20 and x_offset > -20 then
+        x_offset = 0
+    end
     settings.point = point
     settings.rel_point = rel_point
     settings.x_offset = addon_data.utils.SimpleRound(x_offset, 1)
@@ -569,6 +582,11 @@ addon_data.hunter.InitializeVisuals = function()
     frame.backplane:SetFrameStrata('BACKGROUND')
     -- Create the shot bar
     frame.shot_bar = frame:CreateTexture(nil, "ARTWORK")
+    -- Create the shot bar text
+    frame.shot_bar_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.shot_bar_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.shot_bar_text:SetJustifyV("CENTER")
+    frame.shot_bar_text:SetJustifyH("CENTER")
     -- Create the multishot clip bar
     frame.multishot_clip_bar = frame:CreateTexture(nil, "OVERLAY")
     -- Create the auto shot cast bar indicator

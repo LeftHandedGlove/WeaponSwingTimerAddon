@@ -14,7 +14,8 @@ addon_data.hunter.shot_spell_ids = {
     [20901] = {spell_name = 'Aimed Shot', rank = 3, cast_time = 3, cooldown = 6},
     [20902] = {spell_name = 'Aimed Shot', rank = 4, cast_time = 3, cooldown = 6},
     [20903] = {spell_name = 'Aimed Shot', rank = 5, cast_time = 3, cooldown = 6},
-    [20904] = {spell_name = 'Aimed Shot', rank = 6, cast_time = 3, cooldown = 6}
+    [20904] = {spell_name = 'Aimed Shot', rank = 6, cast_time = 3, cooldown = 6},
+    [5019] = {spell_name = 'Shoot', rank = nil, cast_time = nil, cooldown = nil}
 }
 
 
@@ -306,14 +307,16 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
         addon_data.hunter.casting = false
         -- If the spell is Auto Shot then reset the shot timer
         if addon_data.hunter.shot_spell_ids[spell_id] then
-            if addon_data.hunter.shot_spell_ids[spell_id].spell_name == 'Auto Shot' then
+            spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
+            if spell_name == 'Auto Shot' or spell_name == "Shoot" then
                 addon_data.hunter.last_shot_time = GetTime()
                 addon_data.hunter.ResetShotTimer()
             end
         end
         -- Otherwise, set the cast bar to green
         if addon_data.hunter.shot_spell_ids[spell_id] then
-            if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
+            spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
+            if spell_name ~= 'Auto Shot' and spell_name ~= "Shoot" then
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
                 addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)

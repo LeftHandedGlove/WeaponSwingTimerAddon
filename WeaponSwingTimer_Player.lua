@@ -8,12 +8,12 @@ addon_data.player = {}
 
 addon_data.player.default_settings = {
 	enabled = true,
-	width = 300,
-	height = 11,
+	width = 200,
+	height = 10,
     point = "CENTER",
 	rel_point = "CENTER",
 	x_offset = 0,
-	y_offset = -100,
+	y_offset = -200,
 	in_combat_alpha = 1.0,
 	ooc_alpha = 0.25,
 	backplane_alpha = 0.5,
@@ -369,6 +369,9 @@ addon_data.player.OnFrameDragStop = function()
     local settings = character_player_settings
     frame:StopMovingOrSizing()
     point, _, rel_point, x_offset, y_offset = frame:GetPoint()
+    if x_offset < 20 and x_offset > -20 then
+        x_offset = 0
+    end
     settings.point = point
     settings.rel_point = rel_point
     settings.x_offset = addon_data.utils.SimpleRound(x_offset, 1)
@@ -399,12 +402,12 @@ addon_data.player.InitializeVisuals = function()
     frame.main_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the main hand bar left text
     frame.main_left_text = frame:CreateFontString(nil, "OVERLAY")
-    frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.main_left_text:SetFont("Fonts/FRIZQT__.ttf", 10)
     frame.main_left_text:SetJustifyV("CENTER")
     frame.main_left_text:SetJustifyH("LEFT")
     -- Create the main hand bar right text
     frame.main_right_text = frame:CreateFontString(nil, "OVERLAY")
-    frame.main_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.main_right_text:SetFont("Fonts/FRIZQT__.ttf", 10)
     frame.main_right_text:SetJustifyV("CENTER")
     frame.main_right_text:SetJustifyH("RIGHT")
     -- Create the off hand bar
@@ -414,12 +417,12 @@ addon_data.player.InitializeVisuals = function()
     frame.off_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')
     -- Create the off hand bar left text
     frame.off_left_text = frame:CreateFontString(nil, "OVERLAY")
-    frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.off_left_text:SetFont("Fonts/FRIZQT__.ttf", 10)
     frame.off_left_text:SetJustifyV("CENTER")
     frame.off_left_text:SetJustifyH("LEFT")
     -- Create the off hand bar right text
     frame.off_right_text = frame:CreateFontString(nil, "OVERLAY")
-    frame.off_right_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.off_right_text:SetFont("Fonts/FRIZQT__.ttf", 10)
     frame.off_right_text:SetJustifyV("CENTER")
     frame.off_right_text:SetJustifyH("RIGHT")
     -- Show it off

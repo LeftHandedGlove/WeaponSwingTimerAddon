@@ -15,34 +15,36 @@ FEATURES
 BUGS
 * Hunter bar takes roughly 3 seconds to load when the interface is reloaded
 * Speed buffs should only affect the next swing
+* Bug with first attack not doing initial cast time when attack is toggled on for hunter shot
 
-NOTES FROM STRESS TEST
-* Everything seemed really large
+TODO FROM STRESS TEST
 * Changable font size would be nice
 * Changable fonts would also be nice
-* Profiles would also be nice
+* Dragging and dropping to any point other than CENTER causes the offsets in the settings to be off
+	I need to make a utility that converts other points to CENTER
 * Snapping to center when click and drag would also be nice
-* Multiple textures would also be nice
+
 * Need to fixup the config menu
 * Spark needs to be brighter in the middle and less bright everywhere else, the size is fine
-* Blue bar is a little washed out
-	0.1, 0.1, 0.9 RGB is better
-* Red bar is also a little washed out
-	0.8, 0.1, 0.1 RGb is better
 * Get rid of global settings
 * Hunter bar needs some latency marker for the 0.5 "cast time" of autoshot
 * Make YaHT multishot bar two markers like it is with the onebar setting
-* Add text to the hunter bar
-* Remove unstable notes from hunter cast bar options description
-* Make YaHT not the default
 * Make the Multishot marker not on by default (Popup window when hunter turns 18 to enable it if they want to)
 * Make the multishot marker opacity full by default
 * Figure out why the colors are white instead of their colors (Something with some setting wanting opacity while others want transparency)
 * Landing page of the addon acts like a tutorial
-* Add something so the addon adds a button that attaches to the minimap
-* Hunter bar colors are a bit in your face
-* Bug with first attack not doing inital cast time when attack is toggled on for hunter shot
-* The borders are really large, make them smaller
-	- Change border edge size to 12, change backdrop points to 9 instead of 12
 
+* The hunter auto shot cast time seems to be inconsistant. 
+	There is a a 0.15s swing between the full autoshot cooldown and cast, and a 0.7 swing between the cast time. 
+	The cast time was between 0.53s and 0.63s with a 2.3s bow with a rnage speed of 2.091
+	The whole shot time was between 2.051 and 2.187 while standing still with a range speed of 2.091
+* Hunter cast time seems to be increased if the cast time has been cliped significantly 
+	(like a full 0.5s clip causes the shot cast time to be roughly 1.0-0.9 secs)
+* Hunter instant shots cast during the "cast time" of an auto shot is resetting the bar when it shouldn't
+	This was fixed by checking the cast time, for some reason the cast time of instant cast shots is like -100000
+
+THINGS ACE3 WOULD MAKE EASIER
+* Profiles would also be nice
+* Add something so the addon adds a button that attaches to the minimap
+* Multiple textures would also be nice
 

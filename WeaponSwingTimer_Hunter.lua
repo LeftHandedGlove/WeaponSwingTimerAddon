@@ -90,6 +90,7 @@ addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
             _, _, _, cast_time, _, _, _ = GetSpellInfo(spell_id)
+            print("Howdy")
             if spell_name ~= "Auto Shot" and cast_time > 0 then
                 addon_data.hunter.casting = true
             end
@@ -303,6 +304,7 @@ addon_data.hunter.OnUnitSpellCastStart = function(unit, spell_id)
 end
 
 addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
+    print("Success")
     if unit == 'player' then
         addon_data.hunter.casting = false
         -- If the spell is Auto Shot then reset the shot timer

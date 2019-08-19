@@ -18,9 +18,9 @@ addon_data.config.InitializeVisuals = function()
     panel.global_panel:SetSize(1, 1)
     
     panel.logo = panel:CreateTexture(nil, 'ARTWORK')
-    panel.logo:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/wst_logo')
-    panel.logo:SetSize(256, 256)
-    panel.logo:SetPoint('TOPLEFT', -10, -200)
+    panel.logo:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/LandingPage')
+    panel.logo:SetSize(1024, 1024)
+    panel.logo:SetPoint('TOPLEFT', 5, -10)
 
     panel.name = "WeaponSwingTimer"
     panel.default = addon_data.config.OnDefault
@@ -190,6 +190,7 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
     panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
     panel.title_text:SetPoint("TOPLEFT", 0, 0)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
+    
     -- Is Locked Checkbox
     panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
         "IsLockedCheckBox",
@@ -197,42 +198,13 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
         " Lock All Bars",
         "Locks all of the swing bar frames, preventing them from being dragged.",
         addon_data.config.IsLockedCheckBoxOnClick)
-    panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -35)
+    panel.is_locked_checkbox:SetPoint("TOPLEFT", 0, -30)
     
-    -- Extra Classic Button
-    panel.extra_classic_button = CreateFrame("Button", nil, panel)
-    panel.extra_classic_button:SetPoint('TOPLEFT', 475, 0)
-    panel.extra_classic_button:SetSize(150, 35)
-    panel.extra_classic_button:SetNormalTexture('Interface/Buttons/UI-Panel-Button-Up')
-    panel.extra_classic_button:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
-    panel.extra_classic_button:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
-    local fo = panel.extra_classic_button:CreateFontString()
-	fo:SetFont("Fonts/FRIZQT__.TTF",12)
-	fo:SetPoint("TOPLEFT", panel.extra_classic_button, "TOPLEFT", 10, -6)
-	fo:SetText("True Classic")
-	panel.extra_classic_button:SetFontString(fo)
-    panel.extra_classic_button:SetScript("OnClick", function(self)
-        if panel.extra_classic_frame:IsVisible() then
-            panel.extra_classic_frame:EnableKeyboard(false)
-            panel.extra_classic_frame:Hide()
-        else
-            panel.extra_classic_frame:EnableKeyboard(true)
-            panel.extra_classic_frame:Show()
-        end
-        
-    end)
-    -- Extra Classic Frame
-    panel.extra_classic_frame = CreateFrame("Frame", addon_name .. "ExtraClassicPanel", UIParent)
-    panel.extra_classic_frame:SetPoint('CENTER', 0, 10)
-    panel.extra_classic_frame:SetSize(GetScreenWidth(), GetScreenWidth() * 0.75)
-    panel.extra_classic_frame.texture = panel.extra_classic_frame:CreateTexture(nil, "ARTWORK")
-    panel.extra_classic_frame.texture:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/crazyui')
-    panel.extra_classic_frame.texture:SetAllPoints(panel.extra_classic_frame)
-    panel.extra_classic_frame:SetScript('OnKeyDown', function()
-        panel.extra_classic_frame:EnableKeyboard(false)
-        panel.extra_classic_frame:Hide()
-    end)
-    panel.extra_classic_frame:Hide()
+    -- Guidance Text
+    panel.guidance_text = addon_data.config.TextFactory(panel, "<- Click the '+' on the left\nfor more options", 16)
+    panel.guidance_text:SetPoint("TOPLEFT", 0, -100)
+    panel.guidance_text:SetTextColor(1, 1, 1, 1)
+    
     -- Return the final panel
     addon_data.config.UpdateConfigValues()
     return panel

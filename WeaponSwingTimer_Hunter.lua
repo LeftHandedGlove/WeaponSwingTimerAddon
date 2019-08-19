@@ -623,6 +623,7 @@ addon_data.hunter.UpdateConfigPanelValues = function()
     panel.show_border_checkbox:SetChecked(settings.show_border)
     panel.classic_bars_checkbox:SetChecked(settings.classic_bars)
     panel.one_bar_checkbox:SetChecked(settings.one_bar)
+    panel.show_text_checkbox:SetChecked(settings.show_text)
     panel.width_editbox:SetText(tostring(settings.width))
     panel.width_editbox:SetCursorPosition(0)
     panel.height_editbox:SetText(tostring(settings.height))
@@ -641,13 +642,18 @@ addon_data.hunter.UpdateConfigPanelValues = function()
     if settings.one_bar then
         panel.explaination:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/HunterOneBarExplainedAlpha')
         panel.explaination:SetSize(350, 175)
-        panel.explaination:SetPoint('TOPLEFT', -50, -325)
+        panel.explaination:SetPoint('TOPLEFT', -50, -385)
     else
         panel.explaination:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/HunterBarExplainedFullAlpha')
-        panel.explaination:SetSize(350, 350)
-        panel.explaination:SetPoint('TOPLEFT', -48, -350)
+        panel.explaination:SetSize(700, 175)
+        panel.explaination:SetPoint('TOPLEFT', -48, -410)
     end
-    
+    panel.in_combat_alpha_slider:SetValue(settings.in_combat_alpha)
+    panel.in_combat_alpha_slider.editbox:SetCursorPosition(0)
+    panel.ooc_alpha_slider:SetValue(settings.ooc_alpha)
+    panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
+    panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
+    panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
 end
 
 addon_data.hunter.EnabledCheckBoxOnClick = function(self)
@@ -689,6 +695,11 @@ addon_data.hunter.OneBarCheckBoxOnClick = function(self)
     character_hunter_settings.one_bar = self:GetChecked()
     addon_data.hunter.UpdateVisualsOnSettingsChange()
     addon_data.hunter.UpdateConfigPanelValues()
+end
+
+addon_data.hunter.ShowTextCheckBoxOnClick = function(self)
+    character_hunter_settings.show_text = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.hunter.WidthEditBoxOnEnter = function(self)
@@ -783,6 +794,21 @@ addon_data.hunter.MultiClipColorPickerOnClick = function()
     ColorPickerFrame:Show()
 end
 
+addon_data.hunter.CombatAlphaOnValChange = function(self)
+    character_hunter_settings.in_combat_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.OOCAlphaOnValChange = function(self)
+    character_hunter_settings.ooc_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.BackplaneAlphaOnValChange = function(self)
+    character_hunter_settings.backplane_alpha = tonumber(self:GetValue())
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
 addon_data.hunter.CreateConfigPanel = function(parent_panel)
     addon_data.hunter.config_frame = CreateFrame("Frame", addon_name .. "HunterConfigPanel", parent_panel)
     local panel = addon_data.hunter.config_frame
@@ -811,7 +837,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterShowBorderCheckBox",
         panel,
         " Show border",
-        "Enables the hunter bar's border.",
+        "Enables the shot bar's border.",
         addon_data.hunter.ShowBorderCheckBoxOnClick)
     panel.show_border_checkbox:SetPoint("TOPLEFT", 10, -90)
     
@@ -820,7 +846,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "HunterClassicBarsCheckBox",
         panel,
         " Classic bars",
-        "Enables the classic texture for the hunter bars.",
+        "Enables the classic texture for the shot bars.",
         addon_data.hunter.ClassicBarsCheckBoxOnClick)
     panel.classic_bars_checkbox:SetPoint("TOPLEFT", 10, -110)
     
@@ -832,6 +858,15 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "Changes the Auto Shot bar to a single bar that fills from left to right",
         addon_data.hunter.OneBarCheckBoxOnClick)
     panel.one_bar_checkbox:SetPoint("TOPLEFT", 10, -130)
+    
+    -- Show Text Checkbox
+    panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowTextCheckBox",
+        panel,
+        " Show Text",
+        "Enables the shot bar text.",
+        addon_data.hunter.ShowTextCheckBoxOnClick)
+    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -150)
     
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
@@ -877,7 +912,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         settings.cooldown_r, settings.cooldown_g, settings.cooldown_b, settings.cooldown_a,
         'Auto Shot Cooldown Color',
         addon_data.hunter.CooldownColorPickerOnClick)
-    panel.cooldown_color_picker:SetPoint('TOPLEFT', 390, -80)
+    panel.cooldown_color_picker:SetPoint('TOPLEFT', 205, -180)
     
     -- Autoshot cast color picker
     panel.autoshot_cast_color_picker = addon_data.config.color_picker_factory(
@@ -886,11 +921,42 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a,
         'Auto Shot Cast Color',
         addon_data.hunter.AutoShotCastColorPickerOnClick)
-    panel.autoshot_cast_color_picker:SetPoint('TOPLEFT', 390, -100)
+    panel.autoshot_cast_color_picker:SetPoint('TOPLEFT', 205, -200)
+    
+    -- In Combat Alpha Slider
+    panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
+        "HunterInCombatAlphaSlider",
+        panel,
+        "In Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.hunter.CombatAlphaOnValChange)
+    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 405, -90)
+    -- Out Of Combat Alpha Slider
+    panel.ooc_alpha_slider = addon_data.config.SliderFactory(
+        "HunterOOCAlphaSlider",
+        panel,
+        "Out of Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.hunter.OOCAlphaOnValChange)
+    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 405, -140)
+    -- Backplane Alpha Slider
+    panel.backplane_alpha_slider = addon_data.config.SliderFactory(
+        "HunterBackplaneAlphaSlider",
+        panel,
+        "Backplane Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.hunter.BackplaneAlphaOnValChange)
+    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 405, -190)
     
     -- Hunter Specific Settings Text
     panel.hunter_text = addon_data.config.TextFactory(panel, "Hunter Specific Settings", 16)
-    panel.hunter_text:SetPoint("TOPLEFT", 10 , -200)
+    panel.hunter_text:SetPoint("TOPLEFT", 10 , -250)
     panel.hunter_text:SetTextColor(1, 0.9, 0, 1)
     
     -- Show Aimed Shot Cast Bar Checkbox
@@ -900,7 +966,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         " Aimed Shot cast bar",
         "Allows the cast bar to show Aimed Shot casts.",
         addon_data.hunter.ShowAimedShotCastBarCheckBoxOnClick)
-    panel.show_aimedshot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -205)
+    panel.show_aimedshot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -250)
     
     -- Show Multi Shot Cast Bar Checkbox
     panel.show_multishot_cast_bar_checkbox = addon_data.config.CheckBoxFactory(
@@ -909,7 +975,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         " Multi-Shot cast bar",
         "Allows the cast bar to show Multi-Shot casts.",
         addon_data.hunter.ShowMultiShotCastBarCheckBoxOnClick)
-    panel.show_multishot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -225)
+    panel.show_multishot_cast_bar_checkbox:SetPoint("TOPLEFT", 10, -270)
     
     -- Show Latency Bar Checkbox
     panel.show_latency_bar_checkbox = addon_data.config.CheckBoxFactory(
@@ -918,7 +984,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         " Latency bar",
         "Shows a bar that represents latency on cast bar.",
         addon_data.hunter.ShowLatencyBarsCheckBoxOnClick)
-    panel.show_latency_bar_checkbox:SetPoint("TOPLEFT", 10, -245)
+    panel.show_latency_bar_checkbox:SetPoint("TOPLEFT", 10, -290)
     
     -- Show Multi-Shot Clip Bar Checkbox
     panel.show_multishot_clip_bar_checkbox = addon_data.config.CheckBoxFactory(
@@ -927,7 +993,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         " Multi-Shot clip bar",
         "Shows a bar that represents when a Multi-Shot would clip an Auto Shot.",
         addon_data.hunter.ShowMultiShotClipBarCheckBoxOnClick)
-    panel.show_multishot_clip_bar_checkbox:SetPoint("TOPLEFT", 10, -265)
+    panel.show_multishot_clip_bar_checkbox:SetPoint("TOPLEFT", 10, -310)
     
     -- Multi-shot clip color picker
     panel.multi_clip_color_picker = addon_data.config.color_picker_factory(
@@ -936,11 +1002,11 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         settings.clip_r, settings.clip_g, settings.clip_b, settings.clip_a,
         'Multi-Shot Clip Color',
         addon_data.hunter.MultiClipColorPickerOnClick)
-    panel.multi_clip_color_picker:SetPoint('TOPLEFT', 390, -230)
+    panel.multi_clip_color_picker:SetPoint('TOPLEFT', 205, -280)
     
     -- Add the explaination text
     panel.explaination_text = addon_data.config.TextFactory(panel, "Bar Explaination", 16)
-    panel.explaination_text:SetPoint("TOPLEFT", 10 , -350)
+    panel.explaination_text:SetPoint("TOPLEFT", 10 , -400)
     panel.explaination_text:SetTextColor(1, 0.9, 0, 1)
     
     -- Add the explaination

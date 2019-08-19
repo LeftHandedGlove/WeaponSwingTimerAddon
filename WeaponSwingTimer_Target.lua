@@ -13,12 +13,13 @@ addon_data.target.default_settings = {
     point = "CENTER",
 	rel_point = "CENTER",
 	x_offset = 0,
-	y_offset = -225,
+	y_offset = -230,
 	in_combat_alpha = 1.0,
 	ooc_alpha = 0.25,
 	backplane_alpha = 0.5,
 	is_locked = false,
-    show_text = true,
+    show_left_text = true,
+    show_right_text = true,
 	show_offhand = true,
     show_border = true,
     classic_bars = true,
@@ -259,9 +260,15 @@ addon_data.target.UpdateVisualsOnUpdate = function()
         -- Update the off hand bar
         if addon_data.target.has_offhand and settings.show_offhand then
             frame.off_bar:Show()
-            if settings.show_text then
+            if settings.show_left_text then
                 frame.off_left_text:Show()
+            else
+                frame.off_left_text:Hide()
+            end
+            if settings.show_right_text then
                 frame.off_right_text:Show()
+            else
+                frame.off_right_text:Hide()
             end
             local off_speed = addon_data.target.off_weapon_speed
             local off_timer = addon_data.target.off_swing_timer
@@ -354,24 +361,30 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
         frame.off_left_text:SetTextColor(settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
         frame.off_right_text:SetPoint("BOTTOMRIGHT", -5, (settings.height / 2) - 5)
         frame.off_right_text:SetTextColor(settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
-        if settings.show_text then
+        if settings.show_left_text then
             frame.main_left_text:Show()
-            frame.main_right_text:Show()
             frame.off_left_text:Show()
-            frame.off_right_text:Show()
         else
             frame.main_left_text:Hide()
-            frame.main_right_text:Hide()
             frame.off_left_text:Hide()
+        end
+        if settings.show_right_text then
+            frame.main_right_text:Show()
+            frame.off_right_text:Show()
+        else
+            frame.main_right_text:Hide()
             frame.off_right_text:Hide()
         end
         if settings.show_offhand and addon_data.target.has_offhand then
             frame.off_bar:Show()
-            if settings.show_text then
+            if settings.show_left_text then
                 frame.off_left_text:Show()
-                frame.off_right_text:Show()
             else
                 frame.off_left_text:Hide()
+            end
+            if settings.show_right_text then
+                frame.off_right_text:Show()
+            else
                 frame.off_right_text:Hide()
             end
         else
@@ -469,6 +482,8 @@ addon_data.target.UpdateConfigPanelValues = function()
     panel.show_border_checkbox:SetChecked(settings.show_border)
     panel.classic_bars_checkbox:SetChecked(settings.classic_bars)
     panel.fill_empty_checkbox:SetChecked(settings.fill_empty)
+    panel.show_left_text_checkbox:SetChecked(settings.show_left_text)
+    panel.show_right_text_checkbox:SetChecked(settings.show_right_text)
     panel.width_editbox:SetText(tostring(settings.width))
     panel.width_editbox:SetCursorPosition(0)
     panel.height_editbox:SetText(tostring(settings.height))
@@ -485,6 +500,12 @@ addon_data.target.UpdateConfigPanelValues = function()
         settings.off_r, settings.off_g, settings.off_b, settings.off_a)
     panel.off_text_color_picker.foreground:SetColorTexture(
         settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
+    panel.in_combat_alpha_slider:SetValue(settings.in_combat_alpha)
+    panel.in_combat_alpha_slider.editbox:SetCursorPosition(0)
+    panel.ooc_alpha_slider:SetValue(settings.ooc_alpha)
+    panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
+    panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
+    panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
 end
 
 addon_data.target.EnabledCheckBoxOnClick = function(self)
@@ -509,6 +530,16 @@ end
 
 addon_data.target.FillEmptyCheckBoxOnClick = function(self)
     character_target_settings.fill_empty = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.ShowLeftTextCheckBoxOnClick = function(self)
+    character_target_settings.show_left_text = self:GetChecked()
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.ShowRightTextCheckBoxOnClick = function(self)
+    character_target_settings.show_right_text = self:GetChecked()
     addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
@@ -568,7 +599,6 @@ addon_data.target.MainTextColorPickerOnClick = function()
             new_a, new_r, new_g, new_b = 1 - OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
         end
         settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a = new_r, new_g, new_b, new_a
-        --TODO
         addon_data.target.frame.main_left_text:SetTextColor(
             settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
         addon_data.target.frame.main_right_text:SetTextColor(
@@ -621,7 +651,6 @@ addon_data.target.OffTextColorPickerOnClick = function()
             new_a, new_r, new_g, new_b = 1 - OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
         end
         settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a = new_r, new_g, new_b, new_a
-        --TODO
         addon_data.target.frame.off_left_text:SetTextColor(
             settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
         addon_data.target.frame.off_right_text:SetTextColor(
@@ -636,6 +665,21 @@ addon_data.target.OffTextColorPickerOnClick = function()
     ColorPickerFrame:SetColorRGB(settings.off_text_r, settings.off_text_g, settings.off_text_b)
     ColorPickerFrame.previousValues = {settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a}
     ColorPickerFrame:Show()
+end
+
+addon_data.target.CombatAlphaOnValChange = function(self)
+    character_target_settings.in_combat_alpha = tonumber(self:GetValue())
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.OOCAlphaOnValChange = function(self)
+    character_target_settings.ooc_alpha = tonumber(self:GetValue())
+    addon_data.target.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.target.BackplaneAlphaOnValChange = function(self)
+    character_target_settings.backplane_alpha = tonumber(self:GetValue())
+    addon_data.target.UpdateVisualsOnSettingsChange()
 end
 
 addon_data.target.CreateConfigPanel = function(parent_panel)
@@ -683,10 +727,26 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
     panel.fill_empty_checkbox = addon_data.config.CheckBoxFactory(
         "TargetFillEmptyCheckBox",
         panel,
-        " Fill/Empty",
+        " Fill / Empty",
         "Determines if the bar is full or empty when a swing is ready.",
         addon_data.target.FillEmptyCheckBoxOnClick)
     panel.fill_empty_checkbox:SetPoint("TOPLEFT", 10, -120)
+    -- Show Left Text Checkbox
+    panel.show_left_text_checkbox = addon_data.config.CheckBoxFactory(
+        "TargetShowLeftTextCheckBox",
+        panel,
+        " Show Left Text",
+        "Enables the target's left side text.",
+        addon_data.target.ShowLeftTextCheckBoxOnClick)
+    panel.show_left_text_checkbox:SetPoint("TOPLEFT", 10, -140)
+    -- Show Right Text Checkbox
+    panel.show_right_text_checkbox = addon_data.config.CheckBoxFactory(
+        "TargetShowRightTextCheckBox",
+        panel,
+        " Show Right Text",
+        "Enables the target's right side text.",
+        addon_data.target.ShowRightTextCheckBoxOnClick)
+    panel.show_right_text_checkbox:SetPoint("TOPLEFT", 10, -160)
     
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
@@ -732,7 +792,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         settings.main_r, settings.main_g, settings.main_b, settings.main_a,
         'Main-hand Bar Color',
         addon_data.target.MainColorPickerOnClick)
-    panel.main_color_picker:SetPoint('TOPLEFT', 380, -50)
+    panel.main_color_picker:SetPoint('TOPLEFT', 205, -150)
     -- Main-hand color text picker
     panel.main_text_color_picker = addon_data.config.color_picker_factory(
         'TargetMainTextColorPicker',
@@ -740,7 +800,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a,
         'Main-hand Bar Text Color',
         addon_data.target.MainTextColorPickerOnClick)
-    panel.main_text_color_picker:SetPoint('TOPLEFT', 380, -70)
+    panel.main_text_color_picker:SetPoint('TOPLEFT', 205, -170)
     -- Off-hand color picker
     panel.off_color_picker = addon_data.config.color_picker_factory(
         'TargetOffColorPicker',
@@ -748,7 +808,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         settings.off_r, settings.off_g, settings.off_b, settings.off_a,
         'Off-hand Bar Color',
         addon_data.target.OffColorPickerOnClick)
-    panel.off_color_picker:SetPoint('TOPLEFT', 380, -100)
+    panel.off_color_picker:SetPoint('TOPLEFT', 205, -200)
     -- Off-hand color text picker
     panel.off_text_color_picker = addon_data.config.color_picker_factory(
         'TargetOffTextColorPicker',
@@ -756,7 +816,39 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a,
         'Off-hand Bar Text Color',
         addon_data.target.OffTextColorPickerOnClick)
-    panel.off_text_color_picker:SetPoint('TOPLEFT', 380, -120)
+    panel.off_text_color_picker:SetPoint('TOPLEFT', 205, -220)
+    
+    -- In Combat Alpha Slider
+    panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
+        "TargetInCombatAlphaSlider",
+        panel,
+        "In Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.target.CombatAlphaOnValChange)
+    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 405, -60)
+    -- Out Of Combat Alpha Slider
+    panel.ooc_alpha_slider = addon_data.config.SliderFactory(
+        "TargetOOCAlphaSlider",
+        panel,
+        "Out of Combat Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.target.OOCAlphaOnValChange)
+    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 405, -110)
+    -- Backplane Alpha Slider
+    panel.backplane_alpha_slider = addon_data.config.SliderFactory(
+        "TargetBackplaneAlphaSlider",
+        panel,
+        "Backplane Alpha",
+        0,
+        1,
+        0.05,
+        addon_data.target.BackplaneAlphaOnValChange)
+    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 405, -160)
+    
     -- Return the final panel
     addon_data.target.UpdateConfigPanelValues()
     return panel

@@ -33,7 +33,7 @@ addon_data.config.InitializeVisuals = function()
     panel.config_melee_panel.player_panel:SetPoint('TOPLEFT', 0, 0)
     panel.config_melee_panel.player_panel:SetSize(1, 1)
     panel.config_melee_panel.target_panel = addon_data.target.CreateConfigPanel(panel.config_melee_panel)
-    panel.config_melee_panel.target_panel:SetPoint('TOPLEFT', 0, -175)
+    panel.config_melee_panel.target_panel:SetPoint('TOPLEFT', 0, -275)
     panel.config_melee_panel.target_panel:SetSize(1, 1)
     panel.config_melee_panel.name = 'Melee Settings'
     panel.config_melee_panel.parent = panel.name
@@ -169,21 +169,7 @@ end
 addon_data.config.UpdateConfigValues = function()
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
-    panel.show_text_checkbox:SetChecked(settings.show_text)
     panel.is_locked_checkbox:SetChecked(settings.is_locked)
-    panel.in_combat_alpha_slider:SetValue(settings.in_combat_alpha)
-    panel.in_combat_alpha_slider.editbox:SetCursorPosition(0)
-    panel.ooc_alpha_slider:SetValue(settings.ooc_alpha)
-    panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
-    panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
-    panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
-end
-
-addon_data.config.ShowTextCheckBoxOnClick = function(self)
-    character_player_settings.show_text = self:GetChecked()
-    character_target_settings.show_text = self:GetChecked()
-    character_hunter_settings.show_text = self:GetChecked()
-    addon_data.core.UpdateAllVisualsOnSettingsChange()
 end
 
 addon_data.config.IsLockedCheckBoxOnClick = function(self)
@@ -196,27 +182,6 @@ addon_data.config.IsLockedCheckBoxOnClick = function(self)
     addon_data.core.UpdateAllVisualsOnSettingsChange()
 end
 
-addon_data.config.CombatAlphaOnValChange = function(self)
-    character_player_settings.in_combat_alpha = tonumber(self:GetValue())
-    character_target_settings.in_combat_alpha = tonumber(self:GetValue())
-    character_hunter_settings.in_combat_alpha = tonumber(self:GetValue())
-    addon_data.core.UpdateAllVisualsOnSettingsChange()
-end
-
-addon_data.config.OOCAlphaOnValChange = function(self)
-    character_player_settings.ooc_alpha = tonumber(self:GetValue())
-    character_target_settings.ooc_alpha = tonumber(self:GetValue())
-    character_hunter_settings.ooc_alpha = tonumber(self:GetValue())
-    addon_data.core.UpdateAllVisualsOnSettingsChange()
-end
-
-addon_data.config.BackplaneAlphaOnValChange = function(self)
-    character_player_settings.backplane_alpha = tonumber(self:GetValue())
-    character_target_settings.backplane_alpha = tonumber(self:GetValue())
-    character_hunter_settings.backplane_alpha = tonumber(self:GetValue())
-    addon_data.core.UpdateAllVisualsOnSettingsChange()
-end
-
 addon_data.config.CreateConfigPanel = function(parent_panel)
     addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "GlobalConfigPanel", parent_panel)
     local panel = addon_data.config.config_frame
@@ -225,14 +190,6 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
     panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
     panel.title_text:SetPoint("TOPLEFT", 0, 0)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
-    -- Show Text Checkbox
-    panel.show_text_checkbox = addon_data.config.CheckBoxFactory(
-        "ShowTextCheckBox",
-        panel,
-        " Show Text",
-        "Enables the text on the swing bars.",
-        addon_data.config.ShowTextCheckBoxOnClick)
-    panel.show_text_checkbox:SetPoint("TOPLEFT", 10, -55)
     -- Is Locked Checkbox
     panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
         "IsLockedCheckBox",
@@ -241,36 +198,6 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
         "Locks all of the swing bar frames, preventing them from being dragged.",
         addon_data.config.IsLockedCheckBoxOnClick)
     panel.is_locked_checkbox:SetPoint("TOPLEFT", 10, -35)
-    -- In Combat Alpha Slider
-    panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
-        "InCombatAlphaSlider",
-        panel,
-        "In Combat Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.config.CombatAlphaOnValChange)
-    panel.in_combat_alpha_slider:SetPoint("TOPLEFT", 200, -55)
-    -- Out Of Combat Alpha Slider
-    panel.ooc_alpha_slider = addon_data.config.SliderFactory(
-        "OOCAlphaSlider",
-        panel,
-        "Out of Combat Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.config.OOCAlphaOnValChange)
-    panel.ooc_alpha_slider:SetPoint("TOPLEFT", 200, -105)
-    -- Backplane Alpha Slider
-    panel.backplane_alpha_slider = addon_data.config.SliderFactory(
-        "BackplaneAlphaSlider",
-        panel,
-        "Backplane Alpha",
-        0,
-        1,
-        0.05,
-        addon_data.config.BackplaneAlphaOnValChange)
-    panel.backplane_alpha_slider:SetPoint("TOPLEFT", 200, -155)
     
     -- Extra Classic Button
     panel.extra_classic_button = CreateFrame("Button", nil, panel)
@@ -310,73 +237,4 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
     addon_data.config.UpdateConfigValues()
     return panel
 end
-
-addon_data.config.CreateMeleeConfigPanel = function(parent_panel)
-    
-end
-
-addon_data.config.CreateHunterConfigPanel = function(parent_panel)
-    parent_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(parent_panel)
-    parent_panel.hunter_panel.name = 'Hunter Shot Bars'
-    parent_panel.hunter_panel.parent = parent_panel.name
-    InterfaceOptions_AddCategory(parent_panel.hunter_panel)
-    
-    
-    
-    --parent frame 
-    local frame = CreateFrame("Frame", "MyFrame", UIParent) 
-    frame:SetSize(150, 200) 
-    frame:SetPoint("CENTER") 
-    local texture = frame:CreateTexture() 
-    texture:SetAllPoints() 
-    texture:SetColorTexture(1,1,1,1) 
-    frame.background = texture 
-
-    --scrollframe 
-    scrollframe = CreateFrame("ScrollFrame", nil, frame) 
-    scrollframe:SetPoint("TOPLEFT", 10, -10) 
-    scrollframe:SetPoint("BOTTOMRIGHT", -10, 10) 
-    local texture = scrollframe:CreateTexture() 
-    texture:SetAllPoints() 
-    texture:SetColorTexture(.5,.5,.5,1) 
-    frame.scrollframe = scrollframe 
-
-    --scrollbar 
-    scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
-    scrollbar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 4, -16) 
-    scrollbar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 4, 16) 
-    scrollbar:SetMinMaxValues(1, 200) 
-    scrollbar:SetValueStep(1) 
-    scrollbar.scrollStep = 1 
-    scrollbar:SetValue(0) 
-    scrollbar:SetWidth(16) 
-    scrollbar:SetScript("OnValueChanged", 
-    function (self, value) 
-    self:GetParent():SetVerticalScroll(value) 
-    end) 
-    local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND") 
-    scrollbg:SetAllPoints(scrollbar) 
-    scrollbg:SetColorTexture(0, 0, 0, 0.4) 
-    frame.scrollbar = scrollbar 
-
-    --content frame 
-    local content = CreateFrame("Frame", nil, scrollframe) 
-    content:SetSize(128, 128) 
-    local texture = content:CreateTexture() 
-    texture:SetAllPoints() 
-    texture:SetTexture("Interface\\GLUES\\MainMenu\\Glues-BlizzardLogo") 
-    content.texture = texture 
-    scrollframe.content = content 
-
-    scrollframe:SetScrollChild(content)
-    
-    
-    
-    
-    
-end
-
-
-
-
 

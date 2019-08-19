@@ -8,91 +8,47 @@ addon_data.config.OnDefault = function()
 end
 
 addon_data.config.InitializeVisuals = function()
-    --parent frame, this gets added to the interface options
-    addon_data.config.panel = CreateFrame("Frame", "MyFrame", UIParent)
-    local panel = addon_data.config.panel
+
+    -- Add the parent panel
+    addon_data.config.config_parent_panel = CreateFrame("Frame", "MyFrame", UIParent)
+    local panel = addon_data.config.config_parent_panel
+    panel:SetSize(1, 1)
+    panel.global_panel = addon_data.config.CreateConfigPanel(panel)
+    panel.global_panel:SetPoint('TOPLEFT', 10, -10)
+    panel.global_panel:SetSize(1, 1)
+    
+    panel.logo = panel:CreateTexture(nil, 'ARTWORK')
+    panel.logo:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/wst_logo')
+    panel.logo:SetSize(256, 256)
+    panel.logo:SetPoint('TOPLEFT', -10, -200)
+
     panel.name = "WeaponSwingTimer"
     panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(panel)
-
-    --scrollframe, this holds the scroll child, think of it like the window that holds the current content.
-    scrollframe = CreateFrame("ScrollFrame", nil, panel) 
-    scrollframe:SetPoint('TOPLEFT', 5, -5)
-    scrollframe:SetPoint('BOTTOMRIGHT', -5, 5)
-    scrollframe:EnableMouseWheel(true)
-    scrollframe:SetScript('OnMouseWheel', function(self, direction)
-        if direction == 1 then
-            scroll_value = math.max(self:GetVerticalScroll() - 50, 1)
-            self:SetVerticalScroll(scroll_value)
-            self:GetParent().scrollbar:SetValue(scroll_value) 
-        elseif direction == -1 then
-            scroll_value = math.min(self:GetVerticalScroll() + 50, 250)
-            self:SetVerticalScroll(scroll_value)
-            self:GetParent().scrollbar:SetValue(scroll_value)
-        end
-    end)
-    panel.scrollframe = scrollframe 
-
-    --scrollbar, the scroll bar on the side
-    scrollbar = CreateFrame("Slider", nil, scrollframe, "UIPanelScrollBarTemplate") 
-    scrollbar:SetPoint("TOPLEFT", panel, "TOPRIGHT", -20, -20) 
-    scrollbar:SetPoint("BOTTOMLEFT", panel, "BOTTOMRIGHT", -20, 20) 
-    scrollbar:SetMinMaxValues(1, 250) 
-    scrollbar:SetValueStep(1) 
-    scrollbar.scrollStep = 1 
-    scrollbar:SetValue(0) 
-    scrollbar:SetWidth(16) 
-    scrollbar:SetScript("OnValueChanged", 
-    function (self, value) 
-    self:GetParent():SetVerticalScroll(value) 
-    end) 
-    local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND") 
-    scrollbg:SetAllPoints(scrollbar) 
-    scrollbg:SetColorTexture(0, 0, 0, 0.6) 
-    panel.scrollbar = scrollbar
     
-    --content frame, this holds all of the titles and settings. 
-    local content = CreateFrame("Frame", nil, scrollframe) 
-    content:SetSize(1, 1) 
-    scrollframe.content = content 
-    scrollframe:SetScrollChild(content)
-    -- Add the global panel
-    content.global_panel = addon_data.config.CreateConfigPanel(content)
-    content.global_panel:SetPoint('TOPLEFT', 10, -10)
-    content.global_panel:SetSize(1, 1)
-    -- Add the player panel
-    content.player_panel = addon_data.player.CreateConfigPanel(content)
-    content.player_panel:SetPoint('TOPLEFT', 10, -220)
-    content.player_panel:SetSize(1, 1)
-    -- Add the target panel
-    content.target_panel = addon_data.target.CreateConfigPanel(content)
-    content.target_panel:SetPoint('TOPLEFT', 10, -395)
-    content.target_panel:SetSize(1, 1)
-    
-    -- Add the player melee panel
-    panel.config_player_melee_panel = CreateFrame("Frame", nil, panel)
-    panel.config_player_melee_panel:SetSize(1, 1)
-    -- TODO: Add the player's config panel from the player file
-    panel.config_player_melee_panel.name = 'Player Melee Settings'
-    panel.config_player_melee_panel.parent = panel.name
-    InterfaceOptions_AddCategory(panel.config_player_melee_panel)
-    
-    -- Add the target melee panel
-    panel.config_target_melee_panel = CreateFrame("Frame", nil, panel)
-    panel.config_target_melee_panel:SetSize(1, 1)
-    -- TODO: Add the target's config panel from the target file
-    panel.config_target_melee_panel.name = 'Target Melee Settings'
-    panel.config_target_melee_panel.parent = panel.name
-    InterfaceOptions_AddCategory(panel.config_target_melee_panel)
+    -- Add the melee panel
+    panel.config_melee_panel = CreateFrame("Frame", nil, panel)
+    panel.config_melee_panel:SetSize(1, 1)
+    panel.config_melee_panel.player_panel = addon_data.player.CreateConfigPanel(panel.config_melee_panel)
+    panel.config_melee_panel.player_panel:SetPoint('TOPLEFT', 0, 0)
+    panel.config_melee_panel.player_panel:SetSize(1, 1)
+    panel.config_melee_panel.target_panel = addon_data.target.CreateConfigPanel(panel.config_melee_panel)
+    panel.config_melee_panel.target_panel:SetPoint('TOPLEFT', 0, -175)
+    panel.config_melee_panel.target_panel:SetSize(1, 1)
+    panel.config_melee_panel.name = 'Melee Settings'
+    panel.config_melee_panel.parent = panel.name
+    panel.config_melee_panel.default = addon_data.config.OnDefault
+    InterfaceOptions_AddCategory(panel.config_melee_panel)
     
     -- Add the hunter panel
     panel.config_hunter_panel = CreateFrame("Frame", nil, panel)
     panel.config_hunter_panel:SetSize(1, 1)
     panel.config_hunter_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel.config_hunter_panel)
-    panel.config_hunter_panel.hunter_panel:SetPoint('TOPLEFT', 10, -10)
+    panel.config_hunter_panel.hunter_panel:SetPoint('TOPLEFT', 0, 0)
     panel.config_hunter_panel.hunter_panel:SetSize(1, 1)
-    panel.config_hunter_panel.name = 'Hunter Settings'
+    panel.config_hunter_panel.name = 'Hunter & Wand Settings'
     panel.config_hunter_panel.parent = panel.name
+    panel.config_hunter_panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(panel.config_hunter_panel)
     
 
@@ -141,6 +97,11 @@ addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_f
     edit_box_obj:SetScript("OnEnterPressed", function(self)
         enter_func(self)
         self:ClearFocus()
+    end)
+    edit_box_obj:SetScript("OnTextChanged", function(self)
+        if self:GetText() ~= "" then
+            enter_func(self)
+        end
     end)
     edit_box_obj:SetScript("OnEscapePressed", function(self)
         self:ClearFocus()
@@ -198,7 +159,7 @@ addon_data.config.color_picker_factory = function(g_name, parent, r, g, b, a, te
     color_picker.foreground = color_picker:CreateTexture(nil, 'ARTWORK')
     color_picker.foreground:SetColorTexture(r, g, b, a)
     color_picker.foreground:SetAllPoints()
-    color_picker:SetNormalTexture(color_picker.normal)
+    color_picker:SetNormalTexture(color_picker.foreground)
     color_picker:SetScript('OnClick', on_click_func)
     color_picker.text = addon_data.config.TextFactory(color_picker, text, 12)
     color_picker.text:SetPoint('LEFT', 25, 0)

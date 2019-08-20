@@ -1,4 +1,5 @@
 <img src="https://github.com/LeftHandedGlove/WeaponSwingTimerAddon/blob/UpdatedConfig/Images/wst_logo_shadow.png?raw=true" width="50%" height="50%" title="WST_Logo">
+
 # WeaponSwingTimer
 WeaponSwingTimer is an addon for WoW Classic that tracks your's and your target's swing timers.
 

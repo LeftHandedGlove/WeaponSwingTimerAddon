@@ -13,8 +13,12 @@ If you use a wand, it also tracks when your shot will go off.
 https://www.youtube.com/watch?v=o_b7PZxIuls
 
 ## Visuals
+### Melee Bars
 ![alt text](Images/MeleeBars.png)
+### YaHT Style Shot Bar
 ![alt text](Images/YaHTShotBar.png)
+### One Bar Style Shot Bar
+![alt text](Images/OneBarShotBar.png)
 
 ## Melee Bars
 The melee bars track the player's and target's main-hand and off-hand swings.

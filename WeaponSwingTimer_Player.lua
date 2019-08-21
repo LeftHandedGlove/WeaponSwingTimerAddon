@@ -625,7 +625,6 @@ addon_data.player.OffTextColorPickerOnClick = function()
             new_a, new_r, new_g, new_b = 1 - OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
         end
         settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a = new_r, new_g, new_b, new_a
-        --TODO
         addon_data.player.frame.off_left_text:SetTextColor(
             settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
         addon_data.player.frame.off_right_text:SetTextColor(

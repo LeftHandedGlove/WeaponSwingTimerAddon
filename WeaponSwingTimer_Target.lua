@@ -332,7 +332,7 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
                 bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
                 edgeFile = nil, 
                 tile = true, tileSize = 16, edgeSize = 16, 
-                insets = { left = 11, right = 11, top = 11, bottom = 11}})
+                insets = { left = 8, right = 8, top = 8, bottom = 8}})
         end
         frame.backplane:SetBackdropColor(0, 0, 0, settings.backplane_alpha)
         frame.main_bar:SetPoint("TOPLEFT", 0, 0)

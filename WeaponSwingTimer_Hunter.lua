@@ -34,7 +34,7 @@ addon_data.hunter.default_settings = {
     show_text = true,
     show_aimedshot_cast_bar = true,
     show_multishot_cast_bar = true,
-    show_latency_bars = true,
+    show_latency_bars = false,
     show_multishot_clip_bar = false,
     show_border = true,
     classic_bars = true,
@@ -319,6 +319,7 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
                 addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+                addon_data.hunter.frame.spell_bar_text:SetText("0.0")
             end
         end
     end
@@ -426,6 +427,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             frame.auto_shot_cast_bar:SetWidth(math.max(auto_shot_cast_width, 0.001))
         end
         if addon_data.hunter.casting_shot then
+            frame.spell_bar_text:SetText(tostring(addon_data.utils.SimpleRound(addon_data.hunter.cast_time - addon_data.hunter.cast_timer, 0.1)))
             frame:SetSize(settings.width, (settings.height * 2) + 2)
             frame.spell_bar:SetAlpha(1)
             new_width = settings.width * (addon_data.hunter.cast_timer / addon_data.hunter.cast_time)
@@ -443,6 +445,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
                 new_alpha = 0
                 frame:SetSize(settings.width, settings.height)
                 frame.spell_text_center:SetText("")
+                frame.spell_bar_text:SetText("")
             end
             frame.spell_bar:SetAlpha(new_alpha)
             frame.spell_spark:Hide()
@@ -493,8 +496,10 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
             frame.auto_shot_cast_bar:SetHeight(settings.height)
             frame.auto_shot_cast_bar:SetVertexColor(settings.auto_cast_r, settings.auto_cast_g, settings.auto_cast_b, settings.auto_cast_a)
         end
-        frame.shot_bar_text:SetPoint("RIGHT", -5, 0)
+        frame.shot_bar_text:SetPoint("TOPRIGHT", -5, -(settings.height / 2) + 5)
         frame.shot_bar_text:SetTextColor(1.0, 1.0, 1.0, 1.0)
+        frame.spell_bar_text:SetPoint("BOTTOMRIGHT", -5, (settings.height / 2) - 5)
+        frame.spell_bar_text:SetTextColor(1.0, 1.0, 1.0, 1.0)
         frame.shot_bar:SetHeight(settings.height)
         if settings.classic_bars then
             frame.shot_bar:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Bar')
@@ -536,9 +541,11 @@ addon_data.hunter.UpdateVisualsOnSettingsChange = function()
         if settings.show_text then
             frame.spell_text_center:Show()
             frame.shot_bar_text:Show()
+            frame.spell_bar_text:Show()
         else
             frame.spell_text_center:Hide()
             frame.shot_bar_text:Hide()
+            frame.spell_bar_text:Hide()
         end
     else
         frame:Hide()
@@ -595,6 +602,11 @@ addon_data.hunter.InitializeVisuals = function()
     frame.auto_shot_cast_bar = frame:CreateTexture(nil, "OVERLAY")
     -- Create the range spell shot bar
     frame.spell_bar = frame:CreateTexture(nil, "ARTWORK")
+    -- Create the spell bar text
+    frame.spell_bar_text = frame:CreateFontString(nil, "OVERLAY")
+    frame.spell_bar_text:SetFont("Fonts/FRIZQT__.ttf", 11)
+    frame.spell_bar_text:SetJustifyV("CENTER")
+    frame.spell_bar_text:SetJustifyH("CENTER")
     -- Create the spell spark
     frame.spell_spark = frame:CreateTexture(nil,"OVERLAY")
     frame.spell_spark:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/Spark')

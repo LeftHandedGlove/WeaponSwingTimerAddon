@@ -1,6 +1,26 @@
 ## Interface: 11302
-## Title: WeaponSwingTimer
-## Notes: Weapon swing timer addon for Classic WoW
+## Title-deDE: WeaponSwingTimer (Deutsch)
+## Title-enUS: WeaponSwingTimer (English)
+## Title-esES: WeaponSwingTimer (Español)
+## Title-esMX: WeaponSwingTimer (Español)
+## Title-frFR: WeaponSwingTimer (Français)
+## Title-itIT: WeaponSwingTimer (Italiano)
+## Title-koKR: WeaponSwingTimer (한국어)
+## Title-ptBR: WeaponSwingTimer (Português)
+## Title-ruRU: WeaponSwingTimer (русский)
+## Title-zhCN: WeaponSwingTimer (中文)
+## Title-zhTW: WeaponSwingTimer (中文)
+## Notes-deDE: Zeichnet die Schwungzeiten für Nahkampfwaffen auf. Hunters Auto Shot und Wands Shoot.
+## Notes-enUS: Tracks swing times for melee weapons, Hunter's Auto Shot, and wand's Shoot.
+## Notes-esES: Rastrea los tiempos de swing de las armas cuerpo a cuerpo Hunters Auto Shot y las varitas Shoot.
+## Notes-esMX: Rastrea los tiempos de swing de las armas cuerpo a cuerpo Hunters Auto Shot y las varitas Shoot.
+## Notes-frFR: Suit les temps de swing pour les armes de mêlée Hunters Auto Shot et les baguettes magiques Shoot.
+## Notes-itIT: Tiene traccia dei tempi di oscillazione per le armi da mischia. Cacciatori Auto Shot e bacchette.
+## Notes-koKR: 근접 무기 사냥꾼 자동 사격 및 지팡이 사격의 스윙 시간을 추적합니다.
+## Notes-ptBR: Rastreia os tempos de balanço para armas corpo-a-corpo Caçadores Auto-tiro e varinhas Atire.
+## Notes-ruRU: Отслеживает время прохождения оружия ближнего боя. Охотники с автоматическим выстрелом и палочки стреляют.
+## Notes-zhCN: 跟踪近战武器的挥动时间猎人自动射击和魔杖射击。
+## Notes-zhTW: 跟踪近戰武器的揮動時間獵人自動射擊和魔杖射擊。
 ## Author: LeftHandedGlove
 ## Version: 4.0.0
 ## DefaultState: enabled

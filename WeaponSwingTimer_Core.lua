@@ -1,4 +1,6 @@
 local addon_name, addon_data = ...
+local L = addon_data.localization_table
+
 
 addon_data.core = {}
 
@@ -9,8 +11,8 @@ addon_data.core.all_timers = {
     addon_data.player, addon_data.target
 }
 
-local load_message = "Thank you for installing WeaponSwingTimer Version 4.0.0 by LeftHandedGlove! " .. 
-                     "Use |cFFFFC300/weaponswingtimer|r or |cFFFFC300/wst|r for more options."
+local load_message = L["Thank you for installing WeaponSwingTimer Version 4.0.0 by LeftHandedGlove! " ..
+                       "Use |cFFFFC300/wst|r for more options."]
 					 
 addon_data.core.default_settings = {
 	one_frame = false

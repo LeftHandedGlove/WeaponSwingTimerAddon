@@ -90,6 +90,9 @@ addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
             _, _, _, cast_time, _, _, _ = GetSpellInfo(spell_id)
+            if cast_time == nil then 
+                return 
+            end
             if spell_name ~= "Auto Shot" and cast_time > 0 then
                 addon_data.hunter.casting = true
             end
@@ -1017,7 +1020,7 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
     panel.multi_clip_color_picker:SetPoint('TOPLEFT', 205, -280)
     
     -- Add the explaination text
-    panel.explaination_text = addon_data.config.TextFactory(panel, "Bar Explaination", 16)
+    panel.explaination_text = addon_data.config.TextFactory(panel, "Bar Explanation", 16)
     panel.explaination_text:SetPoint("TOPLEFT", 10 , -400)
     panel.explaination_text:SetTextColor(1, 0.9, 0, 1)
     

@@ -22,34 +22,49 @@ addon_data.core.in_combat = false
 
 local swing_reset_spells = {}
 swing_reset_spells['DRUID'] = { -- Done
-    --"Abolish Poison",
-    --"Aquatic Form",
-    --"Barkskin",
-    --"Bash",
-    --"Bear Form",
-    --"Cat Form",
-    --"Challenging Roar",
-    --"Claw",
-    --"Cower",
-    --"Cure Poison",
-    --"Dash",
-    --"Demoralizing Roar",
-    --"Dire Bear Form",
-    --"Enrage",
-    --"Entangling Roots",
-    --"Faerie Fire",
-    --"Faerie Fire (Feral)",
-    --"Feral Charge",
-    --"Ferocious Bite",
-    --"Frenzied Regeneration",
-    --"Gift of the Wild",
-    --"Growl",
-    --"Healing Touch",
-    --"Hibernate",
-    --"Hurricane",
-    --"Innervate",
-    --"Insect Storm",
-    --"Mark of the Wild",
+    -- Abolish Poison
+    2893,
+    -- Aquatic Form
+    1066,
+    -- Barkskin
+    22812,
+    -- Bash
+    5211,
+    6798,
+    8983,
+    -- Bear Form
+    5487,
+    -- Cat Form
+    768,
+    -- Challenging Roar
+    5209,
+    -- Claw
+    1082,
+    3029,
+    5201,
+    9849,
+    9850,
+    -- Cower
+    
+    -- Cure Poison
+    -- Dash
+    -- Demoralizing Roar
+    -- Dire Bear Form
+    -- Enrage
+    -- Entangling Roots
+    -- Faerie Fire
+    -- Faerie Fire (Feral)
+    -- Feral Charge
+    -- Ferocious Bite
+    -- Frenzied Regeneration
+    -- Gift of the Wild
+    -- Growl
+    -- Healing Touch
+    -- Hibernate
+    -- Hurricane
+    -- Innervate
+    -- Insect Storm
+    -- Mark of the Wild
     "Maul",
     --"Moonfire",
     --"Moonkin Form",

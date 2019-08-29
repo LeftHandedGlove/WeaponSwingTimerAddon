@@ -121,7 +121,7 @@ addon_data.player.OnInventoryChange = function()
 end
 
 addon_data.player.OnCombatLogUnfiltered = function(combat_info)
-    local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = unpack(combat_info)
+    local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, spell_id, spell_name, _ = unpack(combat_info)
     if (source_guid == addon_data.player.guid) then
         if (event == "SWING_DAMAGE") then
             local _, _, _, _, _, _, _, _, _, is_offhand = select(12, unpack(combat_info))
@@ -134,7 +134,7 @@ addon_data.player.OnCombatLogUnfiltered = function(combat_info)
             local miss_type, is_offhand = select(12, unpack(combat_info))
             addon_data.core.MissHandler("player", miss_type, is_offhand)
         elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
-            addon_data.core.SpellHandler("player", spell_name)
+            addon_data.core.SpellHandler("player", spell_id)
         end
     end
     

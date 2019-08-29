@@ -18,6 +18,31 @@ addon_data.hunter.shot_spell_ids = {
     [5019] = {spell_name = 'Shoot', rank = nil, cast_time = nil, cooldown = nil}
 }
 
+addon_data.hunter.is_spell_multi_shot = function(spell_id)
+    if (spell_id == 2643) or (spell_id == 14288) or (spell_id == 14289) or 
+       (spell_id == 14290) or (spell_id == 25294) then
+            return true
+    else
+            return false
+    end
+end
+
+addon_data.hunter.is_spell_aimed_shot = function(spell_id)
+    if (spell_id == 19434) or (spell_id == 20900) or (spell_id == 20901) or 
+       (spell_id == 20902) or (spell_id == 20903) or (spell_id == 20904) then
+            return true
+    else
+            return false
+    end
+end
+
+addon_data.hunter.is_spell_auto_shot = function(spell_id)
+    return (spell_id == 75)
+end
+
+addon_data.hunter.is_spell_shoot = function(spell_id)
+    return (spell_id == 5019)
+end
 
 addon_data.hunter.default_settings = {
 	enabled = true,
@@ -67,40 +92,42 @@ addon_data.hunter.OnUseAction = function(action_id)
     addon_data.hunter.scan_tip:SetAction(action_id)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(WSTScanTipTextLeft1:GetText())
     if not addon_data.hunter.casting and name then
-        addon_data.hunter.StartCastingSpell(name, real_spell_id)
+        addon_data.hunter.StartCastingSpell(real_spell_id)
     end
 end
 
 addon_data.hunter.OnCastSpellByName = function(name, on_self)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(name)
     if not addon_data.hunter.casting then
-        addon_data.hunter.StartCastingSpell(name, real_spell_id)
+        addon_data.hunter.StartCastingSpell(real_spell_id)
     end
 end
 
 addon_data.hunter.OnCastSpell = function(spell_id, spell_book_type)
     name, _, _, cast_time, _, _, real_spell_id = GetSpellInfo(spell_id, spell_book_type)
     if not addon_data.hunter.casting then
-        addon_data.hunter.StartCastingSpell(name, real_spell_id)
+        addon_data.hunter.StartCastingSpell(real_spell_id)
     end
 end
 
-addon_data.hunter.StartCastingSpell = function(spell_name, spell_id)
+addon_data.hunter.StartCastingSpell = function(spell_id)
     local settings = character_hunter_settings
     if (GetTime() - addon_data.hunter.last_failed_time) > 0 then
         if not addon_data.hunter.casting and UnitCanAttack('player', 'target') then
-            _, _, _, cast_time, _, _, _ = GetSpellInfo(spell_id)
+            spell_name, _, _, cast_time, _, _, _ = GetSpellInfo(spell_id)
             if cast_time == nil then 
                 return 
             end
-            if spell_name ~= "Auto Shot" and cast_time > 0 then
-                addon_data.hunter.casting = true
+            if not addon_data.hunter.is_spell_auto_shot(spell_id) and 
+               not addon_data.hunter.is_spell_shoot(spell_id) and 
+               cast_time > 0 then
+                    addon_data.hunter.casting = true
             end
             local settings = character_hunter_settings
             for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
                 if spell_id == id then
-                    if ((spell_name == 'Aimed Shot') and settings.show_aimedshot_cast_bar) or
-                       ((spell_name == 'Multi-Shot') and settings.show_multishot_cast_bar) then
+                    if (addon_data.hunter.is_spell_aimed_shot(spell_id) and settings.show_aimedshot_cast_bar) or
+                       (addon_data.hunter.is_spell_multi_shot(spell_id) and settings.show_multishot_cast_bar) then
                             local base_cast_time = addon_data.hunter.shot_spell_ids[spell_id].cast_time
                             addon_data.hunter.casting_shot = true
                             addon_data.hunter.cast_timer = 0
@@ -127,7 +154,7 @@ addon_data.hunter.LoadSettings = function()
     if not character_hunter_settings then
         character_hunter_settings = {}
         _, class, _ = UnitClass("player")
-        character_hunter_settings.enabled = (class == "HUNTER")
+        character_hunter_settings.enabled = (class == "HUNTER" or class == "MAGE" or class == "PRIEST" or class == "WARLOCK")
     end
     -- If the carried over settings aren't set then set them to the defaults
     for setting, value in pairs(addon_data.hunter.default_settings) do
@@ -147,7 +174,7 @@ addon_data.hunter.RestoreDefaults = function()
         character_hunter_settings[setting] = value
     end
     _, class, _ = UnitClass("player")
-    character_hunter_settings.enabled = (class == "HUNTER")
+    character_hunter_settings.enabled = (class == "HUNTER" or class == "MAGE" or class == "PRIEST" or class == "WARLOCK")
     addon_data.hunter.UpdateVisualsOnSettingsChange()
     addon_data.hunter.UpdateConfigPanelValues()
 end
@@ -310,7 +337,7 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
         -- If the spell is Auto Shot then reset the shot timer
         if addon_data.hunter.shot_spell_ids[spell_id] then
             spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
-            if spell_name == 'Auto Shot' or spell_name == "Shoot" then
+            if addon_data.hunter.is_spell_auto_shot(spell_id) or addon_data.hunter.is_spell_shoot(spell_id) then
                 addon_data.hunter.last_shot_time = GetTime()
                 addon_data.hunter.ResetShotTimer()
             end
@@ -318,7 +345,7 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
         -- Otherwise, set the cast bar to green
         if addon_data.hunter.shot_spell_ids[spell_id] then
             spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
-            if spell_name ~= 'Auto Shot' and spell_name ~= "Shoot" then
+            if not addon_data.hunter.is_spell_auto_shot(spell_id) and not addon_data.hunter.is_spell_shoot(spell_id) then
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
                 addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
@@ -364,12 +391,12 @@ end
 addon_data.hunter.OnUnitSpellCastInterrupted = function(unit, spell_id)
     if unit == 'player' then
         if addon_data.hunter.shot_spell_ids[spell_id] then
-            if addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot' then
+            if not addon_data.hunter.is_spell_auto_shot(spell_id) and not addon_data.hunter.is_spell_shoot(spell_id) then
                 addon_data.hunter.casting = false
             end
         end
         for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
-            if (spell_id == id) and (addon_data.hunter.shot_spell_ids[spell_id].spell_name ~= 'Auto Shot') then
+            if (spell_id == id) and not addon_data.hunter.is_spell_auto_shot(spell_id) and not addon_data.hunter.is_spell_shoot(spell_id) then
                 addon_data.hunter.casting_shot = false
                 addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
                 if character_hunter_settings.show_text then

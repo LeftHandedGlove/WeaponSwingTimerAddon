@@ -126,7 +126,7 @@ addon_data.target.OnUpdate = function(elapsed)
 end
 
 addon_data.target.OnCombatLogUnfiltered = function(combat_info)
-    local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, spell_id, spell_name, _ = unpack(combat_info)
+    local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = unpack(combat_info)
     if (source_guid == addon_data.target.guid) then
         if (event == "SWING_DAMAGE") then
             local _, _, _, _, _, _, _, _, _, is_offhand = select(12, unpack(combat_info))
@@ -139,6 +139,7 @@ addon_data.target.OnCombatLogUnfiltered = function(combat_info)
             local miss_type, is_offhand = select(12, unpack(combat_info))
             addon_data.core.MissHandler("target", miss_type, is_offhand)
         elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
+            local _, _, _, _, _, _, spell_id = GetSpellInfo(spell_name)
             addon_data.core.SpellHandler("target", spell_id)
         end
     end

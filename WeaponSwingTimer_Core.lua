@@ -620,6 +620,7 @@ addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
 end
 
 addon_data.core.SpellHandler = function(unit, spell_id)
+    --print(spell_id)
     local _, player_class, _ = UnitClass('player')
     for class, spell_table in pairs(swing_reset_spells) do
         if player_class == class then

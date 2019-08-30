@@ -493,7 +493,7 @@ swing_reset_spells['WARRIOR'] = {
     -- --[[ Disarm ]]
     -- --[[ Execute ]]
     -- --[[ Hamstring ]]
-    --[[ Heroic Strike ]]           78, 284, 285, 1608, 11564, 11565, 11566, 11567, 25286
+    --[[ Heroic Strike ]]           78, 284, 285, 1608, 11564, 11565, 11566, 11567, 25286,
     -- --[[ Intercept ]]
     -- --[[ Intimidating Shout ]]
     -- --[[ Last Stand ]]

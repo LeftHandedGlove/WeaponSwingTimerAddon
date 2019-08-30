@@ -9,29 +9,17 @@ FEATURES
 	- Assuming all spells for the following classes (Mage, Priest, Warlock)
 	- Assuming no spells for the following until further tested (Shaman, Paladin, Rogue)
 	- Assuming no spells other than known spells for the following (Warrior, Druid, Hunter)
+* Veritcal bar options
+* More border, bar, and text texture options
+* Add the hunter "Heartbeat" which happens every 0.5s (need to figure out when it starts) and only happens when clipping an auto
 
 BUGS
 * Hunter bar takes roughly 3 seconds to load when the interface is reloaded
 * Speed buffs should only affect the next swing
-
-TODO FROM STRESS TEST
+* Something is preventing people from many interface actions, mostly clickin on items in windows
 * Dragging and dropping to any point other than CENTER causes the offsets in the settings to be off
 	I need to make a utility that converts other points to CENTER
-* Need to fixup the config menu
-* Hunter bar needs some latency marker for the 0.5 "cast time" of autoshot
-* Make YaHT multishot bar two markers like it is with the onebar setting
-* Make the Multishot marker not on by default (Popup window when hunter turns 18 to enable it if they want to)
-* Landing page of the addon acts like a tutorial
-* The hunter auto shot cast time seems to be inconsistant. 
-	There is a a 0.15s swing between the full autoshot cooldown and cast, and a 0.7 swing between the cast time. 
-	The cast time was between 0.53s and 0.63s with a 2.3s bow with a rnage speed of 2.091
-	The whole shot time was between 2.051 and 2.187 while standing still with a range speed of 2.091
-* Hunter cast time seems to be increased if the cast time has been cliped significantly 
-	(like a full 0.5s clip causes the shot cast time to be roughly 1.0-0.9 secs)
 
 THINGS ACE3 WOULD MAKE EASIER
 * Profiles would also be nice
 * Add something so the addon adds a button that attaches to the minimap
-* Multiple textures would also be nice
-* Changable font size would be nice
-* Changable fonts would also be nice

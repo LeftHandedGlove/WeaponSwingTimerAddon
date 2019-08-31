@@ -338,6 +338,7 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
         if addon_data.hunter.shot_spell_ids[spell_id] then
             spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
             if addon_data.hunter.is_spell_auto_shot(spell_id) or addon_data.hunter.is_spell_shoot(spell_id) then
+                hunter_bw_shot_timer = GetTime()
                 addon_data.hunter.last_shot_time = GetTime()
                 addon_data.hunter.ResetShotTimer()
             end
@@ -405,6 +406,13 @@ addon_data.hunter.OnUnitSpellCastInterrupted = function(unit, spell_id)
                 addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
             end
         end
+    end
+end
+
+addon_data.hunter.OnUnitSpellCastFailedQuiet = function(unit, spell_id)
+    local settings = character_hunter_settings
+    if settings.enabled and unit == "player" and addon_data.hunter.is_spell_auto_shot(spell_id) then
+        addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time + 0.5
     end
 end
 

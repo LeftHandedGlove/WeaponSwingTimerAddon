@@ -620,7 +620,6 @@ addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
 end
 
 addon_data.core.SpellHandler = function(unit, spell_id)
-    --print(spell_id)
     local _, player_class, _ = UnitClass('player')
     for class, spell_table in pairs(swing_reset_spells) do
         if player_class == class then
@@ -655,6 +654,7 @@ local function OnAddonLoaded(self)
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
     addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+    addon_data.core.core_frame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
     -- Load the settings for the core and all timers
     LoadAllSettings()
     InitializeAllVisuals()
@@ -699,6 +699,8 @@ local function CoreFrame_OnEvent(self, event, ...)
         addon_data.hunter.OnUnitSpellCastFailed(args[1], args[3])
     elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
         addon_data.hunter.OnUnitSpellCastInterrupted(args[1], args[3])
+    elseif event == "UNIT_SPELLCAST_FAILED_QUIET" then
+        addon_data.hunter.OnUnitSpellCastFailedQuiet(args[1], args[3])
     end
 end
 

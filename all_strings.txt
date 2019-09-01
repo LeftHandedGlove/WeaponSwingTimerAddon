@@ -1,1 +1,2 @@
-Thank you for installing WeaponSwingTimer Version 4.0.0 by LeftHandedGlove! Use |cFFFFC300/wst|r for more options.
+Thank you for installing WeaponSwingTimer Version
+by LeftHandedGlove! Use |cFFFFC300/wst|r for more options.

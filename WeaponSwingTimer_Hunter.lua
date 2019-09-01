@@ -412,7 +412,7 @@ end
 addon_data.hunter.OnUnitSpellCastFailedQuiet = function(unit, spell_id)
     local settings = character_hunter_settings
     if settings.enabled and unit == "player" and addon_data.hunter.is_spell_auto_shot(spell_id) then
-        addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time + 0.5
+        -- addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time + 0.5
     end
 end
 

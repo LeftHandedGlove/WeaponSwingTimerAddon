@@ -84,7 +84,7 @@ addon_data.hunter.last_failed_time = GetTime()
 
 addon_data.hunter.range_weapon_id = 0
 addon_data.hunter.has_moved = false
-addon_data.hunter.berserk_haste = 0
+addon_data.hunter.berserk_haste = 1
 addon_data.hunter.class = 0
 addon_data.hunter.guid = 0
 
@@ -123,7 +123,6 @@ addon_data.hunter.StartCastingSpell = function(spell_id)
                cast_time > 0 then
                     addon_data.hunter.casting = true
             end
-            local settings = character_hunter_settings
             for id, spell_table in pairs(addon_data.hunter.shot_spell_ids) do
                 if spell_id == id then
                     if (addon_data.hunter.is_spell_aimed_shot(spell_id) and settings.show_aimedshot_cast_bar) or
@@ -187,22 +186,29 @@ end
 
 addon_data.hunter.UpdateRangeCastSpeedModifier = function()
     local speed = 1.0
-    for i=1, 40 do
-        name, _ = UnitAura("player", i)
-        if name == "Quick Shots" then
+    local buffs = {3045, 26635, 6150, 28866, 12889} -- aura ids for each haste effect
+	for i=1, 40 do
+        local _, _, _, _, _, _, _, _, _, buffId = UnitBuff("player",i)
+		-- name, _ = UnitAura("player", i)
+        if buffId == buffs[3] then -- Quick Shots 
+		-- if name == "Quick Shots" then
             speed = speed/1.3
         end
-        if name == "Rapid Shot" then
+        if buffId == buffs[1] then -- Rapid Fire 
+		-- if name == "Rapid Fire" then
             speed = speed/1.4
         end
-        if name == "Berserking" then
+        if buffId == buffs[2] then -- Troll Racial 
+		-- if name == "Berserking" then
             addon_data.hunter.UpdateBerserkHaste()
-            speed = speed/ (1 + addon_data.hunter.berserk_haste)
+            speed = speed/ (addon_data.hunter.berserk_haste)
         end
-        if name == "Kiss of the Spider" then
+        if buffId == buffs[4] then -- Kiss of the Spider 
+		-- if name == "Kiss of the Spider" then
             speed = speed/1.2
         end
-        if name == "Curse of Tongues" then
+		if buffId == buffs[5] then -- Curse of Tongues
+        -- if name == "Curse of Tongues" then
             speed = speed/0.5
         end
     end
@@ -210,10 +216,11 @@ addon_data.hunter.UpdateRangeCastSpeedModifier = function()
 end
 
 addon_data.hunter.UpdateBerserkHaste = function()
-    if((UnitHealth("player")/UnitHealthMax("player")) >= 0.40) then
-        addon_data.hunter.berserk_haste = (1.30 - (UnitHealth("player")/UnitHealthMax("player")))/3
+	
+    if((UnitHealth("player")/UnitHealthMax("player") >= 0.40)) then
+        addon_data.hunter.berserk_haste = (1.30 - (UnitHealth("player")/UnitHealthMax("player")-0.40)/2)
     else
-        addon_data.hunter.berserk_haste = 0.3
+        addon_data.hunter.berserk_haste = 1.1 * 1.3
     end
 end
 
@@ -263,20 +270,6 @@ end
 
 addon_data.hunter.OnUpdate = function(elapsed)
     if character_hunter_settings.enabled then
-        -- Update the ranged attack speed
-        new_range_speed, _, _, _, _, _ = UnitRangedDamage("player")
-        -- FIXME: Temp fix until I can nail down the divide by zero error
-        if addon_data.hunter.range_speed == 0 then
-            addon_data.hunter.range_speed = 3
-        end
-        -- Handling for getting haste buffs in combat
-        if new_range_speed ~= addon_data.hunter.range_speed then
-            if not addon_data.hunter.auto_shot_ready then
-                addon_data.hunter.shot_timer = addon_data.hunter.shot_timer * 
-                                               (new_range_speed / addon_data.hunter.range_speed)
-            end
-            addon_data.hunter.range_speed = new_range_speed
-        end
         -- Check to see if we have moved
         addon_data.hunter.has_moved = (GetUnitSpeed("player") > 0)
         -- Update the Auto Shot timer based on the updated settings
@@ -344,15 +337,30 @@ addon_data.hunter.OnUnitSpellCastSucceeded = function(unit, spell_id)
             end
         end
         -- Otherwise, set the cast bar to green
-        if addon_data.hunter.shot_spell_ids[spell_id] then
-            spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
-            if not addon_data.hunter.is_spell_auto_shot(spell_id) and not addon_data.hunter.is_spell_shoot(spell_id) then
-                addon_data.hunter.casting_shot = false
-                addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
-                addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
-                addon_data.hunter.frame.spell_bar_text:SetText("0.0")
-            end
-        end
+        --if addon_data.hunter.shot_spell_ids[spell_id] then
+        --    spell_name = addon_data.hunter.shot_spell_ids[spell_id].spell_name
+        --    if not addon_data.hunter.is_spell_auto_shot(spell_id) and not addon_data.hunter.is_spell_shoot(spell_id) then
+        --        addon_data.hunter.casting_shot = false
+        --        addon_data.hunter.frame.spell_bar:SetVertexColor(0, 0.5, 0, 1)
+        --        addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
+        --        addon_data.hunter.frame.spell_bar_text:SetText("0.0")
+        --    end
+        --end
+    end
+	if addon_data.hunter.is_spell_auto_shot(spell_id) then	-- Update the ranged attack speed
+		new_range_speed, _, _, _, _, _ = UnitRangedDamage("player")
+		-- FIXME: Temp fix until I can nail down the divide by zero error
+		if addon_data.hunter.range_speed == 0 then
+			addon_data.hunter.range_speed = 3
+		end
+		-- Handling for getting haste buffs in combat
+		if new_range_speed ~= addon_data.hunter.range_speed then
+			if not addon_data.hunter.auto_shot_ready then
+				addon_data.hunter.shot_timer = addon_data.hunter.shot_timer * 
+											(new_range_speed / addon_data.hunter.range_speed)
+			end
+			addon_data.hunter.range_speed = new_range_speed
+		end
     end
 end
 
@@ -378,7 +386,7 @@ addon_data.hunter.OnUnitSpellCastFailed = function(unit, spell_id)
         if addon_data.hunter.casting and addon_data.hunter.casting_shot then
             addon_data.hunter.frame.spell_bar:SetVertexColor(0.7, 0, 0, 1)
             if character_hunter_settings.show_text then
-                addon_data.hunter.frame.spell_text_center:SetText("Failed")
+                --addon_data.hunter.frame.spell_text_center:SetText("Failed")
             end
             addon_data.hunter.frame.spell_bar:SetWidth(character_hunter_settings.width)
         end
@@ -411,8 +419,10 @@ end
 
 addon_data.hunter.OnUnitSpellCastFailedQuiet = function(unit, spell_id)
     local settings = character_hunter_settings
-    if settings.enabled and unit == "player" and addon_data.hunter.is_spell_auto_shot(spell_id) then
-        -- addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time + 0.5
+    if settings.show_autoshot_delay_timer and unit == "player" and addon_data.hunter.is_spell_auto_shot(spell_id) then
+        if not addon_data.hunter.casting and addon_data.hunter.auto_shot_ready then
+			addon_data.hunter.shot_timer = addon_data.hunter.auto_cast_time + 0.5
+		end
     end
 end
 
@@ -439,7 +449,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
                 new_width = settings.width * ((shot_timer - auto_cast_time) / (range_speed - auto_cast_time))
                 if settings.show_multishot_clip_bar then
                     frame.multishot_clip_bar:Show()
-                    multishot_clip_width = math.min((settings.width * 2) * (0.5 / (addon_data.hunter.range_speed - 0.5)), settings.width)
+                    multishot_clip_width = math.min((settings.width * 2) * (0.1 / (addon_data.hunter.range_speed - 0.1)), settings.width)
                     frame.multishot_clip_bar:SetWidth(multishot_clip_width)
                 end
             end
@@ -456,7 +466,7 @@ addon_data.hunter.UpdateVisualsOnUpdate = function()
             end
             if settings.show_multishot_clip_bar then
                 frame.multishot_clip_bar:Show()
-                multishot_clip_width = math.min(settings.width * (0.5 / (addon_data.hunter.range_speed - 0.5)), settings.width)
+                multishot_clip_width = math.min(settings.width * (0.1 / (addon_data.hunter.range_speed - 0.1)), settings.width)
                 frame.multishot_clip_bar:SetWidth(5)
                 multi_offset = (settings.width * (addon_data.hunter.auto_cast_time / addon_data.hunter.range_speed)) + multishot_clip_width
                 frame.multishot_clip_bar:SetPoint('TOPRIGHT', -multi_offset, 0)
@@ -670,6 +680,7 @@ addon_data.hunter.UpdateConfigPanelValues = function()
     panel.show_multishot_cast_bar_checkbox:SetChecked(settings.show_multishot_cast_bar)
     panel.show_latency_bar_checkbox:SetChecked(settings.show_latency_bars)
     panel.show_multishot_clip_bar_checkbox:SetChecked(settings.show_multishot_clip_bar)
+	panel.show_autoshot_delay_checkbox:SetChecked(settings.show_autoshot_delay_timer)
     panel.show_border_checkbox:SetChecked(settings.show_border)
     panel.classic_bars_checkbox:SetChecked(settings.classic_bars)
     panel.one_bar_checkbox:SetChecked(settings.one_bar)
@@ -728,6 +739,11 @@ end
 
 addon_data.hunter.ShowMultiShotClipBarCheckBoxOnClick = function(self)
    character_hunter_settings.show_multishot_clip_bar = self:GetChecked()
+    addon_data.hunter.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.hunter.ShowAutoShotDelayCheckBoxOnClick = function(self)
+   character_hunter_settings.show_autoshot_delay_timer = self:GetChecked()
     addon_data.hunter.UpdateVisualsOnSettingsChange()
 end
 
@@ -1044,6 +1060,15 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
         "Shows a bar that represents when a Multi-Shot would clip an Auto Shot.",
         addon_data.hunter.ShowMultiShotClipBarCheckBoxOnClick)
     panel.show_multishot_clip_bar_checkbox:SetPoint("TOPLEFT", 10, -310)
+	
+	    -- Show Autoshot delay timer Checkbox
+    panel.show_autoshot_delay_checkbox = addon_data.config.CheckBoxFactory(
+        "HunterShowAutoShotDelayCheckBox",
+        panel,
+        " Auto Shot delay timer",
+        "Shows a timer that represents when Auto shot is delayed.",
+        addon_data.hunter.ShowAutoShotDelayCheckBoxOnClick)
+    panel.show_autoshot_delay_checkbox:SetPoint("TOPLEFT", 10, -330)
     
     -- Multi-shot clip color picker
     panel.multi_clip_color_picker = addon_data.config.color_picker_factory(
@@ -1066,4 +1091,3 @@ addon_data.hunter.CreateConfigPanel = function(parent_panel)
     addon_data.hunter.UpdateConfigPanelValues()
     return panel
 end
-

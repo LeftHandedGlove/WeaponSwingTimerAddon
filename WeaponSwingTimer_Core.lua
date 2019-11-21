@@ -13,9 +13,9 @@ addon_data.core.all_timers = {
 
 local version = "4.1.0"
 
-local load_message = L["Thank you for installing WeaponSwingTimer Version"] .. " " .. version .. 
+local load_message = L["Thank you for installing WeaponSwingTimer Version"] .. " " .. version ..
                      " " .. L["by LeftHandedGlove! Use |cFFFFC300/wst|r for more options."]
-                     
+
 addon_data.core.default_settings = {
     one_frame = false
 }
@@ -39,11 +39,11 @@ swing_reset_spells['DRUID'] = {
     -- --[[ Dire Bear Form ]]           9634,
     -- --[[ Enrage ]]                   5229,
     -- --[[ Entangling Roots ]]         339, 1062, 5195, 5196, 9852, 9853,
-    -- --[[ Faerie Fire ]]              770, 778, 9749, 9907, 
-    -- --[[ Faerie Fire (Feral) ]]      16857, 17390, 17391, 17392, 
-    -- --[[ Feral Charge ]]             16979, 
+    -- --[[ Faerie Fire ]]              770, 778, 9749, 9907,
+    -- --[[ Faerie Fire (Feral) ]]      16857, 17390, 17391, 17392,
+    -- --[[ Feral Charge ]]             16979,
     -- --[[ Ferocious Bite ]]           22568, 22827, 22828, 22829, 31018,
-    -- --[[ Frenzied Regeneration ]]    
+    -- --[[ Frenzied Regeneration ]]
     -- --[[ Gift of the Wild ]]
     -- --[[ Growl ]]
     -- --[[ Healing Touch ]]
@@ -608,13 +608,13 @@ addon_data.core.MissHandler = function(unit, miss_type, is_offhand)
                 addon_data.player.ResetMainSwingTimer()
             else
                 addon_data.player.ResetOffSwingTimer()
-            end 
+            end
         elseif unit == "target" then
             if not is_offhand then
                 addon_data.target.ResetMainSwingTimer()
             else
                 addon_data.target.ResetOffSwingTimer()
-            end 
+            end
         else
             addon_data.utils.PrintMsg("Unexpected Unit Type in MissHandler().")
         end
@@ -635,7 +635,7 @@ addon_data.core.SpellHandler = function(unit, spell_id)
                         addon_data.utils.PrintMsg("Unexpected Unit Type in SpellHandler().")
                     end
                 end
-                
+
             end
         end
     end
@@ -711,7 +711,6 @@ SLASH_WEAPONSWINGTIMER_CONFIG1 = "/WeaponSwingTimer"
 SLASH_WEAPONSWINGTIMER_CONFIG2 = "/weaponswingtimer"
 SLASH_WEAPONSWINGTIMER_CONFIG3 = "/wst"
 SlashCmdList["WEAPONSWINGTIMER_CONFIG"] = function(option)
-    InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
     InterfaceOptionsFrame_OpenToCategory("WeaponSwingTimer")
 end
 

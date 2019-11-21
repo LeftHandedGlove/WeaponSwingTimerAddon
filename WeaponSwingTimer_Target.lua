@@ -7,20 +7,20 @@ addon_data.target = {}
 --[[============================================================================================]]--
 
 addon_data.target.default_settings = {
-	enabled = true,
-	width = 200,
-	height = 10,
+    enabled = true,
+    width = 200,
+    height = 10,
     point = "CENTER",
-	rel_point = "CENTER",
-	x_offset = 0,
-	y_offset = -230,
-	in_combat_alpha = 1.0,
-	ooc_alpha = 0.25,
-	backplane_alpha = 0.5,
-	is_locked = false,
+    rel_point = "CENTER",
+    x_offset = 0,
+    y_offset = -230,
+    in_combat_alpha = 1.0,
+    ooc_alpha = 0.25,
+    backplane_alpha = 0.5,
+    is_locked = false,
     show_left_text = true,
     show_right_text = true,
-	show_offhand = true,
+    show_offhand = true,
     show_border = true,
     classic_bars = true,
     fill_empty = true,
@@ -143,7 +143,7 @@ addon_data.target.OnCombatLogUnfiltered = function(combat_info)
             addon_data.core.SpellHandler("target", spell_id)
         end
     end
-    
+
 end
 
 addon_data.target.ResetMainSwingTimer = function()
@@ -324,15 +324,15 @@ addon_data.target.UpdateVisualsOnSettingsChange = function()
         frame:SetWidth(settings.width)
         if settings.show_border then
             frame.backplane:SetBackdrop({
-                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
-                edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border", 
-                tile = true, tileSize = 16, edgeSize = 12, 
+                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background",
+                edgeFile = "Interface/AddOns/WeaponSwingTimer/Images/Border",
+                tile = true, tileSize = 16, edgeSize = 12,
                 insets = { left = 8, right = 8, top = 8, bottom = 8}})
         else
             frame.backplane:SetBackdrop({
-                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background", 
-                edgeFile = nil, 
-                tile = true, tileSize = 16, edgeSize = 16, 
+                bgFile = "Interface/AddOns/WeaponSwingTimer/Images/Background",
+                edgeFile = nil,
+                tile = true, tileSize = 16, edgeSize = 16,
                 insets = { left = 8, right = 8, top = 8, bottom = 8}})
         end
         frame.backplane:SetBackdropColor(0, 0, 0, settings.backplane_alpha)
@@ -580,9 +580,9 @@ addon_data.target.MainColorPickerOnClick = function()
         addon_data.target.config_frame.main_color_picker.foreground:SetColorTexture(
             settings.main_r, settings.main_g, settings.main_b, settings.main_a)
     end
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc =
         MainOnActionFunc, MainOnActionFunc, MainOnActionFunc
-    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.hasOpacity = true
     ColorPickerFrame.opacity = 1 - settings.main_a
     ColorPickerFrame:SetColorRGB(settings.main_r, settings.main_g, settings.main_b)
     ColorPickerFrame.previousValues = {settings.main_r, settings.main_g, settings.main_b, settings.main_a}
@@ -607,9 +607,9 @@ addon_data.target.MainTextColorPickerOnClick = function()
         addon_data.target.config_frame.main_text_color_picker.foreground:SetColorTexture(
             settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
     end
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc =
         MainTextOnActionFunc, MainTextOnActionFunc, MainTextOnActionFunc
-    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.hasOpacity = true
     ColorPickerFrame.opacity = 1 - settings.main_text_a
     ColorPickerFrame:SetColorRGB(settings.main_text_r, settings.main_text_g, settings.main_text_b)
     ColorPickerFrame.previousValues = {settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a}
@@ -632,9 +632,9 @@ addon_data.target.OffColorPickerOnClick = function()
         addon_data.target.config_frame.off_color_picker.foreground:SetColorTexture(
             settings.off_r, settings.off_g, settings.off_b, settings.off_a)
     end
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc =
         OffOnActionFunc, OffOnActionFunc, OffOnActionFunc
-    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.hasOpacity = true
     ColorPickerFrame.opacity = 1 - settings.off_a
     ColorPickerFrame:SetColorRGB(settings.off_r, settings.off_g, settings.off_b)
     ColorPickerFrame.previousValues = {settings.off_r, settings.off_g, settings.off_b, settings.off_a}
@@ -659,9 +659,9 @@ addon_data.target.OffTextColorPickerOnClick = function()
         addon_data.target.config_frame.off_text_color_picker.foreground:SetColorTexture(
             settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a)
     end
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc =
         OffTextOnActionFunc, OffTextOnActionFunc, OffTextOnActionFunc
-    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.hasOpacity = true
     ColorPickerFrame.opacity = 1 - settings.off_text_a
     ColorPickerFrame:SetColorRGB(settings.off_text_r, settings.off_text_g, settings.off_text_b)
     ColorPickerFrame.previousValues = {settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a}
@@ -691,7 +691,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
     panel.title_text = addon_data.config.TextFactory(panel, "Target Swing Bar Settings", 20)
     panel.title_text:SetPoint("TOPLEFT", 10, -10)
     panel.title_text:SetTextColor(1, 0.82, 0, 1)
-    
+
     -- Enabled Checkbox
     panel.enabled_checkbox = addon_data.config.CheckBoxFactory(
         "TargetEnabledCheckBox",
@@ -748,7 +748,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         "Enables the target's right side text.",
         addon_data.target.ShowRightTextCheckBoxOnClick)
     panel.show_right_text_checkbox:SetPoint("TOPLEFT", 10, -160)
-    
+
     -- Width EditBox
     panel.width_editbox = addon_data.config.EditBoxFactory(
         "TargetWidthEditBox",
@@ -785,7 +785,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         25,
         addon_data.target.YOffsetEditBoxOnEnter)
     panel.y_offset_editbox:SetPoint("TOPLEFT", 280, -110, "BOTTOMRIGHT", 355, -135)
-    
+
     -- Main-hand color picker
     panel.main_color_picker = addon_data.config.color_picker_factory(
         'TargetMainColorPicker',
@@ -818,7 +818,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         'Off-hand Bar Text Color',
         addon_data.target.OffTextColorPickerOnClick)
     panel.off_text_color_picker:SetPoint('TOPLEFT', 205, -220)
-    
+
     -- In Combat Alpha Slider
     panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
         "TargetInCombatAlphaSlider",
@@ -849,7 +849,7 @@ addon_data.target.CreateConfigPanel = function(parent_panel)
         0.05,
         addon_data.target.BackplaneAlphaOnValChange)
     panel.backplane_alpha_slider:SetPoint("TOPLEFT", 405, -160)
-    
+
     -- Return the final panel
     addon_data.target.UpdateConfigPanelValues()
     return panel

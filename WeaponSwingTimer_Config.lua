@@ -16,7 +16,7 @@ addon_data.config.InitializeVisuals = function()
     panel.global_panel = addon_data.config.CreateConfigPanel(panel)
     panel.global_panel:SetPoint('TOPLEFT', 10, -10)
     panel.global_panel:SetSize(1, 1)
-    
+
     panel.logo = panel:CreateTexture(nil, 'ARTWORK')
     panel.logo:SetTexture('Interface/AddOns/WeaponSwingTimer/Images/LandingPage')
     panel.logo:SetSize(1024, 1024)
@@ -25,7 +25,7 @@ addon_data.config.InitializeVisuals = function()
     panel.name = "WeaponSwingTimer"
     panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(panel)
-    
+
     -- Add the melee panel
     panel.config_melee_panel = CreateFrame("Frame", nil, panel)
     panel.config_melee_panel:SetSize(1, 1)
@@ -39,7 +39,7 @@ addon_data.config.InitializeVisuals = function()
     panel.config_melee_panel.parent = panel.name
     panel.config_melee_panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(panel.config_melee_panel)
-    
+
     -- Add the hunter panel
     panel.config_hunter_panel = CreateFrame("Frame", nil, panel)
     panel.config_hunter_panel:SetSize(1, 1)
@@ -50,7 +50,7 @@ addon_data.config.InitializeVisuals = function()
     panel.config_hunter_panel.parent = panel.name
     panel.config_hunter_panel.default = addon_data.config.OnDefault
     InterfaceOptions_AddCategory(panel.config_hunter_panel)
-    
+
 
 end
 
@@ -92,7 +92,7 @@ addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_f
     edit_box_obj:SetAutoFocus(false)
     edit_box_obj:SetMaxLetters(4)
     edit_box_obj:SetJustifyH("CENTER")
-	edit_box_obj:SetJustifyV("CENTER")
+    edit_box_obj:SetJustifyV("CENTER")
     edit_box_obj:SetFontObject(GameFontNormal)
     edit_box_obj:SetScript("OnEnterPressed", function(self)
         enter_func(self)
@@ -190,7 +190,7 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
     panel.title_text = addon_data.config.TextFactory(panel, "Global Bar Settings", 20)
     panel.title_text:SetPoint("TOPLEFT", 0, 0)
     panel.title_text:SetTextColor(1, 0.9, 0, 1)
-    
+
     -- Is Locked Checkbox
     panel.is_locked_checkbox = addon_data.config.CheckBoxFactory(
         "IsLockedCheckBox",
@@ -199,12 +199,12 @@ addon_data.config.CreateConfigPanel = function(parent_panel)
         "Locks all of the swing bar frames, preventing them from being dragged.",
         addon_data.config.IsLockedCheckBoxOnClick)
     panel.is_locked_checkbox:SetPoint("TOPLEFT", 0, -30)
-    
+
     -- Guidance Text
     panel.guidance_text = addon_data.config.TextFactory(panel, "<- Click the '+' on the left\nfor more options", 16)
     panel.guidance_text:SetPoint("TOPLEFT", 0, -100)
     panel.guidance_text:SetTextColor(1, 1, 1, 1)
-    
+
     -- Return the final panel
     addon_data.config.UpdateConfigValues()
     return panel

@@ -199,6 +199,8 @@ addon_data.hunter.UpdateRangeCastSpeedModifier = function()
             speed = speed / 1.2
         elseif name == "Curse of Tongues" then
             speed = speed / 0.5
+        elseif name == "Ancient Dread" then
+            speed = speed / 0.5
         end
     end
     addon_data.hunter.range_cast_speed_modifer = speed

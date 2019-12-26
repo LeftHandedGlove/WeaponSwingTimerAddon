@@ -1,14 +1,14 @@
 FEATURES
 * Multi-language support. (deDE, enUS, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW)
-	* All Settings strings
-	* Greeting
-	* .toc file
-	* "Main-Hand" and "Off-Hand"
+    * All Settings strings
+    * Greeting
+    * .toc file
+    * "Main-Hand" and "Off-Hand"
 * Tranquilizing Shot announcement
 * On going testing for which spells reset the melee swing timer
-	- Assuming all spells for the following classes (Mage, Priest, Warlock)
-	- Assuming no spells for the following until further tested (Shaman, Paladin, Rogue)
-	- Assuming no spells other than known spells for the following (Warrior, Druid, Hunter)
+    - Assuming all spells for the following classes (Mage, Priest, Warlock)
+    - Assuming no spells for the following until further tested (Shaman, Paladin, Rogue)
+    - Assuming no spells other than known spells for the following (Warrior, Druid, Hunter)
 * Veritcal bar options
 * More border, bar, and text texture options
 * Add the hunter "Heartbeat" which happens every 0.5s (need to figure out when it starts) and only happens when clipping an auto
@@ -18,7 +18,7 @@ BUGS
 * Speed buffs should only affect the next swing
 * Something is preventing people from many interface actions, mostly clickin on items in windows
 * Dragging and dropping to any point other than CENTER causes the offsets in the settings to be off
-	I need to make a utility that converts other points to CENTER
+    I need to make a utility that converts other points to CENTER
 
 THINGS ACE3 WOULD MAKE EASIER
 * Profiles would also be nice

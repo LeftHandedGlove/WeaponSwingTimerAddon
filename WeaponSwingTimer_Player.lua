@@ -28,6 +28,8 @@ addon_data.player.default_settings = {
     main_text_r = 1.0, main_text_g = 1.0, main_text_b = 1.0, main_text_a = 1.0,
     off_r = 0.1, off_g = 0.1, off_b = 0.9, off_a = 1.0,
     off_text_r = 1.0, off_text_g = 1.0, off_text_b = 1.0, off_text_a = 1.0,
+    leading_deadzone = 0.0,
+    trailing_deadzone = 0.0,
 }
 
 addon_data.player.class = UnitClass("player")[2]
@@ -231,9 +233,25 @@ addon_data.player.UpdateVisualsOnUpdate = function()
         else
             frame.main_spark:Show()
         end
+
         -- Update the main bars text
         frame.main_left_text:SetText("Main-Hand")
         frame.main_right_text:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
+
+        -- Update main bar coloring for deadzones
+        local currLeadingDeadZone = main_speed - settings.leading_deadzone
+        local totalDeadZone = settings.leading_deadzone + settings.trailing_deadzone
+
+        frame.main_bar:SetVertexColor(settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+        if main_speed > totalDeadZone then
+            if main_timer >= currLeadingDeadZone then
+                frame.main_bar:SetVertexColor(1, 0, 0, 0.25)
+            end
+            if main_timer <= settings.trailing_deadzone then
+                frame.main_bar:SetVertexColor(1, 0, 0, 0.25)
+            end
+        end
+
         -- Update the off hand bar
         if addon_data.player.has_offhand and settings.show_offhand then
             frame.off_bar:Show()
@@ -481,6 +499,10 @@ addon_data.player.UpdateConfigPanelValues = function()
     panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
     panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
     panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
+    panel.leading_deadzone_editbox:SetText(tostring(settings.leading_deadzone))
+    panel.leading_deadzone_editbox:SetCursorPosition(0)
+    panel.trailing_deadzone_editbox:SetText(tostring(settings.trailing_deadzone))
+    panel.trailing_deadzone_editbox:SetCursorPosition(0)
 end
 
 addon_data.player.EnabledCheckBoxOnClick = function(self)
@@ -535,6 +557,16 @@ end
 
 addon_data.player.YOffsetEditBoxOnEnter = function(self)
     character_player_settings.y_offset = tonumber(self:GetText())
+    addon_data.player.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.player.LeadingDeadzoneEditBoxOnEnter = function(self)
+    character_player_settings.leading_deadzone = tonumber(self:GetText())
+    addon_data.player.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.player.TrailingDeadzoneEditBoxOnEnter = function(self)
+    character_player_settings.trailing_deadzone = tonumber(self:GetText())
     addon_data.player.UpdateVisualsOnSettingsChange()
 end
 
@@ -824,6 +856,26 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         0.05,
         addon_data.player.BackplaneAlphaOnValChange)
     panel.backplane_alpha_slider:SetPoint("TOPLEFT", 405, -160)
+    
+    -- Leading Deadzone EditBox
+    panel.leading_deadzone_editbox = addon_data.config.EditBoxFactory(
+        "LeadingDeadzoneEditBox",
+        panel,
+        "Leading Deadzone (seconds)",
+        75,
+        25,
+        addon_data.player.LeadingDeadzoneEditBoxOnEnter)
+    panel.leading_deadzone_editbox:SetPoint("TOPLEFT", 450, -220, "BOTTOMRIGHT", 500, -245)
+    
+    -- Trailing Deadzone EditBox
+    panel.trailing_deadzone_editbox = addon_data.config.EditBoxFactory(
+        "TrailingDeadzoneEditBox",
+        panel,
+        "Trailing Deadzone (seconds)",
+        75,
+        25,
+        addon_data.player.TrailingDeadzoneEditBoxOnEnter)
+    panel.trailing_deadzone_editbox:SetPoint("TOPLEFT", 450, -260, "BOTTOMRIGHT", 500, -385)
     
     -- Return the final panel
     addon_data.player.UpdateConfigPanelValues()

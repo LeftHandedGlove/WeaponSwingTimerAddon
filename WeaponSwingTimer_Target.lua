@@ -233,8 +233,13 @@ end
 --[[===================================== VISUALS RELATED ======================================]]--
 --[[============================================================================================]]--
 addon_data.target.UpdateVisualsOnUpdate = function()
-    local settings = character_target_settings
     local frame = addon_data.target.frame
+    if frame == nil then
+        return
+    end
+
+    local settings = character_target_settings
+
     if settings.enabled and UnitExists("target") then
         frame:Show()
         local main_speed = addon_data.target.main_weapon_speed
@@ -316,7 +321,12 @@ end
 
 addon_data.target.UpdateVisualsOnSettingsChange = function()
     local frame = addon_data.target.frame
+    if frame == nil then
+        return
+    end
+
     local settings = character_target_settings
+
     if settings.enabled then
         frame:Show()
         frame:ClearAllPoints()
@@ -431,7 +441,7 @@ addon_data.target.InitializeVisuals = function()
     frame:SetScript("OnDragStart", addon_data.target.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.target.OnFrameDragStop)
     -- Create the backplane
-    frame.backplane = CreateFrame("Frame", addon_name .. "TargetBackdropFrame", frame)
+    frame.backplane = CreateFrame("Frame", addon_name .. "TargetBackdropFrame", frame, BackdropTemplateMixin and "BackdropTemplate")
     frame.backplane:SetPoint('TOPLEFT', -9, 9)
     frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')
@@ -684,7 +694,7 @@ addon_data.target.BackplaneAlphaOnValChange = function(self)
 end
 
 addon_data.target.CreateConfigPanel = function(parent_panel)
-    addon_data.target.config_frame = CreateFrame("Frame", addon_name .. "TargetConfigPanel", parent_panel)
+    addon_data.target.config_frame = CreateFrame("Frame", addon_name .. "TargetConfigPanel", parent_panel, BackdropTemplateMixin and "BackdropTemplate")
     local panel = addon_data.target.config_frame
     local settings = character_target_settings
     -- Title Text

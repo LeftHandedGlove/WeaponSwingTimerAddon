@@ -419,6 +419,10 @@ end
 addon_data.hunter.UpdateVisualsOnUpdate = function()
     local settings = character_hunter_settings
     local frame = addon_data.hunter.frame
+    if frame == nill then
+        return
+    end
+
     local range_speed = addon_data.hunter.range_speed
     local shot_timer = addon_data.hunter.shot_timer
     local auto_cast_time = addon_data.hunter.auto_cast_time
@@ -504,6 +508,10 @@ end
 addon_data.hunter.UpdateVisualsOnSettingsChange = function()
     local settings = character_hunter_settings
     local frame = addon_data.hunter.frame
+    if frame == nil then
+        return
+    end
+
 	if settings.enabled then
         frame:Show()
         frame:ClearAllPoints()
@@ -615,7 +623,7 @@ end
 addon_data.hunter.InitializeVisuals = function()
     local settings = character_hunter_settings
     -- Create the frame
-    addon_data.hunter.frame = CreateFrame("Frame", addon_name .. "HunterAutoshotFrame", UIParent)
+    addon_data.hunter.frame = CreateFrame("Frame", addon_name .. "HunterAutoshotFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
     local frame = addon_data.hunter.frame
     frame:SetMovable(true)
     frame:EnableMouse(not settings.is_locked)
@@ -623,7 +631,7 @@ addon_data.hunter.InitializeVisuals = function()
     frame:SetScript("OnDragStart", addon_data.hunter.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.hunter.OnFrameDragStop)
     -- Create the backplane
-    frame.backplane = CreateFrame("Frame", addon_name .. "HunterBackdropFrame", frame)
+    frame.backplane = CreateFrame("Frame", addon_name .. "HunterBackdropFrame", frame, BackdropTemplateMixin and "BackdropTemplate")
     frame.backplane:SetPoint('TOPLEFT', -9, 9)
     frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')
@@ -860,7 +868,7 @@ addon_data.hunter.BackplaneAlphaOnValChange = function(self)
 end
 
 addon_data.hunter.CreateConfigPanel = function(parent_panel)
-    addon_data.hunter.config_frame = CreateFrame("Frame", addon_name .. "HunterConfigPanel", parent_panel)
+    addon_data.hunter.config_frame = CreateFrame("Frame", addon_name .. "HunterConfigPanel", parent_panel, BackdropTemplateMixin and "BackdropTemplate")
     local panel = addon_data.hunter.config_frame
     local settings = character_hunter_settings
     -- Title Text

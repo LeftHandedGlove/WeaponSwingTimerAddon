@@ -25,9 +25,12 @@ addon_data.player.default_settings = {
     classic_bars = true,
     fill_empty = true,
     main_r = 0.1, main_g = 0.1, main_b = 0.9, main_a = 1.0,
+    main_deadzone_r = 1.0, main_deadzone_g = 0.4, main_deadzone_b = 0.0, main_deadzone_a = 1.0,
     main_text_r = 1.0, main_text_g = 1.0, main_text_b = 1.0, main_text_a = 1.0,
     off_r = 0.1, off_g = 0.1, off_b = 0.9, off_a = 1.0,
     off_text_r = 1.0, off_text_g = 1.0, off_text_b = 1.0, off_text_a = 1.0,
+    leading_deadzone = 0.0,
+    trailing_deadzone = 0.0,
 }
 
 addon_data.player.class = UnitClass("player")[2]
@@ -210,8 +213,13 @@ end
 --[[===================================== VISUALS RELATED ======================================]]--
 --[[============================================================================================]]--
 addon_data.player.UpdateVisualsOnUpdate = function()
-    local settings = character_player_settings
     local frame = addon_data.player.frame
+    if frame == nil then
+        return
+    end
+
+    local settings = character_player_settings
+
     if settings.enabled then
         local main_speed = addon_data.player.main_weapon_speed
         local main_timer = addon_data.player.main_swing_timer
@@ -231,9 +239,25 @@ addon_data.player.UpdateVisualsOnUpdate = function()
         else
             frame.main_spark:Show()
         end
+
         -- Update the main bars text
         frame.main_left_text:SetText("Main-Hand")
         frame.main_right_text:SetText(tostring(addon_data.utils.SimpleRound(main_timer, 0.1)))
+
+        -- Update main bar coloring for deadzones
+        local currLeadingDeadZone = main_speed - settings.leading_deadzone
+        local totalDeadZone = settings.leading_deadzone + settings.trailing_deadzone
+
+        frame.main_bar:SetVertexColor(settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+        if main_speed > totalDeadZone then
+            if main_timer >= currLeadingDeadZone then
+                frame.main_bar:SetVertexColor(settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a)
+            end
+            if main_timer <= settings.trailing_deadzone then
+                frame.main_bar:SetVertexColor(settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a)
+            end
+        end
+
         -- Update the off hand bar
         if addon_data.player.has_offhand and settings.show_offhand then
             frame.off_bar:Show()
@@ -290,7 +314,12 @@ end
 
 addon_data.player.UpdateVisualsOnSettingsChange = function()
     local frame = addon_data.player.frame
+    if frame == nil then
+        return
+    end
+
     local settings = character_player_settings
+
     if settings.enabled then
         frame:Show()
         frame:ClearAllPoints()
@@ -405,7 +434,7 @@ addon_data.player.InitializeVisuals = function()
     frame:SetScript("OnDragStart", addon_data.player.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.player.OnFrameDragStop)
     -- Create the backplane and border
-    frame.backplane = CreateFrame("Frame", addon_name .. "PlayerBackdropFrame", frame)
+    frame.backplane = CreateFrame("Frame", addon_name .. "PlayerBackdropFrame", frame, BackdropTemplateMixin and "BackdropTemplate")
     frame.backplane:SetPoint('TOPLEFT', -9, 9)
     frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')
@@ -469,6 +498,8 @@ addon_data.player.UpdateConfigPanelValues = function()
     panel.y_offset_editbox:SetCursorPosition(0)
     panel.main_color_picker.foreground:SetColorTexture(
         settings.main_r, settings.main_g, settings.main_b, settings.main_a)
+    panel.main_deadzone_color_picker.foreground:SetColorTexture(
+        settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a)
     panel.main_text_color_picker.foreground:SetColorTexture(
         settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a)
     panel.off_color_picker.foreground:SetColorTexture(
@@ -481,6 +512,10 @@ addon_data.player.UpdateConfigPanelValues = function()
     panel.ooc_alpha_slider.editbox:SetCursorPosition(0)
     panel.backplane_alpha_slider:SetValue(settings.backplane_alpha)
     panel.backplane_alpha_slider.editbox:SetCursorPosition(0)
+    panel.leading_deadzone_editbox:SetText(tostring(settings.leading_deadzone))
+    panel.leading_deadzone_editbox:SetCursorPosition(0)
+    panel.trailing_deadzone_editbox:SetText(tostring(settings.trailing_deadzone))
+    panel.trailing_deadzone_editbox:SetCursorPosition(0)
 end
 
 addon_data.player.EnabledCheckBoxOnClick = function(self)
@@ -538,6 +573,16 @@ addon_data.player.YOffsetEditBoxOnEnter = function(self)
     addon_data.player.UpdateVisualsOnSettingsChange()
 end
 
+addon_data.player.LeadingDeadzoneEditBoxOnEnter = function(self)
+    character_player_settings.leading_deadzone = tonumber(self:GetText())
+    addon_data.player.UpdateVisualsOnSettingsChange()
+end
+
+addon_data.player.TrailingDeadzoneEditBoxOnEnter = function(self)
+    character_player_settings.trailing_deadzone = tonumber(self:GetText())
+    addon_data.player.UpdateVisualsOnSettingsChange()
+end
+
 addon_data.player.MainColorPickerOnClick = function()
     local settings = character_player_settings
     local function MainOnActionFunc(restore)
@@ -560,6 +605,29 @@ addon_data.player.MainColorPickerOnClick = function()
     ColorPickerFrame.opacity = 1 - settings.main_a
     ColorPickerFrame:SetColorRGB(settings.main_r, settings.main_g, settings.main_b)
     ColorPickerFrame.previousValues = {settings.main_r, settings.main_g, settings.main_b, settings.main_a}
+    ColorPickerFrame:Show()
+end
+
+addon_data.player.MainDeadZoneColorPickerOnClick = function()
+    local settings = character_player_settings
+    local function MainDeadZoneOnActionFunc(restore)
+        local settings = character_player_settings
+        local new_r, new_g, new_b, new_a
+        if restore then
+            new_r, new_g, new_b, new_a = unpack(restore)
+        else
+            new_a, new_r, new_g, new_b = 1 - OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        end
+        settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a = new_r, new_g, new_b, new_a
+        addon_data.player.config_frame.main_deadzone_color_picker.foreground:SetColorTexture(
+            settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a)
+    end
+    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
+    MainDeadZoneOnActionFunc, MainDeadZoneOnActionFunc, MainDeadZoneOnActionFunc
+    ColorPickerFrame.hasOpacity = true 
+    ColorPickerFrame.opacity = 1 - settings.main_deadzone_a
+    ColorPickerFrame:SetColorRGB(settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b)
+    ColorPickerFrame.previousValues = {settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a}
     ColorPickerFrame:Show()
 end
 
@@ -658,7 +726,7 @@ addon_data.player.BackplaneAlphaOnValChange = function(self)
 end
 
 addon_data.player.CreateConfigPanel = function(parent_panel)
-    addon_data.player.config_frame = CreateFrame("Frame", addon_name .. "PlayerConfigPanel", parent_panel)
+    addon_data.player.config_frame = CreateFrame("Frame", addon_name .. "PlayerConfigPanel", parent_panel, BackdropTemplateMixin and "BackdropTemplate")
     local panel = addon_data.player.config_frame
     local settings = character_player_settings
     
@@ -769,6 +837,14 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         'Main-hand Bar Color',
         addon_data.player.MainColorPickerOnClick)
     panel.main_color_picker:SetPoint('TOPLEFT', 205, -150)
+    -- Main-hand deadzone color picker
+    panel.main_deadzone_color_picker = addon_data.config.color_picker_factory(
+        'PlayerMainDeadzoneColorPicker',
+        panel,
+        settings.main_deadzone_r, settings.main_deadzone_g, settings.main_deadzone_b, settings.main_deadzone_a,
+        'Main-hand Deadzone Color',
+        addon_data.player.MainDeadZoneColorPickerOnClick)
+    panel.main_deadzone_color_picker:SetPoint('TOPLEFT', 205, -170)
     -- Main-hand color text picker
     panel.main_text_color_picker = addon_data.config.color_picker_factory(
         'PlayerMainTextColorPicker',
@@ -776,7 +852,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         settings.main_text_r, settings.main_text_g, settings.main_text_b, settings.main_text_a,
         'Main-hand Bar Text Color',
         addon_data.player.MainTextColorPickerOnClick)
-    panel.main_text_color_picker:SetPoint('TOPLEFT', 205, -170)
+    panel.main_text_color_picker:SetPoint('TOPLEFT', 205, -190)
     -- Off-hand color picker
     panel.off_color_picker = addon_data.config.color_picker_factory(
         'PlayerOffColorPicker',
@@ -784,7 +860,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         settings.off_r, settings.off_g, settings.off_b, settings.off_a,
         'Off-hand Bar Color',
         addon_data.player.OffColorPickerOnClick)
-    panel.off_color_picker:SetPoint('TOPLEFT', 205, -200)
+    panel.off_color_picker:SetPoint('TOPLEFT', 205, -220)
     -- Off-hand color text picker
     panel.off_text_color_picker = addon_data.config.color_picker_factory(
         'PlayerOffTextColorPicker',
@@ -792,7 +868,7 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         settings.off_text_r, settings.off_text_g, settings.off_text_b, settings.off_text_a,
         'Off-hand Bar Text Color',
         addon_data.player.OffTextColorPickerOnClick)
-    panel.off_text_color_picker:SetPoint('TOPLEFT', 205, -220)
+    panel.off_text_color_picker:SetPoint('TOPLEFT', 205, -240)
     
     -- In Combat Alpha Slider
     panel.in_combat_alpha_slider = addon_data.config.SliderFactory(
@@ -824,6 +900,26 @@ addon_data.player.CreateConfigPanel = function(parent_panel)
         0.05,
         addon_data.player.BackplaneAlphaOnValChange)
     panel.backplane_alpha_slider:SetPoint("TOPLEFT", 405, -160)
+    
+    -- Leading Deadzone EditBox
+    panel.leading_deadzone_editbox = addon_data.config.EditBoxFactory(
+        "LeadingDeadzoneEditBox",
+        panel,
+        "Leading Deadzone (seconds)",
+        75,
+        25,
+        addon_data.player.LeadingDeadzoneEditBoxOnEnter)
+    panel.leading_deadzone_editbox:SetPoint("TOPLEFT", 450, -220, "BOTTOMRIGHT", 500, -245)
+    
+    -- Trailing Deadzone EditBox
+    panel.trailing_deadzone_editbox = addon_data.config.EditBoxFactory(
+        "TrailingDeadzoneEditBox",
+        panel,
+        "Trailing Deadzone (seconds)",
+        75,
+        25,
+        addon_data.player.TrailingDeadzoneEditBoxOnEnter)
+    panel.trailing_deadzone_editbox:SetPoint("TOPLEFT", 450, -260, "BOTTOMRIGHT", 500, -385)
     
     -- Return the final panel
     addon_data.player.UpdateConfigPanelValues()

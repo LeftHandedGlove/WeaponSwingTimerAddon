@@ -27,7 +27,7 @@ addon_data.config.InitializeVisuals = function()
     InterfaceOptions_AddCategory(panel)
     
     -- Add the melee panel
-    panel.config_melee_panel = CreateFrame("Frame", nil, panel)
+    panel.config_melee_panel = CreateFrame("Frame", nil, panel, BackdropTemplateMixin and "BackdropTemplate")
     panel.config_melee_panel:SetSize(1, 1)
     panel.config_melee_panel.player_panel = addon_data.player.CreateConfigPanel(panel.config_melee_panel)
     panel.config_melee_panel.player_panel:SetPoint('TOPLEFT', 0, 0)
@@ -41,7 +41,7 @@ addon_data.config.InitializeVisuals = function()
     InterfaceOptions_AddCategory(panel.config_melee_panel)
     
     -- Add the hunter panel
-    panel.config_hunter_panel = CreateFrame("Frame", nil, panel)
+    panel.config_hunter_panel = CreateFrame("Frame", nil, panel, BackdropTemplateMixin and "BackdropTemplate")
     panel.config_hunter_panel:SetSize(1, 1)
     panel.config_hunter_panel.hunter_panel = addon_data.hunter.CreateConfigPanel(panel.config_hunter_panel)
     panel.config_hunter_panel.hunter_panel:SetPoint('TOPLEFT', 0, 0)
@@ -75,7 +75,11 @@ addon_data.config.CheckBoxFactory = function(g_name, parent, checkbtn_text, tool
 end
 
 addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_func)
-    local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent)
+    local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent, BackdropTemplateMixin and "BackdropTemplate")
+    if edit_box_obj == nil then
+        return
+    end
+
     edit_box_obj.title_text = addon_data.config.TextFactory(edit_box_obj, title, 12)
     edit_box_obj.title_text:SetPoint("TOP", 0, 12)
     edit_box_obj:SetBackdrop({
@@ -150,7 +154,7 @@ addon_data.config.SliderFactory = function(g_name, parent, title, min_val, max_v
 end
 
 addon_data.config.color_picker_factory = function(g_name, parent, r, g, b, a, text, on_click_func)
-    local color_picker = CreateFrame('Button', addon_name .. g_name, parent)
+    local color_picker = CreateFrame('Button', addon_name .. g_name, parent, BackdropTemplateMixin and "BackdropTemplate")
     color_picker:SetSize(15, 15)
     color_picker.normal = color_picker:CreateTexture(nil, 'BACKGROUND')
     color_picker.normal:SetColorTexture(1, 1, 1, 1)
@@ -183,7 +187,7 @@ addon_data.config.IsLockedCheckBoxOnClick = function(self)
 end
 
 addon_data.config.CreateConfigPanel = function(parent_panel)
-    addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "GlobalConfigPanel", parent_panel)
+    addon_data.config.config_frame = CreateFrame("Frame", addon_name .. "GlobalConfigPanel", parent_panel, BackdropTemplateMixin and "BackdropTemplate")
     local panel = addon_data.config.config_frame
     local settings = character_player_settings
     -- Title Text

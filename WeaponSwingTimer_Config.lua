@@ -75,7 +75,7 @@ addon_data.config.CheckBoxFactory = function(g_name, parent, checkbtn_text, tool
 end
 
 addon_data.config.EditBoxFactory = function(g_name, parent, title, w, h, enter_func)
-    local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent)
+    local edit_box_obj = CreateFrame("EditBox", addon_name .. g_name, parent, BackdropTemplateMixin and "BackdropTemplate")
     edit_box_obj.title_text = addon_data.config.TextFactory(edit_box_obj, title, 12)
     edit_box_obj.title_text:SetPoint("TOP", 0, 12)
     edit_box_obj:SetBackdrop({

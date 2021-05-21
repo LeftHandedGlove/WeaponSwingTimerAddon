@@ -405,7 +405,7 @@ addon_data.player.InitializeVisuals = function()
     frame:SetScript("OnDragStart", addon_data.player.OnFrameDragStart)
     frame:SetScript("OnDragStop", addon_data.player.OnFrameDragStop)
     -- Create the backplane and border
-    frame.backplane = CreateFrame("Frame", addon_name .. "PlayerBackdropFrame", frame)
+    frame.backplane = CreateFrame("Frame", addon_name .. "PlayerBackdropFrame", frame, BackdropTemplateMixin and "BackdropTemplate")
     frame.backplane:SetPoint('TOPLEFT', -9, 9)
     frame.backplane:SetPoint('BOTTOMRIGHT', 9, -9)
     frame.backplane:SetFrameStrata('BACKGROUND')

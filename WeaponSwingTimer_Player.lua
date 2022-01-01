@@ -120,6 +120,12 @@ addon_data.player.OnInventoryChange = function()
     addon_data.player.off_weapon_id = new_off_guid
 end
 
+addon_data.player.OnPlayerEnterCombat = function()
+    if addon_data.player.has_offhand then
+        addon_data.player.off_swing_timer = max(addon_data.player.off_swing_timer, addon_data.player.off_weapon_speed * 0.5)
+    end
+end
+
 addon_data.player.OnCombatLogUnfiltered = function(combat_info)
     local _, event, _, source_guid, _, _, _, dest_guid, _, _, _, _, spell_name, _ = unpack(combat_info)
     if (source_guid == addon_data.player.guid) then
